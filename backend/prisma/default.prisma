@@ -1,0 +1,4 @@
+// Is temp
+model Default {
+  id    Int     @id @default(autoincrement())
+}
