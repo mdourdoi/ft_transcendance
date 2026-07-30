@@ -1,18 +1,20 @@
-<script>
-  import { path, resolve } from "./lib/router.js";
+<script lang="ts">
+  import { path, resolve, type Routes } from "$lib/router";
   import Home from "./routes/Home.svelte";
   import Game from "./routes/Game.svelte";
   import NotFound from "./routes/NotFound.svelte";
 
-  const routes = {
+  const routes: Routes = {
     "/": Home,
     "/game": Game,
   };
-  $: route = resolve(routes, $path);
+
+  const route = $derived(resolve(routes, $path));
 </script>
 
 {#if route}
-  <svelte:component this={route.component} {...route.params} />
+  {@const Page = route.component}
+  <Page {...route.params} />
 {:else}
   <NotFound />
 {/if}
