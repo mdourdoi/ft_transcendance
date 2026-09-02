@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { RegisterDto } from './dto/register.dto';
+import { RegisterDto, LoginDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -16,6 +16,14 @@ export class AuthService {
     } catch (e) {
       if (e.code === "P2002") throw new ConflictException("Username and/or email adress already in use");
       throw (e);
+    }
+  }
+
+  async login(dto: LoginDto) {
+    const row = this.prisma.user.findUnique({ where: { username: dto.username } });
+    
+    if !(row) {
+      throw todo)
     }
   }
 }
