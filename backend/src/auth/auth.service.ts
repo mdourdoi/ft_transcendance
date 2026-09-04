@@ -24,7 +24,7 @@ export class AuthService {
   async login(dto: LoginDto) {
     const row = await this.prisma.user.findUnique({ where: { username: dto.username } });
     let corresponding = false;
-    
+
     if (!row) {
       await bcrypt.hash(dto.password, 10);
     } else {
@@ -35,7 +35,7 @@ export class AuthService {
     }
 
     const payload = { sub: row.id, username: row.username };
-    
+
     return { accessToken: this.jwt.sign(payload) };
   }
 }
