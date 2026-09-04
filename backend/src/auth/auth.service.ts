@@ -16,7 +16,7 @@ export class AuthService {
       const row = await this.prisma.user.create({ data: { email: dto.email, username: dto.username, passwordHash: passwordHash } });
       return ({ id: row.id, username: row.username, createdAt: row.createdAt });
     } catch (e) {
-      if (e.code === "P2002") throw new ConflictException("Username and/or email adress already in use");
+      if (e.code === "P2002") throw new ConflictException("USERNAME_OR_MAIL_ALREADY_TAKEN");
       throw (e);
     }
   }
@@ -31,7 +31,7 @@ export class AuthService {
       corresponding = await bcrypt.compare(dto.password, row.passwordHash);
     }
     if (!row || !corresponding) {
-      throw new UnauthorizedException("Invalid logging informations");
+      throw new UnauthorizedException("INVALID_CREDENTIALS");
     }
 
     const payload = { sub: row.id, username: row.username };
