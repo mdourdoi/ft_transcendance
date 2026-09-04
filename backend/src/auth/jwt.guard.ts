@@ -11,18 +11,18 @@ export class JwtGuard implements CanActivate {
     const header = req.headers.authorization;
 
     if (!header) {
-      throw new UnauthorizedException("Invalid authentication token");
+      throw new UnauthorizedException("INVALID_TOKEN");
     }
     const parts = header.split(' ');
     if (parts.length !== 2 || parts[0] !== "Bearer") {
-      throw new UnauthorizedException("Invalid authentication token");
+      throw new UnauthorizedException("INVALID_TOKEN");
     }
     try {
       const payload = this.jwtService.verify(parts[1]);
       req.user = payload;
       return true;
     } catch (e) {
-      throw new UnauthorizedException("Invalid authentication token");
+      throw new UnauthorizedException("INVALID_TOKEN");
     }
   }
 }
