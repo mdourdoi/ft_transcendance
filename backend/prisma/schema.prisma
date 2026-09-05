@@ -8,7 +8,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Is temp
-model Default {
-  id    Int     @id @default(autoincrement())
+model User {
+  id            Int         @id @default(autoincrement())
+  email         String      @unique
+  username      String      @unique
+  passwordHash  String
+  createdAt     DateTime    @default(now())
 }
