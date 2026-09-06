@@ -1,7 +1,11 @@
+export { GameError } from "./errors";
+export type { GameErrorCode } from "./errors";
+export { Position } from "./position";
+export { Entity } from "./entity";
 export { Card } from "./card";
-export { Player } from "./player";
-export { Game } from "./game";
+export { GameMap, MAP_SIZE } from "./map";
+export { card, fullDeck, drawGameCards, getAllCards } from "./deck";
 
-export type { CardProps } from "./card";
-export type { PlayerProps } from "./player";
-export type { GameProps } from "./game";
+export type { PositionProps } from "./position";
+export type { EntityProps, EntityKind } from "./entity";
+export type { CardProps, CardColor, Move as CardMove } from "./card";
