@@ -1,4 +1,5 @@
 import { Controller, Get, Param, ParseIntPipe, Query } from "@nestjs/common";
+import { ConversationDto } from "./dto/conversation.dto";
 import { MessagesService } from "./messages.service";
 
 @Controller('conversations/:conversationId/')
@@ -20,7 +21,7 @@ export class MessagesController {
     @Param('conversationId', ParseIntPipe) conversationId: number,
     @Query('cursor') cursor?: string,
     @Query('take') take?: string,
-  ) {
+  ): Promise<ConversationDto> {
     return this.messagesService.getMessages(
       conversationId,
       cursor,

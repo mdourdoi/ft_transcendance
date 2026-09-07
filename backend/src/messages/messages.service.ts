@@ -1,11 +1,15 @@
 import { Injectable } from "@nestjs/common";
+import { DEFAULT_AVATAR_URL } from "src/constants";
 import { PrismaService } from "src/prisma/prisma.service";
+import { TinyUserDto } from "src/users/dto/tiny-user.dto";
+import { ConversationDto } from "./dto/conversation.dto";
+import { MessageDto } from "./dto/message.dto";
 
 @Injectable()
 export class MessagesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  public async getMessages(conversationId: number, cursor?: string, take: number = 20) {
+  public async getMessages(conversationId: number, cursor?: string, take: number = 20): Promise<ConversationDto> {
     const messages = await this.prisma.message.findMany({
       where: { conversationId },
       take: take + 1,
@@ -20,9 +24,24 @@ export class MessagesService {
 
     const hasMore = messages.length > take;
     const items = hasMore ? messages.slice(0, take) : messages;
+    const itemsDto: MessageDto[] = [];
+    const sendersDtoCache: Map<string, TinyUserDto> = new Map();
+
+    for (const item of items.reverse()) {
+      const dto = new MessageDto({
+        id: item.id,
+        content: item.content,
+        createdAt: item.createdAt,
+        sender: {
+          username: item.sender.username,
+          // TODO, waiting for the avatar system
+          avatarUrl: DEFAULT_AVATAR_URL
+        },
+      });
+    }
 
     return {
-      items: items.reverse(),
+      items: itemsDto,
       nextCursor: hasMore ? items[0].id : null,
       hasMore,
     }

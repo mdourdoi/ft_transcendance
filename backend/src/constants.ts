@@ -1,0 +1,1 @@
+export const DEFAULT_AVATAR_URL = "https://media.discordapp.net/attachments/1546639903545229322/1546639970981122078/iu_.png?ex=6aa08438&is=6a9f32b8&hm=21d20465320b6640a61ea952c6fbaa996ed9188cd9dfac75db69ce836fe9a932";
