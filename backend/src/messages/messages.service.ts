@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { DEFAULT_AVATAR_URL } from "src/constants";
 import { PrismaService } from "src/prisma/prisma.service";
 import { TinyUserDto } from "src/users/dto/tiny-user.dto";
@@ -44,6 +44,34 @@ export class MessagesService {
       items: itemsDto,
       nextCursor: hasMore ? items[0].id : null,
       hasMore,
+    }
+  }
+
+  public async sendMessage(conversationId: number, senderId: number, content: string): Promise<MessageDto> {
+    const sender = await this.prisma.user.findUnique({
+      where: {
+        id: senderId,
+      }
+    });
+    if (!sender) throw new NotFoundException('User not found');
+
+    const created = await this.prisma.message.create({
+      data: {
+        conversationId,
+        senderId,
+        content,
+      }
+    });
+
+    return {
+      id: created.id,
+      createdAt: created.createdAt,
+      content: created.content,
+      sender: {
+        username: sender.username,
+        // TODO, waiting for the avatar system
+        avatarUrl: DEFAULT_AVATAR_URL
+      },
     }
   }
 }
