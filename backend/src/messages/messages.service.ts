@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { DEFAULT_AVATAR_URL } from "src/constants";
 import { PrismaService } from "src/prisma/prisma.service";
-import { TinyUserDto } from "src/users/dto/tiny-user.dto";
 import { ConversationDto } from "./dto/conversation.dto";
 import { MessageDto } from "./dto/message.dto";
 
@@ -25,7 +24,6 @@ export class MessagesService {
     const hasMore = messages.length > take;
     const items = hasMore ? messages.slice(0, take) : messages;
     const itemsDto: MessageDto[] = [];
-    const sendersDtoCache: Map<string, TinyUserDto> = new Map();
 
     for (const item of items.reverse()) {
       const dto = new MessageDto({
@@ -38,6 +36,7 @@ export class MessagesService {
           avatarUrl: DEFAULT_AVATAR_URL
         },
       });
+      itemsDto.push(dto);
     }
 
     return {
