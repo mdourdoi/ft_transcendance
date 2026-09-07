@@ -1,8 +1,18 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Post, Query } from "@nestjs/common";
-import { ConversationDto } from "./dto/conversation.dto";
-import { CreateMessageDto } from "./dto/create-message.dto";
-import { MessageDto } from "./dto/message.dto";
-import { MessagesService } from "./messages.service";
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { ConversationDto } from './dto/conversation.dto';
+import { CreateMessageDto } from './dto/create-message.dto';
+import { MessageDto } from './dto/message.dto';
+import { MessagesService } from './messages.service';
 
 @Controller('conversations/:conversationId/')
 export class MessagesController {
@@ -28,8 +38,8 @@ export class MessagesController {
     return this.messagesService.getMessages(
       conversationId,
       cursor,
-      take ? parseInt(take, 10) : 20
-    )
+      take ? parseInt(take, 10) : 20,
+    );
   }
 
   /**
@@ -42,6 +52,10 @@ export class MessagesController {
   @Post('send')
   @HttpCode(HttpStatus.CREATED)
   public send(@Body() dto: CreateMessageDto): Promise<MessageDto> {
-    return this.messagesService.sendMessage(dto.conversationId, dto.senderId, dto.content);
+    return this.messagesService.sendMessage(
+      dto.conversationId,
+      dto.senderId,
+      dto.content,
+    );
   }
 }

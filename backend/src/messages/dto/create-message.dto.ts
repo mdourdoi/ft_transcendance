@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsNumber, IsPositive, IsString, MaxLength } from "class-validator";
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsPositive,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateMessageDto {
   @IsNumber({ allowNaN: false })
