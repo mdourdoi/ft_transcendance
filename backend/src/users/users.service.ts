@@ -1,5 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -16,5 +22,30 @@ export class UsersService {
       username: row.username,
       createdAt: row.createdAt,
     };
+  }
+
+  async update(userId: number, dto: UpdateUserDto) {
+    const data: { username?: string; email?: string } = {};
+    if (dto.username) {
+      data.username = dto.username;
+    }
+    if (dto.email) {
+      data.email = dto.email;
+    }
+    if (Object.keys(data).length === 0) {
+      throw new BadRequestException('NO_DATA_UPDATED');
+    }
+
+    try {
+      const row = await this.prisma.user.update({
+        where: { id: userId },
+        data,
+      });
+      return { id: userId, username: row.username, email: row.email };
+    } catch (e) {
+      if (e.code === 'P2002')
+        throw new ConflictException('USERNAME_OR_MAIL_ALREADY_TAKEN');
+      throw e;
+    }
   }
 }
