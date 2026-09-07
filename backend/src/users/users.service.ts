@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ErrorCode } from '../common/error-codes';
 
 @Injectable()
 export class UsersService {
@@ -14,7 +15,7 @@ export class UsersService {
   async me(userId: number) {
     const row = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!row) {
-      throw new NotFoundException('USER_NOT_FOUND');
+      throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
     }
     return {
       id: row.id,
@@ -33,7 +34,7 @@ export class UsersService {
       data.email = dto.email;
     }
     if (Object.keys(data).length === 0) {
-      throw new BadRequestException('NO_DATA_UPDATED');
+      throw new BadRequestException(ErrorCode.NO_DATA_UPDATED);
     }
 
     try {
@@ -44,7 +45,7 @@ export class UsersService {
       return { id: userId, username: row.username, email: row.email };
     } catch (e) {
       if (e.code === 'P2002')
-        throw new ConflictException('USERNAME_OR_MAIL_ALREADY_TAKEN');
+        throw new ConflictException(ErrorCode.USERNAME_OR_EMAIL_ALREADY_TAKEN);
       throw e;
     }
   }

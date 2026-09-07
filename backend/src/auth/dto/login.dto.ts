@@ -1,8 +1,9 @@
 import { IsString } from 'class-validator';
+import { ErrorCode } from '../../common/error-codes';
 
 export class LoginDto {
-  @IsString()
+  @IsString({ message: ErrorCode.INVALID_USERNAME })
   username: string;
-  @IsString()
+  @IsString({ message: ErrorCode.INVALID_PASSWORD })
   password: string;
 }

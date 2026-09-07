@@ -9,6 +9,7 @@ import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './types/jwt-payload.interface';
+import { ErrorCode } from '../common/error-codes';
 
 @Injectable()
 export class AuthService {
@@ -30,7 +31,7 @@ export class AuthService {
       return { id: row.id, username: row.username, createdAt: row.createdAt };
     } catch (e) {
       if (e.code === 'P2002')
-        throw new ConflictException('USERNAME_OR_MAIL_ALREADY_TAKEN');
+        throw new ConflictException(ErrorCode.USERNAME_OR_EMAIL_ALREADY_TAKEN);
       throw e;
     }
   }
@@ -47,7 +48,7 @@ export class AuthService {
       corresponding = await bcrypt.compare(dto.password, row.passwordHash);
     }
     if (!row || !corresponding) {
-      throw new UnauthorizedException('INVALID_CREDENTIALS');
+      throw new UnauthorizedException(ErrorCode.INVALID_CREDENTIALS);
     }
 
     const payload: JwtPayload = { sub: row.id, username: row.username };
