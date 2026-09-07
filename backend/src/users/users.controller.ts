@@ -4,12 +4,11 @@ import { JwtGuard } from '../auth/jwt.guard';
 
 @Controller('users')
 export class UsersController {
+  constructor(private userService: UsersService) {}
 
-	constructor(private userService: UsersService) { }
-
-	@UseGuards(JwtGuard)
-	@Get('me')
-	me(@Req() req) {
-		return this.userService.me(req.user.sub);
-	}
+  @UseGuards(JwtGuard)
+  @Get('me')
+  me(@Req() req) {
+    return this.userService.me(req.user.sub);
+  }
 }
