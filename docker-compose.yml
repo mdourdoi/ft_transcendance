@@ -46,6 +46,10 @@ services:
       - "5173:5173"
     networks:
       - transcendence
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+
 
 volumes:
   db_data:
