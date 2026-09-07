@@ -7,7 +7,12 @@ import { JwtGuard } from './jwt.guard';
 @Module({
   controllers: [AuthController],
   providers: [AuthService, JwtGuard],
-  imports: [JwtModule.register({ secret: process.env.JWT_SECRET, signOptions: { expiresIn: '1h' } })],
-  exports: [JwtModule]
+  imports: [
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '1h' },
+    }),
+  ],
+  exports: [JwtModule],
 })
 export class AuthModule {}
