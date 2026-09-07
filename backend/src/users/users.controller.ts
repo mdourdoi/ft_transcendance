@@ -27,7 +27,7 @@ export class UsersController {
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
       destination: './uploads/avatars',
-      filename: (req, file, cb) => cb(null, `${req.user.sub}-${Date.now()}.${file.mimetype.split('/')[1]}`),
+      filename: (req: any, file, cb) => cb(null, `${req.user.sub}-${Date.now()}.${file.mimetype.split('/')[1]}`),
     }),
     limits: { fileSize: 2 * 1024 * 1024 },
     fileFilter: (req, file, cb) => cb(null, ['image/png', 'image/jpeg', 'image/webp'].includes(file.mimetype)),
