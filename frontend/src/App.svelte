@@ -58,12 +58,12 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({username: username, password: password })
 			})
-			if (!res.ok) throw new Error("Error post api login")
+			if (!res.ok) throw new Error("ERROR USERNAME OR PASSWORD")
 			const data = await res.json();
 			console.log(data);
 		} catch (err) {
 			error = err instanceof Error ? err.message : String(err);
-}
+		}
 		finally {
 			loading = false
 		}
@@ -71,6 +71,7 @@
 
 	function selectMode(mode: string) {
 		currentStep = mode;
+		error = '';
 	}
 
 	async function handleSubmit() {
@@ -93,10 +94,12 @@
 	<div class="card-container">
 		{#if currentStep === 'choice'}
 			<div in:fade={{ duration: 200 }} class="button-group">
-				<button class="btn primary" on:click={() => selectMode('login')}>
+				<button class="btn primary" on:click={
+					() => selectMode('login')}>
 					Connexion
 				</button>
-				<button class="btn secondary" on:click={() => selectMode('signin')}>
+				<button class="btn secondary" on:click={
+					() => selectMode('signin')}>
 					Inscription
 				</button>
 			</div>
@@ -108,13 +111,21 @@
 			>
 				<h2>{currentStep === 'login' ? 'Connexion' : 'Inscription'}</h2>
 				<div class="input-group">
-					<input type="username" bind:value={username} placeholder="Username" required />
-					<input type="password" bind:value={password} placeholder="Mot de passe" required />
+					<input type="username" bind:value={
+						username} placeholder="Username" required />
+					<input type="password" bind:value={
+						password} placeholder="Mot de passe" required />
 				</div>
 				<button type="submit" class="btn primary">Valider</button>
-				<button type="button" class="btn-link" on:click={() => selectMode('choice')}>
+				<button type="button" class="btn-link" on:click={
+					() => selectMode('choice')}>
 					← Retour
 				</button>
+				{#if error}
+					<p style="color: red; font-weight: bold;">
+						{error}
+					</p>
+				{/if}
 			</form>
 		{:else}
 			<form
@@ -123,14 +134,23 @@
 				class="form-card">
 				<h2>{currentStep === 'login' ? 'Connexion' : 'Inscription'}</h2>
 				<div class="input-group">
-					<input type="username" bind:value={username} placeholder="Username" required/>
-					<input type="email" bind:value={email} placeholder="Email" required/>
-					<input type="password" bind:value={password} placeholder="Mot de passe" required/>
+					<input type="username" bind:value={
+						username} placeholder="Username" required/>
+					<input type="email" bind:value={
+						email} placeholder="Email" required/>
+					<input type="password" bind:value={
+						password} placeholder="Mot de passe" required/>
 				</div>
 				<button type="submit" class="btn primary">Valider</button>
-				<button type="button" class="btn-link" on:click={() => selectMode('choice')}>
+				<button type="button" class="btn-link" on:click={
+					() => selectMode('choice')}>
 					← Retour
 				</button>
+				{#if error}
+					<p style="color: red; font-weight: bold;">
+						{error}
+					</p>
+				{/if}
 			</form>
 		{/if}
 	</div>
