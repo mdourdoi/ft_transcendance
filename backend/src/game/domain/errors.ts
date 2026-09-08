@@ -3,7 +3,17 @@ export type GameErrorCode =
     | "INVALID_ENTITY_OWNER"
     | "INVALID_MAP_SIZE"
     | "POSITION_OUT_OF_BOUNDS"
-    | "UNKNOWN_CARD";
+    | "UNKNOWN_CARD"
+    | "NULL_MOVE"
+    | "EMPTY_SOURCE_SQUARE"
+    | "INVALID_CARD_COUNT"
+    | "INVALID_PLAYER_INDEX"
+    | "CARD_NOT_IN_HAND"
+    | "NOT_YOUR_ENTITY"
+    | "ILLEGAL_MOVE"
+    | "DESTINATION_OCCUPIED"
+    | "GAME_OVER"
+    | "MOVE_AVAILABLE";
 
 export class GameError extends Error {
     constructor(
