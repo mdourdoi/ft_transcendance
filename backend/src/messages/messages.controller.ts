@@ -17,7 +17,7 @@ import { CreateMessageDto } from './dto/create-message.dto';
 import { MessageDto } from './dto/message.dto';
 import { MessagesService } from './messages.service';
 
-@Controller('conversations/:conversationId/')
+@Controller('conversations/:conversationId')
 @UseGuards(JwtGuard)
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
