@@ -36,7 +36,7 @@
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ email: email, username: username, password: password })
 		})
-		if (!res.ok) throw new Error("Error post api register")
+		if (!res.ok) throw new Error("ERROR MAIL USERNAME PASSWORD")
 		const createdUser = await res.json();
 		console.log(createdUser)
       	email = '';
@@ -122,10 +122,17 @@
 					← Retour
 				</button>
 				{#if error}
-					<p style="color: red; font-weight: bold;">
-						{error}
-					</p>
-				{/if}
+                    <div class="error-banner" in:fly={{ y: -10, duration: 200 }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                        viewBox="0 0 24 24"fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <span>{error}</span>
+                    </div>
+                {/if}
 			</form>
 		{:else}
 			<form
@@ -146,11 +153,19 @@
 					() => selectMode('choice')}>
 					← Retour
 				</button>
-				{#if error}
-					<p style="color: red; font-weight: bold;">
-						{error}
-					</p>
-				{/if}
+					{#if error}
+                    <div class="error-banner" in:fly={{ y: -10, duration: 200 }}>
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            width="18" height="18" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <span>{error}</span>
+                    </div>
+                {/if}
 			</form>
 		{/if}
 	</div>
@@ -289,5 +304,26 @@
 		color: white;
 		text-decoration: underline;
 	}
+    .error-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #fca5a5;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.3;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+.error-banner svg {
+    flex-shrink: 0;
+    stroke: #fca5a5;
+}
 </style>
 
