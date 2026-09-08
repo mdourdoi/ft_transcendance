@@ -10,5 +10,7 @@
     <code class="bg-muted rounded px-1.5 py-0.5 font-mono text-sm">{$path}</code>
     {$t("NOTFOUND.MISSING")}
   </p>
-  <Button variant="outline" onclick={() => navigate("/")}>{$t("NOTFOUND.HOME")}</Button>
+  <Button variant="outline" onclick={() => navigate("/", { useAnimation: true })}>
+    {$t("NOTFOUND.HOME")}
+  </Button>
 </main>
