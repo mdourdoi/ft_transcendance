@@ -8,6 +8,7 @@ export const ErrorCode = {
   USER_NOT_FOUND: 'USER_NOT_FOUND',
   USERNAME_OR_EMAIL_ALREADY_TAKEN: 'USERNAME_OR_EMAIL_ALREADY_TAKEN',
   NO_DATA_UPDATED: 'NO_DATA_UPDATED',
+  INVALID_USER: 'INVALID_USER',
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
