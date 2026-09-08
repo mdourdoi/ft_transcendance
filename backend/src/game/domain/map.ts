@@ -68,6 +68,27 @@ export class GameMap {
         return null;
     }
 
+    move(from: Position, to: Position): GameMap {
+        const moving = this.entityAt(from);
+        if (!moving) {
+            throw new GameError(
+                "EMPTY_SOURCE_SQUARE",
+                `No entity to move at ${from.toString()}`
+            );
+        }
+        if (!this.isInside(to)) {
+            throw new GameError(
+                "POSITION_OUT_OF_BOUNDS",
+                `Position out of bounds: ${to.toString()}`
+            );
+        }
+
+        const grid = this._grid.map((row) => [...row]);
+        grid[to.row][to.col] = moving;
+        grid[from.row][from.col] = null;
+        return new GameMap(grid);
+    }
+
     entitiesOf(playerIndex: number): Position[] {
         const positions: Position[] = [];
         for (let row = 0; row < MAP_SIZE; row++) {
