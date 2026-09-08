@@ -21,4 +21,4 @@ EXPOSE 3000
 EXPOSE 5555
 
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
