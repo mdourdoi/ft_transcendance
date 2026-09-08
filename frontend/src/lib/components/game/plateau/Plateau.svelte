@@ -3,9 +3,9 @@
     let { width = "9rem", height = "9rem", size = 5 } = $props()
 </script>
 
-{#each Array(size) as _, i}
+{#each Array(size) as _, i (i)}
     <div class="grid grid-cols-5">
-        {#each Array(size) as _, j}
+        {#each Array(size) as _, j (j)}
             <Cell width={width} height={height} color={(i + j) % 2 === 0 ? "var(--primary)" : "var(--secondary)"} />
         {/each}
     </div>

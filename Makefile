@@ -1,6 +1,6 @@
 COMPOSE = docker compose
 
-.PHONY: all up down build logs clean re ps migrate studio
+.PHONY: all up down build logs clean re ps migrate studio lint
 
 all: up
 
@@ -21,6 +21,9 @@ migrate:
 
 studio:
 	$(COMPOSE) exec backend npx prisma studio
+
+lint:
+	$(COMPOSE) run --rm --no-deps frontend npm run lint
 
 ps:
 	$(COMPOSE) ps

@@ -2,7 +2,9 @@ import type { Component } from "svelte";
 import { writable } from "svelte/store";
 
 export type RouteParams = Record<string, string>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Routes = Record<string, Component<any>>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ResolvedRoute = { component: Component<any>; params: RouteParams };
 
 export const path = writable(window.location.pathname);
