@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { FriendshipStatus } from '@prisma/client';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtGuard } from '../auth/jwt.guard';
@@ -23,11 +23,38 @@ export class FriendshipsController {
     return this.friendshipsService.getFriendships(userId, statusList);
   }
 
-  // Add friend
+  @Post('send')
+  public sendRequest(@CurrentUser('sub') userId: number) {
+    void userId;
+  }
 
-  // Remove friend
+  @Post('cancel')
+  public cancelRequest(@CurrentUser('sub') userId: number) {
+    void userId;
+  }
 
-  // Block user
+  @Post('accept')
+  public acceptRequest(@CurrentUser('sub') userId: number) {
+    void userId;
+  }
 
-  // Cancel pending
+  @Post('deny')
+  public denyRequest(@CurrentUser('sub') userId: number) {
+    void userId;
+  }
+
+  @Post('remove')
+  public removeFriend(@CurrentUser('sub') userId: number) {
+    void userId;
+  }
+
+  @Post('block')
+  public blockUser(@CurrentUser('sub') userId: number) {
+    void userId;
+  }
+
+  @Post('unblock')
+  public unblockUser(@CurrentUser('sub') userId: number) {
+    void userId;
+  }
 }
