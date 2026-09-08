@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { fade, fly } from 'svelte/transition';
 	import { onMount } from 'svelte';
 
@@ -42,9 +42,10 @@
       	email = '';
       	password = '';
       	username = '';
-	  } catch (err) {
-		error = err.message
-	  } finally {
+	   	} catch (err) {
+			error = err instanceof Error ? err.message : String(err);
+		}
+		finally {
 		loading = false
 	  }
 	}
@@ -60,16 +61,15 @@
 			if (!res.ok) throw new Error("Error post api login")
 			const data = await res.json();
 			console.log(data);
-		}
-		catch (err) {
-			error = err.message
-		}
+		} catch (err) {
+			error = err instanceof Error ? err.message : String(err);
+}
 		finally {
 			loading = false
 		}
 	}
 
-	function selectMode(mode) {
+	function selectMode(mode: string) {
 		currentStep = mode;
 	}
 
@@ -123,9 +123,9 @@
 				class="form-card">
 				<h2>{currentStep === 'login' ? 'Connexion' : 'Inscription'}</h2>
 				<div class="input-group">
-					<input type="username" bind:value={username} placeholder="Username" required />
-					<input type="email" bind:value={email} placeholder="Email" required />
-					<input type="password" bind:value={password} placeholder="Mot de passe" required />
+					<input type="username" bind:value={username} placeholder="Username" required/>
+					<input type="email" bind:value={email} placeholder="Email" required/>
+					<input type="password" bind:value={password} placeholder="Mot de passe" required/>
 				</div>
 				<button type="submit" class="btn primary">Valider</button>
 				<button type="button" class="btn-link" on:click={() => selectMode('choice')}>
