@@ -52,7 +52,7 @@
 	async function connectUser() {
 		if (!password.trim() || !username.trim()) return;
 		try{
-			const res = fetch("http://localhost:3000/auth/login", {
+			const res = await fetch("http://localhost:3000/auth/login", {
 				method: "POST",
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({username: username, password: password })
@@ -270,3 +270,4 @@
 		text-decoration: underline;
 	}
 </style>
+

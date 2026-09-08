@@ -16,6 +16,8 @@ services:
       retries: 5
     networks:
       - transcendence
+    ports:
+      - "5432:5432"
 
   backend:
     build: ./backend
@@ -29,8 +31,8 @@ services:
       DB_HOST: db
       DB_PORT: 5432
       POSTGRES_USER: ${POSTGRES_USER}
-      PORT: 3000
       JWT_SECRET: ${JWT_SECRET}
+      PORT: 3000
     ports:
       - "3000:3000"
       - "5555:5555"
