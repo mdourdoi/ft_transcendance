@@ -23,7 +23,8 @@ studio:
 	$(COMPOSE) exec backend npx prisma studio
 
 lint:
-	$(COMPOSE) run --rm --no-deps frontend npm run lint
+	$(COMPOSE) build backend
+	$(COMPOSE) run --rm --no-deps -T --entrypoint npm backend run lint:check
 
 ps:
 	$(COMPOSE) ps
