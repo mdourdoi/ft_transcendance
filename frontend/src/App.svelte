@@ -1,21 +1,95 @@
 <script>
 	import { fade, fly } from 'svelte/transition';
+	import { onMount } from 'svelte';
 
 	let currentStep = 'choice';
 	let email = '';
 	let password = '';
+	let username = '';
+	let error = '';
+	let loading = false
+	// let loading = true;
+	// let error = null;
+	// let result = null;
+	// let test = null
+
+	// const API_URL = "http://localhost:3000/test";
+
+	// onMount(async () => {
+	//     try {
+	// 	  const result = await fetch(API_URL);
+	// 	  if (!result.ok) throw new Error(`Error fetch api ${res.status}`);
+	// 	  test = await result.json();
+	// 	  console.log(test)
+	// 	} catch (err) {
+	// 	  error = err;
+	// 	} finally {
+	// 	  loading = false;
+	// 	}
+	// })
+
+	async function addUser() {
+	  if (!email.trim() || !password.trim() || !username.trim()) return;
+	  try {
+		const res = await fetch("http://localhost:3000/auth/register", {
+			method: "POST",
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ email: email, username: username, password: password })
+		})
+		if (!res.ok) throw new Error("Error post api register")
+		const createdUser = await res.json();
+		console.log(createdUser)
+      	email = '';
+      	password = '';
+      	username = '';
+	  } catch (err) {
+		error = err.message
+	  } finally {
+		loading = false
+	  }
+	}
+
+	async function connectUser() {
+		if (!password.trim() || !username.trim()) return;
+		try{
+			const res = fetch("http://localhost:3000/auth/login", {
+				method: "POST",
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({username: username, password: password })
+			})
+			if (!res.ok) throw new Error("Error post api login")
+			const data = await res.json();
+			console.log(data);
+		}
+		catch (err) {
+			error = err.message
+		}
+		finally {
+			loading = false
+		}
+	}
 
 	function selectMode(mode) {
 		currentStep = mode;
 	}
 
-	function handleSubmit() {
-		console.log('Action:', currentStep, { email, password });
+	async function handleSubmit() {
+	loading = true;
+	error = '';
+	try {
+		if (currentStep === 'signin') {
+			await addUser();
+		} else {
+			await connectUser();
+		}
+	} finally {
+		loading = false;
 	}
+}
 </script>
 
 <main>
-	<h1>ft_transcendence</h1>
+	<h1>MAIN_TITLE</h1>
 	<div class="card-container">
 		{#if currentStep === 'choice'}
 			<div in:fade={{ duration: 200 }} class="button-group">
@@ -26,21 +100,34 @@
 					Inscription
 				</button>
 			</div>
-		{:else}
-			<form 
-				in:fly={{ y: 20, duration: 300 }} 
-				on:submit|preventDefault={handleSubmit} 
+		{:else if currentStep === 'login'}
+			<form
+				in:fly={{ y: 20, duration: 300 }}
+				on:submit|preventDefault={handleSubmit}
 				class="form-card"
 			>
 				<h2>{currentStep === 'login' ? 'Connexion' : 'Inscription'}</h2>
-
 				<div class="input-group">
+					<input type="username" bind:value={username} placeholder="Username" required />
+					<input type="password" bind:value={password} placeholder="Mot de passe" required />
+				</div>
+				<button type="submit" class="btn primary">Valider</button>
+				<button type="button" class="btn-link" on:click={() => selectMode('choice')}>
+					← Retour
+				</button>
+			</form>
+		{:else}
+			<form
+				in:fly={{ y: 20, duration: 300 }}
+				on:submit|preventDefault={handleSubmit}
+				class="form-card">
+				<h2>{currentStep === 'login' ? 'Connexion' : 'Inscription'}</h2>
+				<div class="input-group">
+					<input type="username" bind:value={username} placeholder="Username" required />
 					<input type="email" bind:value={email} placeholder="Email" required />
 					<input type="password" bind:value={password} placeholder="Mot de passe" required />
 				</div>
-
 				<button type="submit" class="btn primary">Valider</button>
-				
 				<button type="button" class="btn-link" on:click={() => selectMode('choice')}>
 					← Retour
 				</button>
