@@ -1,6 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { DEFAULT_AVATAR_URL } from 'src/constants';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ErrorCode } from '../common/error-codes';
 import { ConversationDto } from './dto/conversation.dto';
 import { MessageDto } from './dto/message.dto';
 
@@ -52,6 +57,7 @@ export class MessagesService {
   }
 
   public async sendMessage(
+    userId: number,
     conversationId: number,
     senderId: number,
     content: string,
@@ -61,7 +67,9 @@ export class MessagesService {
         id: senderId,
       },
     });
-    if (!sender) throw new NotFoundException('User not found');
+    if (!sender) throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+    if (userId !== sender.id)
+      throw new ForbiddenException(ErrorCode.INVALID_USER);
 
     const created = await this.prisma.message.create({
       data: {

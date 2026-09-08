@@ -8,13 +8,17 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { JwtGuard } from '../auth/jwt.guard';
 import { ConversationDto } from './dto/conversation.dto';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { MessageDto } from './dto/message.dto';
 import { MessagesService } from './messages.service';
 
 @Controller('conversations/:conversationId/')
+@UseGuards(JwtGuard)
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 
@@ -51,8 +55,12 @@ export class MessagesController {
    */
   @Post('send')
   @HttpCode(HttpStatus.CREATED)
-  public send(@Body() dto: CreateMessageDto): Promise<MessageDto> {
+  public send(
+    @Body() dto: CreateMessageDto,
+    @CurrentUser('sub') userId: number,
+  ): Promise<MessageDto> {
     return this.messagesService.sendMessage(
+      userId,
       dto.conversationId,
       dto.senderId,
       dto.content,
