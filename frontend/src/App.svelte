@@ -4,6 +4,7 @@
   import Game from "./routes/Game.svelte";
   import NotFound from "./routes/NotFound.svelte";
   import LocaleSwitcher from "$lib/components/LocaleSwitcher.svelte";
+  import PageTransition from "$lib/components/PageTransition.svelte";
 
   const routes: Routes = {
     "/": Home,
@@ -17,9 +18,13 @@
   <LocaleSwitcher />
 </div>
 
-{#if route}
-  {@const Page = route.component}
-  <Page {...route.params} />
-{:else}
-  <NotFound />
-{/if}
+{#key $path}
+  <PageTransition>
+    {#if route}
+      {@const Page = route.component}
+      <Page {...route.params} />
+    {:else}
+      <NotFound />
+    {/if}
+  </PageTransition>
+{/key}

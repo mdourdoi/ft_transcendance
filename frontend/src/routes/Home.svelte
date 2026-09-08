@@ -12,7 +12,7 @@
       <Card.Description>{$t("HOME.SUBTITLE")}</Card.Description>
     </Card.Header>
     <Card.Content>
-      <Button class="w-full" onclick={() => navigate("/game")}>{$t("HOME.PLAY")}</Button>
+      <Button class="w-full" onclick={() => navigate("/game", { useAnimation: true })}>{$t("HOME.PLAY")}</Button>
     </Card.Content>
   </Card.Root>
 </main>
