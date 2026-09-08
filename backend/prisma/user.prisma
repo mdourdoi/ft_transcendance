@@ -1,0 +1,28 @@
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  messages Message[]
+}
+
+model Conversation {
+  id Int @id @default(autoincrement())
+
+  messages Message[]
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  content        String
+  createdAt      DateTime @default(now())
+  senderId       Int
+  conversationId Int
+
+  sender       User         @relation(fields: [senderId], references: [id])
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+
+  @@index([conversationId, createdAt])
+}

@@ -1,0 +1,17 @@
+{
+  "HOME": {
+    "SUBTITLE": "Onitama",
+    "PLAY": "Jouer"
+  },
+  "GAME": {
+    "TITLE": "Partie",
+    "BACK": "Retour"
+  },
+  "NOTFOUND": {
+    "MISSING": "introuvable.",
+    "HOME": "Accueil"
+  },
+  "LANGUAGE": {
+    "LABEL": "Langue"
+  }
+}
