@@ -34,5 +34,8 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.70.0",
     "vite": "^7.3.6"
+  },
+  "dependencies": {
+    "motion": "^13.2.0"
   }
 }
