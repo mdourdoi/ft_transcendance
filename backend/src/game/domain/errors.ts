@@ -3,7 +3,9 @@ export type GameErrorCode =
     | "INVALID_ENTITY_OWNER"
     | "INVALID_MAP_SIZE"
     | "POSITION_OUT_OF_BOUNDS"
-    | "UNKNOWN_CARD";
+    | "UNKNOWN_CARD"
+    | "NULL_MOVE"
+    | "EMPTY_SOURCE_SQUARE";
 
 export class GameError extends Error {
     constructor(
