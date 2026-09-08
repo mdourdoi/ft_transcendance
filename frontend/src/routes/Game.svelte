@@ -10,5 +10,5 @@
   <div class="grid gap-0">
     <Plateau width="3rem" height="3rem" size={5} />
   </div>
-  <Button variant="outline" onclick={() => navigate("/")}>{$t("GAME.BACK")}</Button>
+  <Button variant="outline" onclick={() => navigate("/", { useAnimation: true })}>{$t("GAME.BACK")}</Button>
 </main>
