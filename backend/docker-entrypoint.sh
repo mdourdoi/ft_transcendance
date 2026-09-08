@@ -9,6 +9,4 @@ echo "Database is ready."
 
 npx prisma db push --skip-generate
 
-ls -la /app/dist
-
 exec "$@"
