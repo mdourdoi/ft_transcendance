@@ -8,7 +8,10 @@ export type GameErrorCode =
     | "EMPTY_SOURCE_SQUARE"
     | "INVALID_CARD_COUNT"
     | "INVALID_PLAYER_INDEX"
-    | "CARD_NOT_IN_HAND";
+    | "CARD_NOT_IN_HAND"
+    | "NOT_YOUR_ENTITY"
+    | "ILLEGAL_MOVE"
+    | "DESTINATION_OCCUPIED";
 
 export class GameError extends Error {
     constructor(
