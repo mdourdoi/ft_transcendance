@@ -5,7 +5,10 @@ export type GameErrorCode =
     | "POSITION_OUT_OF_BOUNDS"
     | "UNKNOWN_CARD"
     | "NULL_MOVE"
-    | "EMPTY_SOURCE_SQUARE";
+    | "EMPTY_SOURCE_SQUARE"
+    | "INVALID_CARD_COUNT"
+    | "INVALID_PLAYER_INDEX"
+    | "CARD_NOT_IN_HAND";
 
 export class GameError extends Error {
     constructor(
