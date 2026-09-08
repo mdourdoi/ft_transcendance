@@ -4,6 +4,10 @@ import { JwtGuard } from '../auth/jwt.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ErrorCodes } from '../common/error-codes';
+import { ServeStaticModule } from '@nestjs/serve-static';
+
+const MIME_TO_EXT: Record<string, string> = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' };
 
 @Controller('users')
 export class UsersController {
@@ -26,15 +30,21 @@ export class UsersController {
   @Post('me/avatar')
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
-      destination: './uploads/avatars',
-      filename: (req: any, file, cb) => cb(null, `${req.user.sub}-${Date.now()}.${file.mimetype.split('/')[1]}`),
+      destination: '/app/uploads/avatars',
+      filename: (req: any, file, cb) => cb(null, `${req.user.sub}-${Date.now()}.${MIME_TO_EXT[file.mimetype]}`),
     }),
     limits: { fileSize: 2 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => cb(null, ['image/png', 'image/jpeg', 'image/webp'].includes(file.mimetype)),
+    fileFilter: (req, file, cb) => {
+      if (['image/png', 'image/jpeg', 'image/webp'].includes(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(new BadRequestException('INVALID_FILE_TYPE'), false);
+      }
+    },
   }))
   updateAvatar(@Req() req, @UploadedFile() file) {
     if (!file) {
-      throw new BadRequestException("INVALID_FILE");
+      throw new BadRequestException(ErrorCodes.MISSING_FILE);
     }
     return this.userService.updateAvatar(req.user.sub, file.filename);
   }

@@ -4,6 +4,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { ErrorCodes } from '../common/error-codes';
 
 @Injectable()
 export class AuthService {
@@ -15,8 +16,8 @@ export class AuthService {
     try {
       const row = await this.prisma.user.create({ data: { email: dto.email, username: dto.username, passwordHash: passwordHash } });
       return ({ id: row.id, username: row.username, createdAt: row.createdAt });
-    } catch (e) {
-      if (e.code === "P2002") throw new ConflictException("USERNAME_OR_MAIL_ALREADY_TAKEN");
+    } catch (e: any) {
+      if (e.code === "P2002") throw new ConflictException(ErrorCodes.USERNAME_OR_EMAIL_ALREADY_TAKEN);
       throw (e);
     }
   }
@@ -31,7 +32,7 @@ export class AuthService {
       corresponding = await bcrypt.compare(dto.password, row.passwordHash);
     }
     if (!row || !corresponding) {
-      throw new UnauthorizedException("INVALID_CREDENTIALS");
+      throw new UnauthorizedException(ErrorCodes.INVALID_CREDENTIALS);
     }
 
     const payload = { sub: row.id, username: row.username };
