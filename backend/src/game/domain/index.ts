@@ -11,6 +11,6 @@ export { card, fullDeck, drawGameCards, getAllCards } from "./deck";
 
 export type { PositionProps } from "./position";
 export type { PlayProps } from "./play";
-export type { GameStartOptions } from "./game";
+export type { GameStartOptions, Victory } from "./game";
 export type { EntityProps, EntityKind } from "./entity";
 export type { CardProps, CardColor, Move as CardMove } from "./card";

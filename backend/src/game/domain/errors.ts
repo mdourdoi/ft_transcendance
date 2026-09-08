@@ -11,7 +11,9 @@ export type GameErrorCode =
     | "CARD_NOT_IN_HAND"
     | "NOT_YOUR_ENTITY"
     | "ILLEGAL_MOVE"
-    | "DESTINATION_OCCUPIED";
+    | "DESTINATION_OCCUPIED"
+    | "GAME_OVER"
+    | "MOVE_AVAILABLE";
 
 export class GameError extends Error {
     constructor(

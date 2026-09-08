@@ -4,6 +4,8 @@ import { GameMap } from "./map";
 import { Play } from "./play";
 import { Spread } from "./spread";
 
+export type Victory = "WAY_OF_STONE" | "WAY_OF_STREAM";
+
 export interface GameStartOptions {
     firstPlayer?: number;
 }
@@ -13,7 +15,9 @@ export class Game {
         private readonly _map: GameMap,
         private readonly _spread: Spread,
         private readonly _currentPlayer: number,
-        private readonly _turn: number
+        private readonly _turn: number,
+        private readonly _winner: number | null,
+        private readonly _victory: Victory | null
     ) {}
 
     static start(cards: readonly Card[], options: GameStartOptions = {}): Game {
@@ -25,7 +29,7 @@ export class Game {
                 `Invalid first player: ${firstPlayer}`
             );
         }
-        return new Game(GameMap.initial(), spread, firstPlayer, 1);
+        return new Game(GameMap.initial(), spread, firstPlayer, 1, null, null);
     }
 
     get map(): GameMap {
@@ -48,7 +52,23 @@ export class Game {
         return this._turn;
     }
 
+    get winner(): number | null {
+        return this._winner;
+    }
+
+    get victory(): Victory | null {
+        return this._victory;
+    }
+
+    get isOver(): boolean {
+        return this._winner !== null;
+    }
+
     play(play: Play): Game {
+        if (this.isOver) {
+            throw new GameError("GAME_OVER", "The game is already over");
+        }
+
         const entity = this._map.entityAt(play.from);
         if (!entity) {
             throw new GameError(
@@ -98,7 +118,58 @@ export class Game {
 
         const nextMap = this._map.move(play.from, play.to);
         const nextSpread = this._spread.exchange(this._currentPlayer, play.card);
-        return new Game(nextMap, nextSpread, this.opponent, this._turn + 1);
+
+        let victory: Victory | null = null;
+        if (target && target.isMaster) {
+            victory = "WAY_OF_STONE";
+        } else if (
+            entity.isMaster &&
+            play.to.equals(GameMap.templeArch(this._currentPlayer))
+        ) {
+            victory = "WAY_OF_STREAM";
+        }
+
+        if (victory) {
+            return new Game(
+                nextMap,
+                nextSpread,
+                this._currentPlayer,
+                this._turn + 1,
+                this._currentPlayer,
+                victory
+            );
+        }
+
+        return new Game(
+            nextMap,
+            nextSpread,
+            this.opponent,
+            this._turn + 1,
+            null,
+            null
+        );
+    }
+
+    pass(cardName: string): Game {
+        if (this.isOver) {
+            throw new GameError("GAME_OVER", "The game is already over");
+        }
+        if (this.hasLegalMove()) {
+            throw new GameError(
+                "MOVE_AVAILABLE",
+                `Player ${this._currentPlayer} still has a legal move and cannot pass`
+            );
+        }
+
+        const nextSpread = this._spread.exchange(this._currentPlayer, cardName);
+        return new Game(
+            this._map,
+            nextSpread,
+            this.opponent,
+            this._turn + 1,
+            null,
+            null
+        );
     }
 
     legalMoves(): Play[] {
@@ -122,5 +193,9 @@ export class Game {
         }
 
         return moves;
+    }
+
+    hasLegalMove(): boolean {
+        return this.legalMoves().length > 0;
     }
 }
