@@ -5,9 +5,9 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ErrorCodes } from '../common/error-codes';
-import { ServeStaticModule } from '@nestjs/serve-static';
+import { MIME_TO_EXT } from '../common/mime-types';
+import { RequestWithUser } from '../common/request-with-user';
 
-const MIME_TO_EXT: Record<string, string> = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' };
 
 @Controller('users')
 export class UsersController {
@@ -16,13 +16,13 @@ export class UsersController {
 
 	@UseGuards(JwtGuard)
 	@Get('me')
-	me(@Req() req) {
+	me(@Req() req: RequestWithUser) {
 		return this.userService.me(req.user.sub);
   }
 
   @UseGuards(JwtGuard)
   @Patch('me')
-  update(@Req() req, @Body() dto: UpdateUserDto) {
+  update(@Req() req: RequestWithUser, @Body() dto: UpdateUserDto) {
     return this.userService.update(req.user.sub, dto)
   }
 
@@ -35,14 +35,14 @@ export class UsersController {
     }),
     limits: { fileSize: 2 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
-      if (['image/png', 'image/jpeg', 'image/webp'].includes(file.mimetype)) {
+      if (Object.keys(MIME_TO_EXT).includes(file.mimetype)) {
         cb(null, true);
       } else {
-        cb(new BadRequestException('INVALID_FILE_TYPE'), false);
+        cb(new BadRequestException(ErrorCodes.INVALID_FILE_TYPE), false);
       }
     },
   }))
-  updateAvatar(@Req() req, @UploadedFile() file) {
+  updateAvatar(@Req() req: RequestWithUser, @UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException(ErrorCodes.MISSING_FILE);
     }

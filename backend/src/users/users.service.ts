@@ -3,6 +3,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { unlink } from 'node:fs/promises';
 import { ErrorCodes } from '../common/error-codes';
+import * as FileType from 'file-type';
+import { MIME_TO_EXT } from '../common/mime-types';
 
 @Injectable()
 export class UsersService {
@@ -30,16 +32,32 @@ export class UsersService {
   }
 
   async updateAvatar(userId: number, filename: string) {
+    const type = await FileType.fromFile('/app/uploads/avatars/' + filename);
+    if (!type || !MIME_TO_EXT[type.mime]) {
+      try {
+        await unlink('/app/uploads/avatars/' + filename);
+      } catch (e) {
+        console.warn('avatar cleanup failed:', e);
+      }
+      throw new BadRequestException(ErrorCodes.INVALID_FILE_TYPE);
+    }
     const rowCache = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!rowCache) {
+      try {
+        await unlink('/app/uploads/avatars/' + filename);
+      } catch (e) {
+        console.warn('avatar cleanup failed:', e);
+      }
 			throw new NotFoundException(ErrorCodes.USER_NOT_FOUND);
     }
     const oldAvatarUrl = rowCache.avatarUrl;
     const row = await this.prisma.user.update({ where: { id: userId }, data: { avatarUrl: filename } });
     if (oldAvatarUrl) {
       try {
-        await unlink('./uploads/avatars/' + oldAvatarUrl);
-      } catch (e) { console.warn('avatar cleanup failed:', e); }
+        await unlink('/app/uploads/avatars/' + oldAvatarUrl);
+      } catch (e) {
+        console.warn('avatar cleanup failed:', e);
+      }
     }
     return ({ id: row.id, email: row.email, username: row.username, avatarUrl: row.avatarUrl, createdAt: row.createdAt });
   }
