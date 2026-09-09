@@ -1,5 +1,5 @@
 <script>
-	import Log from './routes/Log.svelte';
+	import Log from './routes/HomePage.svelte';
 </script>
 
 <main>
