@@ -1,6 +1,12 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
 	import { onMount } from 'svelte';
+	import { Button } from "$lib/components/ui/button/index.js";
+	 import HelpCircleIcon from "@lucide/svelte/icons/help-circle";
+	import InfoIcon from "@lucide/svelte/icons/info";
+	import * as InputGroup from "$lib/components/ui/input-group/index.js";
+	import * as Tooltip from "$lib/components/ui/tooltip/index.js";
+	
 
 	let currentStep = 'choice';
 	let email = '';
@@ -94,21 +100,14 @@
 	<div class="card-container">
 		{#if currentStep === 'choice'}
 			<div in:fade={{ duration: 200 }} class="button-group">
-				<button class="btn primary" on:click={
-					() => selectMode('login')}>
-					Connexion
-				</button>
-				<button class="btn secondary" on:click={
-					() => selectMode('signin')}>
-					Inscription
-				</button>
+				<Button variant="ghost" onclick={() => selectMode('login')}>conexion</Button>
+				<Button variant="ghost" onclick={() => selectMode('signin')}>Inscription</Button>
 			</div>
 		{:else if currentStep === 'login'}
 			<form
 				in:fly={{ y: 20, duration: 300 }}
 				on:submit|preventDefault={handleSubmit}
-				class="form-card"
-			>
+				class="form-card">
 				<h2>{currentStep === 'login' ? 'Connexion' : 'Inscription'}</h2>
 				<div class="input-group">
 					<input type="username" bind:value={
@@ -121,18 +120,6 @@
 					() => selectMode('choice')}>
 					← Retour
 				</button>
-				{#if error}
-                    <div class="error-banner" in:fly={{ y: -10, duration: 200 }}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                        viewBox="0 0 24 24"fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="12" y1="8" x2="12" y2="12"/>
-                            <line x1="12" y1="16" x2="12.01" y2="16"/>
-                        </svg>
-                        <span>{error}</span>
-                    </div>
-                {/if}
 			</form>
 		{:else}
 			<form
@@ -282,14 +269,6 @@
 		background-color: #4f46e5;
 	}
 
-	.btn.secondary {
-		background-color: rgba(255, 255, 255, 0.9);
-		color: #1f2937;
-	}
-
-	.btn.secondary:hover {
-		background-color: #ffffff;
-	}
 
 	.btn-link {
 		background: none;
