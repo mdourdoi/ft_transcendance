@@ -11,10 +11,6 @@ export class CreateMessageDto {
   @IsPositive()
   public conversationId: number;
 
-  @IsNumber({ allowNaN: false })
-  @IsPositive()
-  public senderId: number;
-
   @IsString()
   @IsNotEmpty()
   @MaxLength(1024)

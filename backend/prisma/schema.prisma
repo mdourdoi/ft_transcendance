@@ -9,11 +9,12 @@ datasource db {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  email        String   @unique
-  username     String   @unique
-  passwordHash String
-  createdAt    DateTime @default(now())
+  id                   Int                  @id @default(autoincrement())
+  email                String               @unique
+  username             String               @unique
+  passwordHash         String
+  createdAt            DateTime             @default(now())
+  conversationAccesses ConversationAccess[]
 
   sentRequests     Friendship[] @relation("Sender")
   receivedRequests Friendship[] @relation("Receiver")
@@ -25,7 +26,19 @@ model Conversation {
   id Int @id @default(autoincrement())
 
   messages   Message[]
+  accesses   ConversationAccess[]
   friendship Friendship?
+}
+
+model ConversationAccess {
+  id Int @id @default(autoincrement())
+
+  conversationId Int
+  userId         Int
+  user           User         @relation(fields: [userId], references: [id])
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+  @@unique([conversationId, userId])
 }
 
 model Message {
