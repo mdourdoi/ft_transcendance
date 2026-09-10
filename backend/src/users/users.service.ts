@@ -3,15 +3,18 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { unlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import * as FileType from 'file-type';
+import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ErrorCode } from '../common/error-codes';
 import { MIME_TO_EXT } from '../common/mime-types';
 import { AVATAR_UPLOAD_DIR } from '../constants';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -98,5 +101,36 @@ export class UsersService {
     } catch (e) {
       console.warn('avatar cleanup failed:', e);
     }
+  }
+
+  async changePassword(userId: number, dto: ChangePasswordDto) {
+    if (dto.newPassword === dto.oldPassword) {
+      throw new BadRequestException(ErrorCode.PASSWORD_UNCHANGED);
+    }
+
+    const row = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!row) {
+      throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+    }
+    const corresponding = await bcrypt.compare(dto.oldPassword, row.passwordHash);
+    if (!corresponding) {
+      throw new UnauthorizedException(ErrorCode.INVALID_CREDENTIALS);
+    }
+
+    const newPasswordHash = await bcrypt.hash(dto.newPassword, 10);
+
+    const newRow = await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash: newPasswordHash },
+    });
+    return {
+      id: userId,
+      username: newRow.username,
+      email: newRow.email,
+      avatarUrl: newRow.avatarUrl,
+    };
   }
 }
