@@ -31,8 +31,17 @@ export class UsersService {
       email: row.email,
       username: row.username,
       avatarUrl: row.avatarUrl,
+      rating: row.rating,
       createdAt: row.createdAt,
     };
+  }
+
+  async findById(userId: number) {
+    const row = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!row) {
+      throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+    }
+    return row;
   }
 
   async update(userId: number, dto: UpdateUserDto) {

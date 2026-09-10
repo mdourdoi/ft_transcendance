@@ -6,6 +6,7 @@ model User {
   avatarUrl            String?
   twoFactorEnabled      Boolean  @default(false)
   twoFactorSecret       String?
+  rating               Int                  @default(1000)
   createdAt            DateTime             @default(now())
   conversationAccesses ConversationAccess[]
 
@@ -13,6 +14,10 @@ model User {
   receivedRequests Friendship[] @relation("Receiver")
 
   messages Message[]
+
+  matchesAsPlayerOne Match[] @relation("PlayerOne")
+  matchesAsPlayerTwo Match[] @relation("PlayerTwo")
+  matchesWon         Match[] @relation("Winner")
 }
 
 model Conversation {
