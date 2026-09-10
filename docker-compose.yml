@@ -38,6 +38,8 @@ services:
       - "5555:5555"
     networks:
       - transcendence
+    volumes:
+      - avatars:/app/uploads/avatars
 
   frontend:
     build: ./frontend
@@ -52,6 +54,7 @@ services:
 
 volumes:
   db_data:
+  avatars:
 
 networks:
   transcendence:
