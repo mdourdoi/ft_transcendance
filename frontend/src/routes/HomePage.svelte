@@ -10,10 +10,16 @@
   import Autoplay from "embla-carousel-autoplay";
   import * as Card from "$lib/components/ui/card/index.js";
   import * as Carousel from "$lib/components/ui/carousel/index.js";
+  import { ScrollArea } from "$lib/components/ui/scroll-area/index.js";
+  import { Separator } from "$lib/components/ui/separator/index.js";
+ 
+  const tags = Array.from({ length: 50 }).map(
+    (_, i, a) => `v1.2.0-beta.${a.length - i}`
+  );
 
   const plugin = Autoplay({ delay: 1900, stopOnInteraction: true });
 
-  let onglet = "";
+  let onglet = "home";
 
   function OngletChange (Mode: string) {
     onglet = Mode;
@@ -52,45 +58,74 @@
           </div>
         </Resizable.Pane>
       <Resizable.Handle disabled class="h-px bg-zinc-800 cursor-default pointer-events-none" />
-<Resizable.Pane defaultSize={85} class="relative flex flex-col justify-between h-full p-6">
-  <div class="w-full max-w-sm ml-0 mt-140">
-    <Carousel.Root plugins={[plugin]} class="w-full">
-      <Carousel.Content>
-        {#each Array(5) as _, i (i)}
-          <Carousel.Item>
-            <div class="p-1">
-              <Card.Root>
-                <Card.Content class="flex aspect-square items-center justify-center p-6">
-                  <span class="text-4xl font-semibold">{i + 1}</span>
-                </Card.Content>
-              </Card.Root>
+        <Resizable.Pane defaultSize={85} class="relative flex flex-col justify-between h-full p-6">
+         {#if onglet === "home"}
+          <div class="w-full max-w-sm ml-0 mt-140">
+            <Carousel.Root plugins={[plugin]} class="w-full">
+              <Carousel.Content>
+                {#each Array(5) as _, i (i)}
+                  <Carousel.Item>
+                    <div class="p-1">
+                      <Card.Root>
+                        <Card.Content class="flex aspect-square items-center justify-center p-6">
+                          <span class="text-4xl font-semibold">{i + 1}</span>
+                        </Card.Content>
+                      </Card.Root>
+                    </div>
+                  </Carousel.Item>
+                {/each}
+              </Carousel.Content>
+        <div class="flex justify-center gap-4 mt-4">
+            <Carousel.Previous class="static translate-y-0" />
+            <Carousel.Next class="static translate-y-0" />
+          </div>
+            </Carousel.Root>
+          </div>
+          <div class="absolute inset-x-0 bottom-8 flex justify-center mb-120 ml-390">
+            <Button >
+              Jouer
+            </Button>
+          </div>
+        <div class="absolute inset-x-0 bottom-24 flex justify-center mb-50">
+            <ButtonGroup.Root>
+            <Button variant="secondary" size="sm">ranked</Button>
+            <ButtonGroup.Separator />
+            <Button variant="secondary" size="sm">clasique</Button>
+            <ButtonGroup.Separator />
+            <Button variant="secondary" size="sm">bot</Button>
+            </ButtonGroup.Root>
+          </div>
+          {:else if onglet === "historique"}
+          <div class="absolute left-8 flex flex-col items-start gap-20 bottom-24 mb-70">
+              <Button variant="secondary" size="sm">
+                clasique
+              </Button>
+              <Button variant="secondary" size="sm">
+                ranked
+              </Button>
+              <Button variant="secondary" size="sm">
+                toutes
+              </Button>
+              <Button variant="secondary" size="sm">
+                jsp
+              </Button>
             </div>
-          </Carousel.Item>
-        {/each}
-      </Carousel.Content>
-<div class="flex justify-center gap-4 mt-4">
-    <Carousel.Previous class="static translate-y-0" />
-    <Carousel.Next class="static translate-y-0" />
-  </div>
-    </Carousel.Root>
-  </div>
-  <div class="absolute inset-x-0 bottom-8 flex justify-center mb-120 ml-390">
-    <Button >
-      Jouer
-    </Button>
-  </div>
-<div class="absolute inset-x-0 bottom-24 flex justify-center mb-50">
-    <ButtonGroup.Root>
-    <Button variant="secondary" size="sm">ranked</Button>
-    <ButtonGroup.Separator />
-    <Button variant="secondary" size="sm">clasique</Button>
-    <ButtonGroup.Separator />
-    <Button variant="secondary" size="sm">bot</Button>
-    </ButtonGroup.Root>
-  </div>
-</Resizable.Pane>
-      </Resizable.PaneGroup>
-    </Resizable.Pane>
+            <ScrollArea class="h-196 w-164 rounded-md border items-center mx-auto mt-40">
+            <div class="p-4">
+              <h4 class="mb-4 text-sm leading-none font-medium">Tags</h4>
+              {#each tags as tag (tag)}
+                <div class="text-sm">
+                  {tag}
+                </div>
+                <Separator class="my-2" />
+              {/each}
+            </div>
+          </ScrollArea>
+          {:else}
+          {/if}
+          </Resizable.Pane>
+              </Resizable.PaneGroup>
+            </Resizable.Pane>
     <Resizable.Handle disabled class="w-px bg-zinc-800 cursor-default pointer-events-none" />
     <Resizable.Pane defaultSize={20}>
       <Resizable.PaneGroup direction="vertical">
