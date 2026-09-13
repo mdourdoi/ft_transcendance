@@ -19,6 +19,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ErrorCode } from '../common/error-codes';
 import { MIME_TO_EXT } from '../common/mime-types';
 import { AVATAR_UPLOAD_DIR } from '../constants';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller('users')
 export class UsersController {
@@ -66,5 +67,14 @@ export class UsersController {
       throw new BadRequestException(ErrorCode.MISSING_FILE);
     }
     return this.userService.updateAvatar(userId, file.filename);
+  }
+
+  @UseGuards(JwtGuard)
+  @Patch('me/password')
+  changePassword(
+    @CurrentUser('sub') userId: number,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    return this.userService.changePassword(userId, dto);
   }
 }
