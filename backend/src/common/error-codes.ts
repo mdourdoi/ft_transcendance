@@ -11,6 +11,7 @@ export const ErrorCode = {
   INVALID_USER: 'INVALID_USER',
   INVALID_FILE_TYPE: 'INVALID_FILE_TYPE',
   MISSING_FILE: 'MISSING_FILE',
+  PASSWORD_UNCHANGED: 'PASSWORD_UNCHANGED',
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];

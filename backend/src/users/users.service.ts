@@ -3,15 +3,19 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { unlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import * as FileType from 'file-type';
+import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ErrorCode } from '../common/error-codes';
 import { MIME_TO_EXT } from '../common/mime-types';
 import { AVATAR_UPLOAD_DIR } from '../constants';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -55,7 +59,7 @@ export class UsersService {
         avatarUrl: row.avatarUrl,
       };
     } catch (e) {
-      if (e.code === 'P2002')
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002')
         throw new ConflictException(ErrorCode.USERNAME_OR_EMAIL_ALREADY_TAKEN);
       throw e;
     }
@@ -98,5 +102,35 @@ export class UsersService {
     } catch (e) {
       console.warn('avatar cleanup failed:', e);
     }
+  }
+
+  async changePassword(userId: number, dto: ChangePasswordDto) {
+    const row = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!row) {
+      throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+    }
+    if (dto.newPassword === dto.oldPassword) {
+      throw new BadRequestException(ErrorCode.PASSWORD_UNCHANGED);
+    }
+    const corresponding = await bcrypt.compare(dto.oldPassword, row.passwordHash);
+    if (!corresponding) {
+      throw new UnauthorizedException(ErrorCode.INVALID_CREDENTIALS);
+    }
+
+    const newPasswordHash = await bcrypt.hash(dto.newPassword, 10);
+
+    const newRow = await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash: newPasswordHash },
+    });
+    return {
+      id: userId,
+      username: newRow.username,
+      email: newRow.email,
+      avatarUrl: newRow.avatarUrl,
+    };
   }
 }
