@@ -25,9 +25,11 @@ model User {
 model Conversation {
   id Int @id @default(autoincrement())
 
-  messages   Message[]
-  accesses   ConversationAccess[]
-  friendship Friendship?
+  messages Message[]
+  accesses ConversationAccess[]
+
+  friendshipId Int?        @unique
+  friendship   Friendship? @relation(fields: [friendshipId], references: [id])
 }
 
 model ConversationAccess {
@@ -63,15 +65,14 @@ enum FriendshipStatus {
 model Friendship {
   id Int @id @default(autoincrement())
 
-  senderId       Int
-  receiverId     Int
-  conversationId Int              @unique
-  status         FriendshipStatus @default(PENDING)
-  createdAt      DateTime         @default(now())
+  senderId     Int
+  receiverId   Int
+  status       FriendshipStatus @default(PENDING)
+  createdAt    DateTime         @default(now())
+  conversation Conversation?
 
-  sender       User         @relation("Sender", fields: [senderId], references: [id])
-  receiver     User         @relation("Receiver", fields: [receiverId], references: [id])
-  conversation Conversation @relation(fields: [conversationId], references: [id])
+  sender   User @relation("Sender", fields: [senderId], references: [id])
+  receiver User @relation("Receiver", fields: [receiverId], references: [id])
 
   @@unique([senderId, receiverId])
 }
