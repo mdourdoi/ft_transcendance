@@ -5,6 +5,10 @@ model User {
   passwordHash String
   avatarUrl    String?
   createdAt    DateTime @default(now())
+  conversationAccesses ConversationAccess[]
+
+  sentRequests     Friendship[] @relation("Sender")
+  receivedRequests Friendship[] @relation("Receiver")
 
   messages Message[]
 }
@@ -13,7 +17,23 @@ model Conversation {
   id Int @id @default(autoincrement())
 
   messages Message[]
+  accesses ConversationAccess[]
+
+  friendshipId Int?        @unique
+  friendship   Friendship? @relation(fields: [friendshipId], references: [id])
 }
+
+model ConversationAccess {
+  id Int @id @default(autoincrement())
+
+  conversationId Int
+  userId         Int
+  user           User         @relation(fields: [userId], references: [id])
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+  @@unique([conversationId, userId])
+}
+
 
 model Message {
   id             String   @id @default(cuid())
@@ -26,4 +46,25 @@ model Message {
   conversation Conversation @relation(fields: [conversationId], references: [id])
 
   @@index([conversationId, createdAt])
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}
+
+model Friendship {
+  id Int @id @default(autoincrement())
+
+  senderId     Int
+  receiverId   Int
+  status       FriendshipStatus @default(PENDING)
+  createdAt    DateTime         @default(now())
+  conversation Conversation?
+
+  sender   User @relation("Sender", fields: [senderId], references: [id])
+  receiver User @relation("Receiver", fields: [receiverId], references: [id])
+
+  @@unique([senderId, receiverId])
 }
