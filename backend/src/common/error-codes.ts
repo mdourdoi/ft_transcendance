@@ -22,6 +22,8 @@ export const ErrorCode = {
   TWOFA_CODE_REQUIRED: 'TWOFA_CODE_REQUIRED',
   BAD_TWOFA_KEY: 'BAD_TWOFA_KEY',
   BAD_JWT_SECRET: 'BAD_JWT_SECRET',
+  FORBIDDEN_CONVERSATION: 'FORBIDDEN_CONVERSATION',
+  IMPOSSIBLE_REQUEST: 'IMPOSSIBLE_REQUEST',
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
