@@ -122,6 +122,7 @@
             </div>
           </ScrollArea>
           {:else}
+          <h1>stats</h1>
           {/if}
           </Resizable.Pane>
               </Resizable.PaneGroup>
