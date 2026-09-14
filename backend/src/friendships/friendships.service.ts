@@ -81,58 +81,116 @@ export class FriendshipsService {
       return;
     }
 
-    if (
-      currentFriendship.status === FriendshipStatus.PENDING &&
-      currentFriendship.receiverId === userId
-    ) {
-      await this.prisma.friendship.update({
-        where: {
-          senderId_receiverId: {
-            senderId: dto.targetId,
-            receiverId: userId,
-          },
-        },
-        data: {
-          status: FriendshipStatus.ACCEPTED,
-        },
-      });
-      return;
-    }
-    throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
+    if (!(await this.mustBe_(dto.targetId, userId, ['requested'])))
+      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
+
+    await this.updateFriendship_(
+      userId,
+      dto.targetId,
+      FriendshipStatus.ACCEPTED,
+    );
   }
 
   public async cancelRequest(userId: number, dto: CancelPendingRequestDto) {
-    void userId;
-    void dto;
+    if (!this.mustBe_(userId, dto.targetId, ['requested']))
+      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
+
+    await this.deleteFriendship_(userId, dto.targetId);
   }
 
   public async acceptRequest(userId: number, dto: AcceptRequestDto) {
-    void userId;
-    void dto;
+    if (!this.mustBe_(dto.targetId, userId, ['requested']))
+      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
+
+    await this.updateFriendship_(
+      userId,
+      dto.targetId,
+      FriendshipStatus.ACCEPTED,
+    );
   }
 
   public async denyRequest(userId: number, dto: DenyRequestDto) {
-    void userId;
-    void dto;
+    if (!this.mustBe_(dto.targetId, userId, ['requested']))
+      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
+
+    await this.deleteFriendship_(userId, dto.targetId);
   }
 
   public async removeFriend(userId: number, dto: RemoveFriendDto) {
-    void userId;
-    void dto;
+    if (!this.mustBe_(userId, dto.targetId, ['friend_with']))
+      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
+
+    await this.deleteFriendship_(userId, dto.targetId);
   }
 
   public async blockUser(userId: number, dto: BlockUserDto) {
-    void userId;
-    void dto;
+    if (!this.mustBe_(userId, dto.targetId, ['not_blocked_by']))
+      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
+
+    const currentFs = await this.getFriendship_(userId, dto.targetId);
+    if (!currentFs) {
+      await this.prisma.friendship.create({
+        data: {
+          senderId: userId,
+          receiverId: dto.targetId,
+          status: FriendshipStatus.BLOCKED,
+        },
+      });
+    } else {
+      await this.prisma.friendship.updateMany({
+        where: {
+          OR: [
+            { senderId: userId, receiverId: dto.targetId },
+            { senderId: dto.targetId, receiverId: userId },
+          ],
+        },
+        data: {
+          senderId: userId,
+          receiverId: dto.targetId,
+          status: FriendshipStatus.BLOCKED,
+        },
+      });
+    }
   }
 
   public async unblockUser(userId: number, dto: UnblockUserDto) {
-    void userId;
-    void dto;
+    if (!this.mustBe_(dto.targetId, userId, ['blocked_by']))
+      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
+
+    await this.deleteFriendship_(userId, dto.targetId);
   }
 
   private getFriendship_(A: number, B: number): Promise<Friendship | null> {
     return this.prisma.friendship.findFirst({
+      where: {
+        OR: [
+          { senderId: A, receiverId: B },
+          { senderId: B, receiverId: A },
+        ],
+      },
+    });
+  }
+
+  private async updateFriendship_(
+    A: number,
+    B: number,
+    status: FriendshipStatus,
+  ) {
+    await this.prisma.friendship.updateMany({
+      where: {
+        OR: [
+          { senderId: A, receiverId: B },
+          { senderId: B, receiverId: A },
+        ],
+      },
+      data: {
+        status,
+      },
+    });
+  }
+
+  private async deleteFriendship_(A: number, B: number) {
+    await this.prisma.friendship.deleteMany({
       where: {
         OR: [
           { senderId: A, receiverId: B },
