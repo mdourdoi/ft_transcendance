@@ -25,6 +25,7 @@ export const ErrorCode = {
   FORBIDDEN_CONVERSATION: 'FORBIDDEN_CONVERSATION',
   IMPOSSIBLE_REQUEST: 'IMPOSSIBLE_REQUEST',
   EMPTY_MESSAGE: 'EMPTY_MESSAGE',
+  INVALID_QUEUE_MODE: 'INVALID_QUEUE_MODE',
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
