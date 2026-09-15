@@ -4,12 +4,14 @@ import {
   ConflictException,
   BadRequestException,
   UnauthorizedException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ErrorCode } from '../common/error-codes';
 import { generateSecret, generateURI, verify } from 'otplib';
 import * as QRCode from 'qrcode';
 import { Prisma } from '@prisma/client';
+import { encryptSecret, decryptSecret } from '../common/crypto';
 
 @Injectable()
 export class TwofaService {
@@ -29,7 +31,7 @@ export class TwofaService {
       const secret = generateSecret();
       const row = await this.prisma.user.update({
         where: { id: userId },
-        data: { twoFactorSecret: secret },
+        data: { twoFactorSecret: encryptSecret(secret) },
       });
       const uri = generateURI({
         issuer: 'Transcendence',
@@ -66,7 +68,13 @@ export class TwofaService {
     if (!row.twoFactorSecret) {
       throw new BadRequestException(ErrorCode.TWOFA_NOT_INITIALIZED);
     }
-    const result = await verify({ secret: row.twoFactorSecret, token: code });
+    let secret: string;
+    try {
+      secret = decryptSecret(row.twoFactorSecret);
+    } catch {
+      throw new InternalServerErrorException(ErrorCode.TWOFA_SECRET_UNREADABLE);
+    }
+    const result = await verify({ secret, token: code });
     if (!result.valid) {
       throw new UnauthorizedException(ErrorCode.INVALID_TWOFA_CODE);
     }
@@ -95,7 +103,10 @@ export class TwofaService {
     if (!check.twoFactorSecret) {
       throw new BadRequestException(ErrorCode.TWOFA_NOT_INITIALIZED);
     }
-    const result = await verify({ secret: check.twoFactorSecret, token: code });
+    const result = await verify({
+      secret: decryptSecret(check.twoFactorSecret),
+      token: code,
+    });
     if (!result.valid) {
       throw new UnauthorizedException(ErrorCode.INVALID_TWOFA_CODE);
     }
