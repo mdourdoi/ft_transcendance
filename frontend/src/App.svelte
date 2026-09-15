@@ -1,5 +1,5 @@
 <script>
-	import Log from './routes/HomePage.svelte';
+	import Log from './routes/GamePgae.svelte';
 </script>
 
 <main>
