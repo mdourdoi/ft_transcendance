@@ -62,6 +62,7 @@ export class FriendshipsService {
 
   public async sendRequest(userId: number, dto: FriendRequestDto) {
     if (
+      userId === dto.targetId ||
       !(await this.mustBe_(userId, dto.targetId, [
         'not_blocked_by',
         'not_friend_with',
@@ -125,7 +126,10 @@ export class FriendshipsService {
   }
 
   public async blockUser(userId: number, dto: BlockUserDto) {
-    if (!(await this.mustBe_(userId, dto.targetId, ['not_blocked_by'])))
+    if (
+      userId === dto.targetId ||
+      !(await this.mustBe_(userId, dto.targetId, ['not_blocked_by']))
+    )
       throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
     const currentFs = await this.getFriendship_(userId, dto.targetId);
