@@ -5,13 +5,6 @@
   import Notification from "@lucide/svelte/icons/bell";
   import * as ButtonGroup from "$lib/components/ui/button-group/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
-  import { Input } from "$lib/components/ui/input/index.js";
-  import * as Avatar from "$lib/components/ui/avatar/index.js";
-  import Autoplay from "embla-carousel-autoplay";
-  import * as Card from "$lib/components/ui/card/index.js";
-  import * as Carousel from "$lib/components/ui/carousel/index.js";
-  import { ScrollArea } from "$lib/components/ui/scroll-area/index.js";
-  import { Separator } from "$lib/components/ui/separator/index.js";
 </script>
 
 <div class="relative min-h-screen flex flex-col items-center justify-center p-6">
@@ -26,6 +19,7 @@
       <Button variant="secondary" size="sm" onclick={() => console.log("Quit")}><Quit /></Button>
     </ButtonGroup.Root>
   </div>
+  <h1 class ="mb-15">game</h1>
   <div class="flex items-start justify-center w-full mb-30">
     <div class="w-120 h-160 shrink-0 border rounded-md p-4">
       Bloc joueur 1
