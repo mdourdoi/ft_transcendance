@@ -14,10 +14,14 @@ export class MessagesService {
   constructor(private readonly prisma: PrismaService) {}
 
   public async getMessages(
+    userId: number,
     conversationId: number,
     cursor?: string,
     take: number = 20,
   ): Promise<ConversationDto> {
+    if (!(await this.hasAccess_(userId, conversationId)))
+      throw new ForbiddenException(ErrorCode.FORBIDDEN_CONVERSATION);
+
     const messages = await this.prisma.message.findMany({
       where: { conversationId },
       take: take + 1,
@@ -59,22 +63,21 @@ export class MessagesService {
   public async sendMessage(
     userId: number,
     conversationId: number,
-    senderId: number,
     content: string,
   ): Promise<MessageDto> {
     const sender = await this.prisma.user.findUnique({
       where: {
-        id: senderId,
+        id: userId,
       },
     });
     if (!sender) throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
-    if (userId !== sender.id)
-      throw new ForbiddenException(ErrorCode.INVALID_USER);
+    if (!(await this.hasAccess_(userId, conversationId)))
+      throw new ForbiddenException(ErrorCode.FORBIDDEN_CONVERSATION);
 
     const created = await this.prisma.message.create({
       data: {
         conversationId,
-        senderId,
+        senderId: userId,
         content,
       },
     });
@@ -89,5 +92,20 @@ export class MessagesService {
         avatarUrl: DEFAULT_AVATAR_URL,
       },
     };
+  }
+
+  private async hasAccess_(
+    userId: number,
+    conversationId: number,
+  ): Promise<boolean> {
+    const conversation = await this.prisma.conversationAccess.findUnique({
+      where: {
+        conversationId_userId: {
+          userId,
+          conversationId,
+        },
+      },
+    });
+    return !!conversation;
   }
 }
