@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { AuthModule } from './auth/auth.module';
+import { AVATAR_UPLOAD_DIR } from './constants';
+import { FriendshipsModule } from './friendships/friendships.module';
 import { MessagesModule } from './messages/messages.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
-import { AVATAR_UPLOAD_DIR } from './constants';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AVATAR_UPLOAD_DIR } from './constants';
     AuthModule,
     UsersModule,
     MessagesModule,
+    FriendshipsModule,
   ],
 })
 export class AppModule {}

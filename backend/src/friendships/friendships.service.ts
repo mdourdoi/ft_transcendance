@@ -81,6 +81,25 @@ export class FriendshipsService {
       return;
     }
 
+    if (await this.mustBe_(dto.targetId, userId, ['requested'])) {
+      await this.updateFriendship_(
+        userId,
+        dto.targetId,
+        FriendshipStatus.ACCEPTED,
+      );
+      return;
+    }
+    throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
+  }
+
+  public async cancelRequest(userId: number, dto: CancelPendingRequestDto) {
+    if (!(await this.mustBe_(userId, dto.targetId, ['requested'])))
+      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
+
+    await this.deleteFriendship_(userId, dto.targetId);
+  }
+
+  public async acceptRequest(userId: number, dto: AcceptRequestDto) {
     if (!(await this.mustBe_(dto.targetId, userId, ['requested'])))
       throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
@@ -91,40 +110,22 @@ export class FriendshipsService {
     );
   }
 
-  public async cancelRequest(userId: number, dto: CancelPendingRequestDto) {
-    if (!this.mustBe_(userId, dto.targetId, ['requested']))
-      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
-
-    await this.deleteFriendship_(userId, dto.targetId);
-  }
-
-  public async acceptRequest(userId: number, dto: AcceptRequestDto) {
-    if (!this.mustBe_(dto.targetId, userId, ['requested']))
-      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
-
-    await this.updateFriendship_(
-      userId,
-      dto.targetId,
-      FriendshipStatus.ACCEPTED,
-    );
-  }
-
   public async denyRequest(userId: number, dto: DenyRequestDto) {
-    if (!this.mustBe_(dto.targetId, userId, ['requested']))
+    if (!(await this.mustBe_(dto.targetId, userId, ['requested'])))
       throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
     await this.deleteFriendship_(userId, dto.targetId);
   }
 
   public async removeFriend(userId: number, dto: RemoveFriendDto) {
-    if (!this.mustBe_(userId, dto.targetId, ['friend_with']))
+    if (!(await this.mustBe_(userId, dto.targetId, ['friend_with'])))
       throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
     await this.deleteFriendship_(userId, dto.targetId);
   }
 
   public async blockUser(userId: number, dto: BlockUserDto) {
-    if (!this.mustBe_(userId, dto.targetId, ['not_blocked_by']))
+    if (!(await this.mustBe_(userId, dto.targetId, ['not_blocked_by'])))
       throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
     const currentFs = await this.getFriendship_(userId, dto.targetId);
@@ -154,7 +155,7 @@ export class FriendshipsService {
   }
 
   public async unblockUser(userId: number, dto: UnblockUserDto) {
-    if (!this.mustBe_(dto.targetId, userId, ['blocked_by']))
+    if (!(await this.mustBe_(dto.targetId, userId, ['blocked_by'])))
       throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
     await this.deleteFriendship_(userId, dto.targetId);
@@ -237,11 +238,13 @@ export class FriendshipsService {
               friendship.receiverId === A) ||
               false,
           );
+          break;
         case 'friend_with':
           results.push(
             (friendship && friendship.status === FriendshipStatus.ACCEPTED) ||
               false,
           );
+          break;
         case 'not_blocked_by':
           results.push(
             !friendship ||
@@ -250,12 +253,14 @@ export class FriendshipsService {
                 friendship.senderId !== B) ||
               false,
           );
+          break;
         case 'not_friend_with':
           results.push(
             !friendship ||
               friendship.status !== FriendshipStatus.ACCEPTED ||
               false,
           );
+          break;
         case 'requested':
           results.push(
             (friendship &&
@@ -264,6 +269,7 @@ export class FriendshipsService {
               friendship.receiverId === B) ||
               false,
           );
+          break;
         default:
           return true;
       }
