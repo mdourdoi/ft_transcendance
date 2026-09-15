@@ -6,6 +6,7 @@ import { MessagesModule } from './messages/messages.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 import { AVATAR_UPLOAD_DIR } from './constants';
+import { TwofaModule } from './twofa/twofa.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AVATAR_UPLOAD_DIR } from './constants';
     AuthModule,
     UsersModule,
     MessagesModule,
+    TwofaModule,
   ],
 })
 export class AppModule {}
