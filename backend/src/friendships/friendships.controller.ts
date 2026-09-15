@@ -12,6 +12,7 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtGuard } from '../auth/jwt.guard';
 import { AcceptRequestDto } from './dto/accept-request.dto';
 import { BlockUserDto } from './dto/block-user.dto';
+import { CancelPendingRequestDto } from './dto/cancel-pending-request.dto';
 import { DenyRequestDto } from './dto/deny-request.dto';
 import { FriendRequestDto } from './dto/friend-request.dto';
 import { FriendshipDto } from './dto/friendship.dto';
@@ -119,9 +120,9 @@ export class FriendshipsController {
   @HttpCode(HttpStatus.OK)
   public cancelRequest(
     @CurrentUser('sub') userId: number,
-    @Body() dto: FriendRequestDto,
+    @Body() dto: CancelPendingRequestDto,
   ) {
-    return this.friendshipsService.sendRequest(userId, dto);
+    return this.friendshipsService.cancelRequest(userId, dto);
   }
 
   /**
