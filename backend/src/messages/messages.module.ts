@@ -6,6 +6,7 @@ import { MessagesService } from './messages.service';
 
 @Module({
   providers: [MessagesService],
+  exports: [MessagesService],
   controllers: [MessagesController],
   imports: [PrismaModule, AuthModule],
 })
