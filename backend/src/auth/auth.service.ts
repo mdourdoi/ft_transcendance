@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
@@ -10,6 +12,8 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './types/jwt-payload.interface';
 import { ErrorCode } from '../common/error-codes';
+import { verify } from 'otplib';
+import { decryptSecret } from '../common/crypto';
 
 @Injectable()
 export class AuthService {
@@ -49,6 +53,30 @@ export class AuthService {
     }
     if (!row || !corresponding) {
       throw new UnauthorizedException(ErrorCode.INVALID_CREDENTIALS);
+    }
+
+    if (row.twoFactorEnabled) {
+      if (!dto.code) {
+        throw new UnauthorizedException(ErrorCode.TWOFA_CODE_REQUIRED);
+      }
+      if (!row.twoFactorSecret) {
+        throw new InternalServerErrorException(ErrorCode.TWOFA_NOT_INITIALIZED);
+      }
+      let secret: string;
+      try {
+        secret = decryptSecret(row.twoFactorSecret);
+      } catch {
+        throw new InternalServerErrorException(
+          ErrorCode.TWOFA_SECRET_UNREADABLE,
+        );
+      }
+      const result = await verify({
+        secret,
+        token: dto.code,
+      });
+      if (!result.valid) {
+        throw new UnauthorizedException(ErrorCode.INVALID_TWOFA_CODE);
+      }
     }
 
     const payload: JwtPayload = { sub: row.id, username: row.username };
