@@ -59,7 +59,10 @@ export class UsersService {
         avatarUrl: row.avatarUrl,
       };
     } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002')
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2002'
+      )
         throw new ConflictException(ErrorCode.USERNAME_OR_EMAIL_ALREADY_TAKEN);
       throw e;
     }
@@ -115,7 +118,10 @@ export class UsersService {
     if (dto.newPassword === dto.oldPassword) {
       throw new BadRequestException(ErrorCode.PASSWORD_UNCHANGED);
     }
-    const corresponding = await bcrypt.compare(dto.oldPassword, row.passwordHash);
+    const corresponding = await bcrypt.compare(
+      dto.oldPassword,
+      row.passwordHash,
+    );
     if (!corresponding) {
       throw new UnauthorizedException(ErrorCode.INVALID_CREDENTIALS);
     }
