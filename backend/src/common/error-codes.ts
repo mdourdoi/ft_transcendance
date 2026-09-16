@@ -20,6 +20,8 @@ export const ErrorCode = {
   INVALID_ENCRYPTED_VALUE: 'INVALID_ENCRYPTED_VALUE',
   TWOFA_SECRET_UNREADABLE: 'TWOFA_SECRET_UNREADABLE',
   TWOFA_CODE_REQUIRED: 'TWOFA_CODE_REQUIRED',
+  BAD_TWOFA_KEY: 'BAD_TWOFA_KEY',
+  BAD_JWT_SECRET: 'BAD_JWT_SECRET',
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];

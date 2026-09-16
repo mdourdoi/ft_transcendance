@@ -7,10 +7,11 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 import { AVATAR_UPLOAD_DIR } from './constants';
 import { TwofaModule } from './twofa/twofa.module';
+import { validateEnv } from './config/env.validation';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
     ServeStaticModule.forRoot({
       rootPath: AVATAR_UPLOAD_DIR,
       serveRoot: '/avatars',
