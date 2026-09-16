@@ -3,6 +3,6 @@ import { ErrorCode } from '../../common/error-codes';
 
 export class TwofaCodeDto {
   @IsString({ message: ErrorCode.INVALID_TWOFA_CODE })
-  @Length(6, 6)
+  @Length(6, 6, { message: ErrorCode.INVALID_TWOFA_CODE })
   code: string;
 }
