@@ -84,6 +84,13 @@ export class FriendshipsService {
     )
       throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: dto.targetId,
+      },
+    });
+    if (!user) throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+
     const currentFriendship = await this.getFriendship_(userId, dto.targetId);
     if (!currentFriendship) {
       await this.prisma.friendship.create({
@@ -137,6 +144,13 @@ export class FriendshipsService {
     )
       throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: dto.targetId,
+      },
+    });
+    if (!user) throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+
     const currentFs = await this.getFriendship_(userId, dto.targetId);
     if (!currentFs) {
       await this.prisma.friendship.create({
@@ -147,6 +161,7 @@ export class FriendshipsService {
         },
       });
     } else {
+      await this.messagesService.deleteConversationForFriendship(currentFs?.id);
       await this.prisma.friendship.updateMany({
         where: {
           OR: [
@@ -160,7 +175,6 @@ export class FriendshipsService {
           status: FriendshipStatus.BLOCKED,
         },
       });
-      await this.messagesService.deleteConversationForFriendship(currentFs?.id);
     }
   }
 

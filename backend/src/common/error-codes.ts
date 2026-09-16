@@ -24,6 +24,7 @@ export const ErrorCode = {
   BAD_JWT_SECRET: 'BAD_JWT_SECRET',
   FORBIDDEN_CONVERSATION: 'FORBIDDEN_CONVERSATION',
   IMPOSSIBLE_REQUEST: 'IMPOSSIBLE_REQUEST',
+  EMPTY_MESSAGE: 'EMPTY_MESSAGE',
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -79,6 +80,8 @@ export class MessagesService {
     if (!sender) throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
     if (!(await this.hasAccess_(userId, conversationId)))
       throw new ForbiddenException(ErrorCode.FORBIDDEN_CONVERSATION);
+    content = content.trim();
+    if (!content.length) throw new BadRequestException(ErrorCode.EMPTY_MESSAGE);
 
     const created = await this.prisma.message.create({
       data: {
