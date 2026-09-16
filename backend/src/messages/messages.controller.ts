@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Get,
   HttpCode,
   HttpStatus,
@@ -30,21 +31,21 @@ export class MessagesController {
    * @param cursor The last loaded message ID from the conversation. Set to undefined at first load.
    * @param take The number of messages to load, by default 20.
    * @returns An object containing the list of messages, an indicator if the conversation is fully loaded, and the next cursor.
-   * @example GET localhost:5173/conversations/17/messages?cursor=cmtrre39m000004l5czqhae8f&take=20
+   * @example GET localhost:5173/conversations/17/messages?take=20&cursor=cmtrre39m000004l5czqhae8f
    */
   @Get('messages')
   @HttpCode(HttpStatus.OK)
   public getMessages(
     @CurrentUser('sub') userId: number,
     @Param('conversationId', ParseIntPipe) conversationId: number,
+    @Query('take', new DefaultValuePipe(20), ParseIntPipe) take: number,
     @Query('cursor') cursor?: string,
-    @Query('take') take?: string,
   ): Promise<ConversationDto> {
     return this.messagesService.getMessages(
       userId,
       conversationId,
       cursor,
-      take ? parseInt(take, 10) : 20,
+      Math.min(Math.max(take, 1), 100),
     );
   }
 
@@ -59,11 +60,12 @@ export class MessagesController {
   @HttpCode(HttpStatus.CREATED)
   public send(
     @CurrentUser('sub') userId: number,
+    @Param('conversationId', ParseIntPipe) conversationId: number,
     @Body() dto: CreateMessageDto,
   ): Promise<MessageDto> {
     return this.messagesService.sendMessage(
       userId,
-      dto.conversationId,
+      conversationId,
       dto.content,
     );
   }

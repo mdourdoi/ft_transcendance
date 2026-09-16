@@ -1,8 +1,13 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Friendship, FriendshipStatus, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ErrorCode } from '../common/error-codes';
 import { DEFAULT_AVATAR_URL } from '../constants';
+import { MessagesService } from '../messages/messages.service';
 import { AcceptRequestDto } from './dto/accept-request.dto';
 import { BlockUserDto } from './dto/block-user.dto';
 import { CancelPendingRequestDto } from './dto/cancel-pending-request.dto';
@@ -14,7 +19,10 @@ import { UnblockUserDto } from './dto/unblock-user.dto';
 
 @Injectable()
 export class FriendshipsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly messagesService: MessagesService,
+  ) {}
 
   public async getFriendships(
     userId: number,
@@ -47,13 +55,19 @@ export class FriendshipsService {
       if (toUse && !users.has(toUse.id)) {
         res.push({
           status: friendship.status,
-          conversationId: friendship.conversation!.id,
-          user: { username: toUse.username, avatarUrl: DEFAULT_AVATAR_URL },
+          conversationId: friendship.conversation?.id || null,
+          user: {
+            id: toUse.id,
+            username: toUse.username,
+            avatarUrl: DEFAULT_AVATAR_URL,
+          },
           isSender:
-            friendship.status === FriendshipStatus.PENDING
+            friendship.status === FriendshipStatus.PENDING ||
+            friendship.status === FriendshipStatus.BLOCKED
               ? friendship.senderId === userId
               : null,
         });
+        users.add(toUse.id);
       }
     }
 
@@ -82,14 +96,9 @@ export class FriendshipsService {
       return;
     }
 
-    if (await this.mustBe_(dto.targetId, userId, ['requested'])) {
-      await this.updateFriendship_(
-        userId,
-        dto.targetId,
-        FriendshipStatus.ACCEPTED,
-      );
-      return;
-    }
+    if (await this.mustBe_(dto.targetId, userId, ['requested']))
+      return await this.startFriendship_(userId, dto.targetId);
+
     throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
   }
 
@@ -104,11 +113,7 @@ export class FriendshipsService {
     if (!(await this.mustBe_(dto.targetId, userId, ['requested'])))
       throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
-    await this.updateFriendship_(
-      userId,
-      dto.targetId,
-      FriendshipStatus.ACCEPTED,
-    );
+    await this.startFriendship_(userId, dto.targetId);
   }
 
   public async denyRequest(userId: number, dto: DenyRequestDto) {
@@ -155,6 +160,7 @@ export class FriendshipsService {
           status: FriendshipStatus.BLOCKED,
         },
       });
+      await this.messagesService.deleteConversationForFriendship(currentFs?.id);
     }
   }
 
@@ -163,6 +169,14 @@ export class FriendshipsService {
       throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
     await this.deleteFriendship_(userId, dto.targetId);
+  }
+
+  private async startFriendship_(A: number, B: number) {
+    await this.updateFriendship_(A, B, FriendshipStatus.ACCEPTED);
+    const friendship = await this.getFriendship_(A, B);
+    if (!friendship) throw new NotFoundException(ErrorCode.IMPOSSIBLE_REQUEST);
+
+    await this.messagesService.createConversationForFriendship(friendship.id);
   }
 
   private getFriendship_(A: number, B: number): Promise<Friendship | null> {
@@ -181,7 +195,7 @@ export class FriendshipsService {
     B: number,
     status: FriendshipStatus,
   ) {
-    await this.prisma.friendship.updateMany({
+    return await this.prisma.friendship.updateMany({
       where: {
         OR: [
           { senderId: A, receiverId: B },

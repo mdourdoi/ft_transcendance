@@ -5,7 +5,7 @@ import { Expose, Type } from 'class-transformer';
 export class FriendshipDto {
   @Expose() public status: FriendshipStatus;
   @Expose() public isSender: boolean | null;
-  @Expose() public conversationId: number;
+  @Expose() public conversationId: number | null;
 
   @Expose()
   @Type(() => TinyUserDto)

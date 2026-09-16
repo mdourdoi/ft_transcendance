@@ -21,6 +21,11 @@ export class MessagesService {
   ): Promise<ConversationDto> {
     if (!(await this.hasAccess_(userId, conversationId)))
       throw new ForbiddenException(ErrorCode.FORBIDDEN_CONVERSATION);
+    const cursorObject = cursor
+      ? await this.prisma.message.findUnique({ where: { id: cursor } })
+      : undefined;
+    if (cursor && cursorObject?.conversationId !== conversationId)
+      cursor = undefined;
 
     const messages = await this.prisma.message.findMany({
       where: { conversationId },
@@ -29,7 +34,7 @@ export class MessagesService {
         skip: 1,
         cursor: { id: cursor },
       }),
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       include: {
         sender: { select: { id: true, username: true } },
       },
@@ -45,6 +50,7 @@ export class MessagesService {
         content: item.content,
         createdAt: item.createdAt,
         sender: {
+          id: item.sender.id,
           username: item.sender.username,
           // TODO, waiting for the avatar system
           avatarUrl: DEFAULT_AVATAR_URL,
@@ -87,11 +93,52 @@ export class MessagesService {
       createdAt: created.createdAt,
       content: created.content,
       sender: {
+        id: sender.id,
         username: sender.username,
         // TODO, waiting for the avatar system
         avatarUrl: DEFAULT_AVATAR_URL,
       },
     };
+  }
+
+  public async createConversationForFriendship(
+    friendshipId: number,
+  ): Promise<number> {
+    const fs = await this.prisma.friendship.findFirst({
+      where: {
+        id: friendshipId,
+      },
+    });
+    if (!fs) throw new NotFoundException(ErrorCode.FORBIDDEN_CONVERSATION);
+
+    const conv = await this.prisma.conversation.create({
+      data: {
+        friendshipId,
+      },
+    });
+    await this.addAccess(fs.senderId, conv.id);
+    await this.addAccess(fs.receiverId, conv.id);
+    return conv.id;
+  }
+
+  public async addAccess(userId: number, conversationId: number) {
+    await this.prisma.conversationAccess.create({
+      data: { conversationId, userId },
+    });
+  }
+
+  public async deleteConversationForFriendship(friendshipId: number) {
+    const conversation = await this.prisma.conversation.findFirst({
+      where: {
+        friendshipId,
+      },
+    });
+    if (!conversation) return;
+    await this.prisma.conversation.delete({
+      where: {
+        id: conversation.id,
+      },
+    });
   }
 
   private async hasAccess_(
