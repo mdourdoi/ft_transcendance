@@ -7,20 +7,23 @@
   import { Button } from "$lib/components/ui/button/index.js";
 </script>
 
+<div class ="Img_top_back">
+	<img src="../../assets/top-back.png" alt="Pagode_Back">
+</div>
+<div class ="Img_grid">
+	<img src="../../assets/grid.png" alt="Grid">
+</div>
 <div class="relative min-h-screen flex flex-col items-center justify-center p-6">
-  <div class="absolute top-6 left-1/2 -translate-x-1/2 ml-260">
-    <ButtonGroup.Root>
-      <Button variant="secondary" size="sm" onclick={() => console.log("MessageSquare")}><MessageSquare /></Button>
-      <ButtonGroup.Separator />
-      <Button variant="secondary" size="sm" onclick={() => console.log("Notification")}><Notification /></Button>
-      <ButtonGroup.Separator />
-      <Button variant="secondary" size="sm" onclick={() => console.log("Settings")}><SettingsIcone /></Button>
-      <ButtonGroup.Separator />
-      <Button variant="secondary" size="sm" onclick={() => console.log("Quit")}><Quit /></Button>
-    </ButtonGroup.Root>
-  </div>
-  <!-- <div class ="Img_top_back"> -->
-	<!-- <img src="chemin/vers/image.jpg" alt="Pagode_Back"> -->
+  <!-- <div class="absolute top-6 left-1/2 -translate-x-1/2 ml-260"> -->
+    <!-- <ButtonGroup.Root> -->
+      <!-- <Button variant="secondary" size="sm" onclick={() => console.log("MessageSquare")}><MessageSquare /></Button> -->
+      <!-- <ButtonGroup.Separator /> -->
+      <!-- <Button variant="secondary" size="sm" onclick={() => console.log("Notification")}><Notification /></Button> -->
+      <!-- <ButtonGroup.Separator /> -->
+      <!-- <Button variant="secondary" size="sm" onclick={() => console.log("Settings")}><SettingsIcone /></Button> -->
+      <!-- <ButtonGroup.Separator /> -->
+      <!-- <Button variant="secondary" size="sm" onclick={() => console.log("Quit")}><Quit /></Button> -->
+    <!-- </ButtonGroup.Root> -->
   <!-- </div> -->
   <h1 class ="mb-15">game</h1>
   <div class="flex items-start justify-center w-full mb-30">
@@ -37,4 +40,12 @@
 </div>
 
 <style>
+	.Img_top_back {
+		background-position: top;
+	}
+	.Img_grid {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
 </style>

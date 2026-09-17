@@ -2,6 +2,6 @@
 	import Log from './routes/GamePgae.svelte';
 </script>
 
-<main>
+<main>	
 	<Log />
 </main>
