@@ -19,6 +19,9 @@
       <Button variant="secondary" size="sm" onclick={() => console.log("Quit")}><Quit /></Button>
     </ButtonGroup.Root>
   </div>
+  <!-- <div class ="Img_top_back"> -->
+	<!-- <img src="chemin/vers/image.jpg" alt="Pagode_Back"> -->
+  <!-- </div> -->
   <h1 class ="mb-15">game</h1>
   <div class="flex items-start justify-center w-full mb-30">
     <div class="w-120 h-160 shrink-0 border rounded-md p-4">
@@ -32,3 +35,6 @@
     </div>
   </div>
 </div>
+
+<style>
+</style>
