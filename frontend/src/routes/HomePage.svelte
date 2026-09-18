@@ -26,9 +26,38 @@
     console.log(onglet);
   }
 
+  const	Friends_Test = [
+	{
+		login: "Test_Online",
+		status: "Online",
+		avatar: "../assets/"
+	},
+	{
+		login: "Test_InGame",
+		status: "InGame",
+		avatar: "../assets/"
+	},
+	{
+		login: "Test_Afk",
+		status: "Afk",
+		avatar: "../assets/"
+	}
+  ]
+
+  const Friends_Offline_Test = [
+    {
+    	login: "Test_Offline",
+		avatar: "../assets/"
+    }
+  ]
+
 </script>
 
-<div class="fixed inset-0 h-screen w-screen bg-zinc-950 text-white overflow-hidden">
+<div class="background">
+  <img src="../assets/back-test.png" alt="Back">
+</div>
+
+<div class="fixed inset-0 h-screen w-screen text-white overflow-hidden">
   <Resizable.PaneGroup direction="horizontal" class="h-full w-full">
     <Resizable.Pane defaultSize={80} class="flex items-center justify-center border-r border-zinc-800">
       <Resizable.PaneGroup direction="vertical">
@@ -146,3 +175,21 @@
     </Resizable.Pane>
   </Resizable.PaneGroup>
 </div>
+
+<style>
+	.background {
+  		position: fixed;
+  		inset: 0;
+  		width: 100vw;
+  		height: 100vh;
+  		z-index: -1;
+  		overflow: hidden;
+	}
+	
+	.background img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center;
+	}
+	</style>
