@@ -12,6 +12,7 @@
   import * as Carousel from "$lib/components/ui/carousel/index.js";
   import { ScrollArea } from "$lib/components/ui/scroll-area/index.js";
   import { Separator } from "$lib/components/ui/separator/index.js";
+//   import App from "src/App.svelte";
  
   const tags = Array.from({ length: 50 }).map(
     (_, i, a) => `v1.2.0-beta.${a.length - i}`
@@ -57,7 +58,45 @@
   <img src="../assets/back-test.png" alt="Back">
 </div>
 
-<div class="fixed inset-0 h-screen w-screen text-white overflow-hidden">
+<div class="top_bar">
+	<div class="Logo_top_bar">
+		<img class="Logo" src="../assets/onitama-grand.png" alt="Logo">
+	</div>
+	<nav class="navbar">
+		{#if onglet === "home"}
+			<button class="accueil_button" onclick={() => OngletChange("home")}>
+          		<img src="../assets/accueil_active.png" alt="Accueil"/>
+        	</button>
+			<button class="accueil_button" onclick={() => OngletChange("historique")}>
+          		<img src="../assets/history.png" alt="Accueil"/>
+        	</button>
+			<button class="accueil_button" onclick={() => OngletChange("stats")}>
+          		<img src="../assets/stats.png" alt="Accueil"/>
+        	</button>
+		{:else if onglet === "historique"}
+			<button class="accueil_button" onclick={() => OngletChange("home")}>
+          		<img src="../assets/accueil.png" alt="Accueil"/>
+        	</button>
+			<button class="accueil_button" onclick={() => OngletChange("historique")}>
+          		<img src="../assets/history_active.png" alt="Accueil"/>
+        	</button>
+			<button class="accueil_button" onclick={() => OngletChange("stats")}>
+          		<img src="../assets/stats.png" alt="Accueil"/>
+        	</button>
+		{:else if onglet === "stats"}
+			<button class="accueil_button" onclick={() => OngletChange("home")}>
+          		<img src="../assets/accueil.png" alt="Accueil"/>
+        	</button>
+			<button class="accueil_button" onclick={() => OngletChange("historique")}>
+          		<img src="../assets/history.png" alt="Accueil"/>
+        	</button>
+			<button class="accueil_button" onclick={() => OngletChange("stats")}>
+          		<img src="../assets/stats_active.png" alt="Accueil"/>
+        	</button>
+		{/if}
+	</nav>
+</div>
+<!-- <div class="fixed inset-0 h-screen w-screen text-white overflow-hidden">
   <Resizable.PaneGroup direction="horizontal" class="h-full w-full">
     <Resizable.Pane defaultSize={80} class="flex items-center justify-center border-r border-zinc-800">
       <Resizable.PaneGroup direction="vertical">
@@ -174,7 +213,7 @@
       </Resizable.PaneGroup>
     </Resizable.Pane>
   </Resizable.PaneGroup>
-</div>
+</div> -->
 
 <style>
 	.background {
@@ -192,4 +231,71 @@
 		object-fit: cover;
 		object-position: center;
 	}
-	</style>
+
+	.top_bar {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 80vw;
+		height: clamp(115px, 14vh, 145px);
+		z-index: 100;
+		display: grid;
+		align-items: center;
+		background: transparent;
+		overflow: visible;
+	}
+
+	.Logo_top_bar {
+		position: relative;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		overflow: visible;
+	}
+
+	.Logo {
+		position: absolute;
+		top: 0%;
+		height: auto;
+		object-fit: contain;
+		user-select: none;
+		pointer-events: none;
+	}
+
+	.navbar {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: clamp(25px, 3.7vw, 65px);
+	}
+
+	.accueil_button {
+		padding: 0;
+		margin: 0;
+		border: none;
+		outline: none;
+		background: transparent;
+		width: clamp(105px, 10vw, 155px);
+		height: clamp(80px, 10vh, 105px);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		position: relative;
+	}
+
+	.accueil_button img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		object-position: center;
+		user-select: none;
+		pointer-events: none;
+	}
+
+</style>
