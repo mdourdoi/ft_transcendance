@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { validateEnv } from './config/env.validation';
 import { AVATAR_UPLOAD_DIR } from './constants';
 import { FriendshipsModule } from './friendships/friendships.module';
+import { MatchesModule } from './matches/matches.module';
 import { MessagesModule } from './messages/messages.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
@@ -25,6 +26,7 @@ import { UsersModule } from './users/users.module';
     MessagesModule,
     TwofaModule,
     FriendshipsModule,
+    MatchesModule,
   ],
 })
 export class AppModule {}
