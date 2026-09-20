@@ -8,6 +8,7 @@ import { FriendshipsModule } from './friendships/friendships.module';
 import { MatchesModule } from './matches/matches.module';
 import { MessagesModule } from './messages/messages.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { QueueModule } from './queue/queue.module';
 import { RedisModule } from './redis/redis.module';
 import { TwofaModule } from './twofa/twofa.module';
 import { UsersModule } from './users/users.module';
@@ -27,6 +28,7 @@ import { UsersModule } from './users/users.module';
     TwofaModule,
     FriendshipsModule,
     MatchesModule,
+    QueueModule,
   ],
 })
 export class AppModule {}
