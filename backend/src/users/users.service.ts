@@ -5,17 +5,17 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
+import * as FileType from 'file-type';
 import { unlink } from 'node:fs/promises';
 import { join } from 'node:path';
-import * as FileType from 'file-type';
-import * as bcrypt from 'bcrypt';
-import { PrismaService } from '../prisma/prisma.service';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { ErrorCode } from '../common/error-codes';
 import { MIME_TO_EXT } from '../common/mime-types';
 import { AVATAR_UPLOAD_DIR } from '../constants';
+import { PrismaService } from '../prisma/prisma.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import { Prisma } from '@prisma/client';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {

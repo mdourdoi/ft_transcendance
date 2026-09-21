@@ -1,6 +1,7 @@
 import { Expose } from 'class-transformer';
 
 export class TinyUserDto {
+  @Expose() public id: number;
   @Expose() public username: string;
   @Expose() public avatarUrl: string;
 
