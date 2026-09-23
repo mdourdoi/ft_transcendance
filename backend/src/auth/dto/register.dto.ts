@@ -4,7 +4,7 @@ import {
   IsStrongPassword,
   MinLength,
 } from 'class-validator';
-import { ErrorCode } from '../../common/error-codes';
+import { ErrorCode } from '../../common/error-codes.js';
 
 export class RegisterDto {
   @IsEmail({}, { message: ErrorCode.INVALID_EMAIL })

@@ -11,15 +11,15 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { UsersService } from './users.service';
-import { JwtGuard } from '../auth/jwt.guard';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { AuthenticatedRequest } from '../auth/types/jwt-payload.interface';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { ErrorCode } from '../common/error-codes';
-import { MIME_TO_EXT } from '../common/mime-types';
-import { AVATAR_UPLOAD_DIR } from '../constants';
-import { ChangePasswordDto } from './dto/change-password.dto';
+import { CurrentUser } from '../auth/current-user.decorator.js';
+import { JwtGuard } from '../auth/jwt.guard.js';
+import { AuthenticatedRequest } from '../auth/types/jwt-payload.interface.js';
+import { ErrorCode } from '../common/error-codes.js';
+import { MIME_TO_EXT } from '../common/mime-types.js';
+import { AVATAR_UPLOAD_DIR } from '../constants.js';
+import { ChangePasswordDto } from './dto/change-password.dto.js';
+import { UpdateUserDto } from './dto/update-user.dto.js';
+import { UsersService } from './users.service.js';
 
 @Controller('users')
 export class UsersController {
