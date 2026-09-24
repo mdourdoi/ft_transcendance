@@ -7,18 +7,18 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { FriendshipStatus } from '@prisma/client';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { JwtGuard } from '../auth/jwt.guard';
-import { AcceptRequestDto } from './dto/accept-request.dto';
-import { BlockUserDto } from './dto/block-user.dto';
-import { CancelPendingRequestDto } from './dto/cancel-pending-request.dto';
-import { DenyRequestDto } from './dto/deny-request.dto';
-import { FriendRequestDto } from './dto/friend-request.dto';
-import { FriendshipDto } from './dto/friendship.dto';
-import { RemoveFriendDto } from './dto/remove-friend.dto';
-import { UnblockUserDto } from './dto/unblock-user.dto';
-import { FriendshipsService } from './friendships.service';
+import { CurrentUser } from '../auth/current-user.decorator.js';
+import { JwtGuard } from '../auth/jwt.guard.js';
+import { FriendshipStatus } from '../generated/prisma/client.js';
+import { AcceptRequestDto } from './dto/accept-request.dto.js';
+import { BlockUserDto } from './dto/block-user.dto.js';
+import { CancelPendingRequestDto } from './dto/cancel-pending-request.dto.js';
+import { DenyRequestDto } from './dto/deny-request.dto.js';
+import { FriendRequestDto } from './dto/friend-request.dto.js';
+import { FriendshipDto } from './dto/friendship.dto.js';
+import { RemoveFriendDto } from './dto/remove-friend.dto.js';
+import { UnblockUserDto } from './dto/unblock-user.dto.js';
+import { FriendshipsService } from './friendships.service.js';
 
 @Controller('friendships')
 @UseGuards(JwtGuard)

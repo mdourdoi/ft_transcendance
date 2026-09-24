@@ -11,12 +11,12 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { JwtGuard } from '../auth/jwt.guard';
-import { ConversationDto } from './dto/conversation.dto';
-import { CreateMessageDto } from './dto/create-message.dto';
-import { MessageDto } from './dto/message.dto';
-import { MessagesService } from './messages.service';
+import { CurrentUser } from '../auth/current-user.decorator.js';
+import { JwtGuard } from '../auth/jwt.guard.js';
+import { ConversationDto } from './dto/conversation.dto.js';
+import { CreateMessageDto } from './dto/create-message.dto.js';
+import { MessageDto } from './dto/message.dto.js';
+import { MessagesService } from './messages.service.js';
 
 @Controller('conversations/:conversationId')
 @UseGuards(JwtGuard)
