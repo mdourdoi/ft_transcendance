@@ -4,8 +4,8 @@ model User {
   username             String               @unique
   passwordHash         String
   avatarUrl            String?
-  twoFactorEnabled      Boolean  @default(false)
-  twoFactorSecret       String?
+  twoFactorEnabled     Boolean              @default(false)
+  twoFactorSecret      String?
   createdAt            DateTime             @default(now())
   conversationAccesses ConversationAccess[]
 

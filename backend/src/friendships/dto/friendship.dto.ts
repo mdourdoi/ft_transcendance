@@ -1,6 +1,6 @@
-import { TinyUserDto } from '@/src/users/dto/tiny-user.dto';
-import { FriendshipStatus } from '@prisma/client';
 import { Expose, Type } from 'class-transformer';
+import { FriendshipStatus } from '../../generated/prisma/client.js';
+import { TinyUserDto } from '../../users/dto/tiny-user.dto.js';
 
 export class FriendshipDto {
   @Expose() public status: FriendshipStatus;

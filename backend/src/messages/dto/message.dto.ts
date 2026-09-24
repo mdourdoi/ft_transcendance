@@ -1,5 +1,5 @@
 import { Expose, Type } from 'class-transformer';
-import { TinyUserDto } from 'src/users/dto/tiny-user.dto';
+import { TinyUserDto } from '../../users/dto/tiny-user.dto.js';
 
 export class MessageDto {
   @Expose() public id: string;
