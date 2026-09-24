@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { TwofaService } from './twofa.service';
-import { TwofaController } from './twofa.controller';
-import { AuthModule } from '../auth/auth.module';
+import { AuthModule } from '../auth/auth.module.js';
+import { TwofaController } from './twofa.controller.js';
+import { TwofaService } from './twofa.service.js';
 
 @Module({
   providers: [TwofaService],
   controllers: [TwofaController],
-  imports: [AuthModule]
+  imports: [AuthModule],
 })
 export class TwofaModule {}

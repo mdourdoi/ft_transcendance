@@ -1,10 +1,5 @@
-import {
-  IsEmail,
-  IsString,
-  IsStrongPassword,
-  MinLength,
-} from 'class-validator';
-import { ErrorCode } from '../../common/error-codes';
+import { IsString, IsStrongPassword, MinLength } from 'class-validator';
+import { ErrorCode } from '../../common/error-codes.js';
 
 export class ChangePasswordDto {
   @IsString({ message: ErrorCode.INVALID_PASSWORD })

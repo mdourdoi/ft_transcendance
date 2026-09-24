@@ -3,19 +3,23 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Friendship, FriendshipStatus, User } from '@prisma/client';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { ErrorCode } from '../common/error-codes';
-import { DEFAULT_AVATAR_URL } from '../constants';
-import { MessagesService } from '../messages/messages.service';
-import { AcceptRequestDto } from './dto/accept-request.dto';
-import { BlockUserDto } from './dto/block-user.dto';
-import { CancelPendingRequestDto } from './dto/cancel-pending-request.dto';
-import { DenyRequestDto } from './dto/deny-request.dto';
-import { FriendRequestDto } from './dto/friend-request.dto';
-import { FriendshipDto } from './dto/friendship.dto';
-import { RemoveFriendDto } from './dto/remove-friend.dto';
-import { UnblockUserDto } from './dto/unblock-user.dto';
+import { ErrorCode } from '../common/error-codes.js';
+import { DEFAULT_AVATAR_URL } from '../constants.js';
+import {
+  Friendship,
+  FriendshipStatus,
+  User,
+} from '../generated/prisma/client.js';
+import { MessagesService } from '../messages/messages.service.js';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { AcceptRequestDto } from './dto/accept-request.dto.js';
+import { BlockUserDto } from './dto/block-user.dto.js';
+import { CancelPendingRequestDto } from './dto/cancel-pending-request.dto.js';
+import { DenyRequestDto } from './dto/deny-request.dto.js';
+import { FriendRequestDto } from './dto/friend-request.dto.js';
+import { FriendshipDto } from './dto/friendship.dto.js';
+import { RemoveFriendDto } from './dto/remove-friend.dto.js';
+import { UnblockUserDto } from './dto/unblock-user.dto.js';
 
 @Injectable()
 export class FriendshipsService {

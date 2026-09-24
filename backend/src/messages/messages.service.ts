@@ -4,11 +4,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { DEFAULT_AVATAR_URL } from 'src/constants';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { ErrorCode } from '../common/error-codes';
-import { ConversationDto } from './dto/conversation.dto';
-import { MessageDto } from './dto/message.dto';
+import { ErrorCode } from '../common/error-codes.js';
+import { DEFAULT_AVATAR_URL } from '../constants.js';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { ConversationDto } from './dto/conversation.dto.js';
+import { MessageDto } from './dto/message.dto.js';
 
 @Injectable()
 export class MessagesService {

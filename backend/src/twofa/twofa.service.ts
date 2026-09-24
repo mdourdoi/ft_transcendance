@@ -1,17 +1,17 @@
 import {
-  NotFoundException,
-  Injectable,
-  ConflictException,
   BadRequestException,
-  UnauthorizedException,
+  ConflictException,
+  Injectable,
   InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { ErrorCode } from '../common/error-codes';
 import { generateSecret, generateURI, verify } from 'otplib';
-import * as QRCode from 'qrcode';
-import { Prisma } from '@prisma/client';
-import { encryptSecret, decryptSecret } from '../common/crypto';
+import QRCode from 'qrcode';
+import { decryptSecret, encryptSecret } from '../common/crypto.js';
+import { ErrorCode } from '../common/error-codes.js';
+import { Prisma } from '../generated/prisma/client.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class TwofaService {

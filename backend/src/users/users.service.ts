@@ -5,17 +5,17 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
-import * as FileType from 'file-type';
+import bcrypt from 'bcrypt';
+import { fileTypeFromFile } from 'file-type';
 import { unlink } from 'node:fs/promises';
 import { join } from 'node:path';
-import { ErrorCode } from '../common/error-codes';
-import { MIME_TO_EXT } from '../common/mime-types';
-import { AVATAR_UPLOAD_DIR } from '../constants';
-import { PrismaService } from '../prisma/prisma.service';
-import { ChangePasswordDto } from './dto/change-password.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { ErrorCode } from '../common/error-codes.js';
+import { MIME_TO_EXT } from '../common/mime-types.js';
+import { AVATAR_UPLOAD_DIR } from '../constants.js';
+import { Prisma } from '../generated/prisma/client.js';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { ChangePasswordDto } from './dto/change-password.dto.js';
+import { UpdateUserDto } from './dto/update-user.dto.js';
 
 @Injectable()
 export class UsersService {
@@ -69,7 +69,7 @@ export class UsersService {
   }
 
   async updateAvatar(userId: number, filename: string) {
-    const type = await FileType.fromFile(join(AVATAR_UPLOAD_DIR, filename));
+    const type = await fileTypeFromFile(join(AVATAR_UPLOAD_DIR, filename));
     if (!type || !MIME_TO_EXT[type.mime]) {
       await this.removeAvatarFile(filename);
       throw new BadRequestException(ErrorCode.INVALID_FILE_TYPE);
