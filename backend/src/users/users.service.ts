@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -9,6 +10,8 @@ import bcrypt from 'bcrypt';
 import { fileTypeFromFile } from 'file-type';
 import { unlink } from 'node:fs/promises';
 import { join } from 'node:path';
+import { verify } from 'otplib';
+import { decryptSecret } from '../common/crypto.js';
 import { ErrorCode } from '../common/error-codes.js';
 import { MIME_TO_EXT } from '../common/mime-types.js';
 import { AVATAR_UPLOAD_DIR } from '../constants.js';
@@ -124,6 +127,30 @@ export class UsersService {
     );
     if (!corresponding) {
       throw new UnauthorizedException(ErrorCode.INVALID_CREDENTIALS);
+    }
+
+    if (row.twoFactorEnabled) {
+      if (!dto.code) {
+        throw new UnauthorizedException(ErrorCode.TWOFA_CODE_REQUIRED);
+      }
+      if (!row.twoFactorSecret) {
+        throw new InternalServerErrorException(ErrorCode.TWOFA_NOT_INITIALIZED);
+      }
+      let secret: string;
+      try {
+        secret = decryptSecret(row.twoFactorSecret);
+      } catch {
+        throw new InternalServerErrorException(
+          ErrorCode.TWOFA_SECRET_UNREADABLE,
+        );
+      }
+      const result = await verify({
+        secret,
+        token: dto.code,
+      });
+      if (!result.valid) {
+        throw new UnauthorizedException(ErrorCode.INVALID_TWOFA_CODE);
+      }
     }
 
     const newPasswordHash = await bcrypt.hash(dto.newPassword, 10);
