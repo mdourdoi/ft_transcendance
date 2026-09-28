@@ -10,7 +10,7 @@
 	import debloque from '../../assets/Icone/not_hide.png';
 
 
-	let currentStep = '2fa';
+	let currentStep = 'login';
 	let ithide = 'hide';
 	let twofa = '';
 	let email = '';
@@ -20,7 +20,10 @@
 	let loading = false;
 
 	async function addUser() {
-	  if (!email.trim() || !password.trim() || !username.trim()) return;
+	  if (!email.trim() || !password.trim() || !username.trim()){
+		error = 'EMPTY_FIELDS';
+		return;
+	}
 	  try {
 		const res = await fetch("http://localhost:3000/auth/register", {
 			method: "POST",
@@ -45,7 +48,10 @@
 	}
 
 	async function connectUser() {
-	if (!password.trim() || !username.trim()) return;
+	if (!password.trim() || !username.trim()){
+		error = 'EMPTY_FIELDS';
+		return;
+	}
 	try {
 		const res = await fetch("http://localhost:3000/auth/login", {
 			method: "POST",
@@ -73,13 +79,17 @@ function translateError(code: string): string {
 		INVALID_TWOFA_CODE: "Code 2FA incorrect",
 		USERNAME_OR_EMAIL_ALREADY_TAKEN: "Ce nom d'utilisateur ou cet email est déjà pris",
 		WEAK_PASSWORD: "Le mot de passe doit contenir 8 caractères min., majuscule, minuscule, chiffre et symbole",
-		EMPTY_MESSAGE: "Le message ne peut pas être vide"
+		EMPTY_MESSAGE: "Le message ne peut pas être vide",
+		EMPTY_FIELDS: "Veuillez remplir tous les champs"
 	};
 	return messages[code] ?? code;
 }
 
 async function twofaTwoFa() {
-	if (!password.trim() || !username.trim() || !twofa.trim()) return;
+	if (!email.trim() || !password.trim() || !username.trim()) {
+		error = 'EMPTY_FIELDS';
+		return;
+	}
 	try {
 		const res = await fetch("http://localhost:3000/auth/login", {
 			method: "POST",
