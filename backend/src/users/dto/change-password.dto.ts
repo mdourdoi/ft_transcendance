@@ -1,4 +1,10 @@
-import { IsString, IsStrongPassword, MinLength } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsStrongPassword,
+  Length,
+  MinLength,
+} from 'class-validator';
 import { ErrorCode } from '../../common/error-codes.js';
 
 export class ChangePasswordDto {
@@ -17,4 +23,8 @@ export class ChangePasswordDto {
     { message: ErrorCode.WEAK_PASSWORD },
   )
   newPassword: string;
+  @IsString({ message: ErrorCode.INVALID_TWOFA_CODE })
+  @Length(6, 6, { message: ErrorCode.INVALID_TWOFA_CODE })
+  @IsOptional()
+  code?: string;
 }
