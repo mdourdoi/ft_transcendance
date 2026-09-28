@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { fade, fly } from 'svelte/transition';
-	import { onMount } from 'svelte';
 	import logo from '../../assets/logo-onitama2.png';
 	import frame from '../../assets/frame.png';
 	import strace from '../../assets/Icone/strace.png';
@@ -10,11 +8,7 @@
 	import bloque from '../../assets/Icone/hide.png';
 	import user from '../../assets/Icone/user.png';
 	import debloque from '../../assets/Icone/not_hide.png';
-	import { Button } from "$lib/components/ui/button/index.js";
-	import HelpCircleIcon from "@lucide/svelte/icons/help-circle";
-	import InfoIcon from "@lucide/svelte/icons/info";
-	import * as InputGroup from "$lib/components/ui/input-group/index.js";
-	import * as Tooltip from "$lib/components/ui/tooltip/index.js";
+
 
 	let currentStep = '2fa';
 	let ithide = 'hide';
