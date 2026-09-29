@@ -10,6 +10,7 @@
   const routes: Routes = {
     "/": Home_main,
     "/game": Game,
+    "/game/:mode": Game,
     "/login": Log,
   };
 

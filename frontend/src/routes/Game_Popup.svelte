@@ -35,7 +35,7 @@
 		box-shadow:0 22px 100px #0008;
 
 		/* Text */
-		font-family:Georgia,serif;
+		font-family:var(--font-brush);
 	}
 	
 	.dialog::backdrop {
