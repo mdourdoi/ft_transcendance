@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Pop_up from './Game_Popup.svelte'
+	import { Button } from '$lib/components/ui/button';
 
 	let	Exit_screen = false;
 	let	Pop_up_choice: 'Message' | 'Pause' | 'Setting' | 'Quit' | 'In Game' | 'Historique' | 'Regles du jeu';
@@ -34,29 +35,29 @@
 				</header>
 			</div>
 			<nav class="Top_navbar">
-				<button class="Top_bar_button" onclick={()=>Pop_up_choice='Message'}>
+				<Button variant="ghost" class="Top_bar_button" onclick={()=>Pop_up_choice='Message'}>
 					<img src="">
-				</button>
-				<button class="Top_bar_button" onclick={()=>Pop_up_choice='Pause'}>
+				</Button>
+				<Button variant="ghost" class="Top_bar_button" onclick={()=>Pop_up_choice='Pause'}>
 					<img src="">
-				</button>
-				<button class="Top_bar_button" onclick={()=>Pop_up_choice='Setting'}>
+				</Button>
+				<Button variant="ghost" class="Top_bar_button" onclick={()=>Pop_up_choice='Setting'}>
 					<img src="">
-				</button>
-				<button class="Top_bar_button" onclick={()=>Pop_up_choice='Quit'}>
+				</Button>
+				<Button variant="ghost" class="Top_bar_button" onclick={()=>Pop_up_choice='Quit'}>
 					<img src="">
-				</button>
+				</Button>
 			</nav>
 			<nav class="Side_navbar">
-				<button class="Left_bar_button" onclick={()=>Pop_up_choice='In Game'}>
+				<Button variant="ghost" class="Left_bar_button" onclick={()=>Pop_up_choice='In Game'}>
 					
-				</button>
-				<button class="Left_bar_button" onclick={()=>Pop_up_choice='Historique'}>
+				</Button>
+				<Button variant="ghost" class="Left_bar_button" onclick={()=>Pop_up_choice='Historique'}>
 					
-				</button>
-				<button class="Left_bar_button" onclick={()=>Pop_up_choice='Regles du jeu'}>
+				</Button>
+				<Button variant="ghost" class="Left_bar_button" onclick={()=>Pop_up_choice='Regles du jeu'}>
 
-				</button>
+				</Button>
 			</nav>
 			<section class="Player_section">
 				

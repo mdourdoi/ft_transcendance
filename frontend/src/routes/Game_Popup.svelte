@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Button } from '$lib/components/ui/button';
 	let	Pop_up:HTMLDialogElement;
 </script>
 
@@ -8,7 +9,7 @@
 			<span class="eyebrow">ONITAMA · LE DOJO</span>
 			<h2>Test</h2>
 		</div>
-		<button class="close" aria-label="Fermer">×</button>
+		<Button variant="ghost" class="close" aria-label="Fermer">×</Button>
 	</header>
   	<div class="body"></div>
 </dialog>
@@ -75,7 +76,7 @@
 		font-size:29px;
 	}
 	
-	.close {
+	header :global(.close) {
 		/* Display */
 		color:#755335;
 

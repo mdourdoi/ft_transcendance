@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
 	import { onMount } from 'svelte';
+	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
+	import * as Card from '$lib/components/ui/card';
+	import CircleAlert from '@lucide/svelte/icons/circle-alert';
+	import { Stamp } from '$lib/components/onitama';
 
 	let currentStep = 'choice';
 	let email = '';
@@ -89,241 +94,45 @@
 }
 </script>
 
-<main>
-	<h1>MAIN_TITLE</h1>
-	<div class="card-container">
-		{#if currentStep === 'choice'}
-			<div in:fade={{ duration: 200 }} class="button-group">
-				<button class="btn primary" on:click={
-					() => selectMode('login')}>
-					Connexion
-				</button>
-				<button class="btn secondary" on:click={
-					() => selectMode('signin')}>
-					Inscription
-				</button>
-			</div>
-		{:else if currentStep === 'login'}
-			<form
-				in:fly={{ y: 20, duration: 300 }}
-				on:submit|preventDefault={handleSubmit}
-				class="form-card"
-			>
-				<h2>{currentStep === 'login' ? 'Connexion' : 'Inscription'}</h2>
-				<div class="input-group">
-					<input type="username" bind:value={
-						username} placeholder="Username" required />
-					<input type="password" bind:value={
-						password} placeholder="Mot de passe" required />
+<main class="relative flex h-screen w-screen items-center justify-center overflow-hidden">
+	<img class="pointer-events-none fixed inset-0 size-full select-none" src="../assets/home/background/background.png" alt="" />
+	<div class="relative flex flex-col items-center gap-6">
+		<img class="h-40 w-auto rounded-xl shadow-lg" src="../assets/home/logo/onitama.png" alt="Onitama" />
+		<Card.Root class="w-[340px] border-4 border-double border-border bg-card/90 shadow-xl backdrop-blur-sm">
+			{#if currentStep === 'choice'}
+				<div in:fade={{ duration: 200 }} class="flex flex-col gap-(--card-spacing)">
+					<Card.Header class="items-center text-center">
+						<Stamp class="mx-auto mb-2" />
+						<Card.Title class="font-display text-2xl">Bienvenue au dojo</Card.Title>
+						<Card.Description>Connecte-toi ou rejoins la voie.</Card.Description>
+					</Card.Header>
+					<Card.Content class="flex flex-col gap-3">
+						<Button size="lg" onclick={() => selectMode('login')}>Connexion</Button>
+						<Button size="lg" variant="secondary" onclick={() => selectMode('signin')}>Inscription</Button>
+					</Card.Content>
 				</div>
-				<button type="submit" class="btn primary">Valider</button>
-				<button type="button" class="btn-link" on:click={
-					() => selectMode('choice')}>
-					← Retour
-				</button>
-				{#if error}
-                    <div class="error-banner" in:fly={{ y: -10, duration: 200 }}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                        viewBox="0 0 24 24"fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="12" y1="8" x2="12" y2="12"/>
-                            <line x1="12" y1="16" x2="12.01" y2="16"/>
-                        </svg>
-                        <span>{error}</span>
-                    </div>
-                {/if}
-			</form>
-		{:else}
-			<form
-				in:fly={{ y: 20, duration: 300 }}
-				on:submit|preventDefault={handleSubmit}
-				class="form-card">
-				<h2>{currentStep === 'login' ? 'Connexion' : 'Inscription'}</h2>
-				<div class="input-group">
-					<input type="username" bind:value={
-						username} placeholder="Username" required/>
-					<input type="email" bind:value={
-						email} placeholder="Email" required/>
-					<input type="password" bind:value={
-						password} placeholder="Mot de passe" required/>
-				</div>
-				<button type="submit" class="btn primary">Valider</button>
-				<button type="button" class="btn-link" on:click={
-					() => selectMode('choice')}>
-					← Retour
-				</button>
-					{#if error}
-                    <div class="error-banner" in:fly={{ y: -10, duration: 200 }}>
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                            width="18" height="18" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="12" y1="8" x2="12" y2="12"/>
-                            <line x1="12" y1="16" x2="12.01" y2="16"/>
-                        </svg>
-                        <span>{error}</span>
-                    </div>
-                {/if}
-			</form>
-		{/if}
+			{:else}
+				<form in:fly={{ y: 20, duration: 300 }} onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="flex flex-col gap-(--card-spacing)">
+					<Card.Header class="text-center">
+						<Card.Title class="font-display text-2xl">{currentStep === 'login' ? 'Connexion' : 'Inscription'}</Card.Title>
+					</Card.Header>
+					<Card.Content class="flex flex-col gap-3">
+						<Input bind:value={username} placeholder="Username" autocomplete="username" required class="h-10 bg-card" />
+						{#if currentStep === 'signin'}
+							<Input type="email" bind:value={email} placeholder="Email" autocomplete="email" required class="h-10 bg-card" />
+						{/if}
+						<Input type="password" bind:value={password} placeholder="Mot de passe" autocomplete={currentStep === 'login' ? 'current-password' : 'new-password'} required class="h-10 bg-card" />
+						<Button type="submit" size="lg" disabled={loading}>Valider</Button>
+						<Button type="button" variant="link" onclick={() => selectMode('choice')}>← Retour</Button>
+						{#if error}
+							<div in:fly={{ y: -10, duration: 200 }} role="alert" class="flex items-center gap-2 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+								<CircleAlert class="size-4 shrink-0" />
+								<span>{error}</span>
+							</div>
+						{/if}
+					</Card.Content>
+				</form>
+			{/if}
+		</Card.Root>
 	</div>
 </main>
-
-<style>
-	:global(body) {
-		margin: 0;
-		padding: 0;
-		height: 100vh;
-		overflow: hidden;
-		font-family: system-ui, -apple-system, sans-serif;
-	}
-
-	main {
-		background-image: url('../assets/home-page.jpg');
-		background-size: cover;
-		background-position: center;
-		background-repeat: no-repeat;
-		width: 100vw;
-		height: 100vh;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		position: relative;
-	}
-
-	h1 {
-		color: white;
-		margin: 0;
-		position: absolute;
-		top: 40px;
-		font-size: 2.5rem;
-		letter-spacing: 2px;
-		text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-	}
-
-	.card-container {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-	}
-
-	.button-group, .form-card {
-		background: rgba(255, 255, 255, 0.15);
-		backdrop-filter: blur(12px);
-		-webkit-backdrop-filter: blur(12px);
-		border: 1px solid rgba(255, 255, 255, 0.25);
-		border-radius: 16px;
-		padding: 2.5rem;
-		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-		display: flex;
-		flex-direction: column;
-		gap: 1.2rem;
-		width: 300px;
-	}
-
-	h2 {
-		margin: 0 0 0.5rem 0;
-		color: white;
-		text-align: center;
-		font-size: 1.5rem;
-	}
-
-	.input-group {
-		display: flex;
-		flex-direction: column;
-		gap: 0.8rem;
-	}
-
-	input {
-		width: 100%;
-		padding: 12px 14px;
-		border-radius: 8px;
-		border: 1px solid rgba(255, 255, 255, 0.3);
-		background: rgba(255, 255, 255, 0.85);
-		font-size: 0.95rem;
-		box-sizing: border-box;
-		outline: none;
-		transition: all 0.2s ease;
-		color: black;
-	}
-
-	input:focus {
-		background: #ffffff;
-		border-color: #6366f1;
-		box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
-	}
-
-	.btn {
-		padding: 12px;
-		border: none;
-		border-radius: 8px;
-		font-size: 1rem;
-		font-weight: 600;
-		cursor: pointer;
-		transition: transform 0.1s ease, background-color 0.2s ease;
-	}
-
-	.btn:hover {
-		transform: translateY(-2px);
-	}
-
-	.btn:active {
-		transform: translateY(0);
-	}
-
-	.btn.primary {
-		background-color: #6366f1;
-		color: white;
-	}
-
-	.btn.primary:hover {
-		background-color: #4f46e5;
-	}
-
-	.btn.secondary {
-		background-color: rgba(255, 255, 255, 0.9);
-		color: #1f2937;
-	}
-
-	.btn.secondary:hover {
-		background-color: #ffffff;
-	}
-
-	.btn-link {
-		background: none;
-		border: none;
-		color: rgba(255, 255, 255, 0.8);
-		cursor: pointer;
-		font-size: 0.85rem;
-		margin-top: 0.2rem;
-	}
-
-	.btn-link:hover {
-		color: white;
-		text-decoration: underline;
-	}
-    .error-banner {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(239, 68, 68, 0.2);
-    border: 1px solid rgba(239, 68, 68, 0.4);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    color: #fca5a5;
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    line-height: 1.3;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
-}
-
-.error-banner svg {
-    flex-shrink: 0;
-    stroke: #fca5a5;
-}
-</style>
-
