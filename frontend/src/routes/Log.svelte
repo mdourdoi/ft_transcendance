@@ -41,7 +41,7 @@
 	}
 
 	async function connectUser() {
-		if (!password.trim() || !username.trim()) {
+		if (!password.trim() || !email.trim()) {
 			error = 'EMPTY_FIELDS';
 			return;
 		}
@@ -49,13 +49,13 @@
 			const res = await fetch('http://localhost:3000/auth/login', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ username: username, password: password })
+				body: JSON.stringify({ email: email, password: password })
 			});
 			const data = await res.json();
 			if (!res.ok) throw new Error(data.message);
 			console.log(data);
 			password = '';
-			username = '';
+			email = '';
 		} catch (err) {
 			error = err instanceof Error ? err.message : String(err);
 			if (error === 'TWOFA_CODE_REQUIRED') selectMode('2fa');
@@ -63,7 +63,7 @@
 	}
 
 	async function connectTwoFa() {
-		if (!password.trim() || !username.trim() || !twofa.trim()) {
+		if (!password.trim() || !email.trim() || !twofa.trim()) {
 			error = 'EMPTY_FIELDS';
 			return;
 		}
@@ -71,13 +71,13 @@
 			const res = await fetch('http://localhost:3000/auth/login', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ username: username, password: password, code: twofa })
+				body: JSON.stringify({ email: email, password: password, code: twofa })
 			});
 			const data = await res.json();
 			if (!res.ok) throw new Error(data.message);
 			console.log(data);
 			password = '';
-			username = '';
+			email = '';
 			twofa = '';
 		} catch (err) {
 			error = err instanceof Error ? err.message : String(err);
@@ -86,7 +86,9 @@
 
 	function translateError(code: string): string {
 		const messages: Record<string, string> = {
-			INVALID_CREDENTIALS: "Nom d'utilisateur ou mot de passe incorrect",
+			INVALID_CREDENTIALS: 'Email ou mot de passe incorrect',
+			INVALID_USERNAME: "Le nom d'utilisateur doit faire 3 à 24 caractères, lettres et chiffres uniquement",
+			INVALID_EMAIL: 'Adresse email invalide',
 			INVALID_TWOFA_CODE: 'Code 2FA incorrect',
 			USERNAME_OR_EMAIL_ALREADY_TAKEN: "Ce nom d'utilisateur ou cet email est déjà pris",
 			WEAK_PASSWORD:
@@ -142,10 +144,10 @@
 						<Card.Title class="font-display text-2xl">{currentStep === 'login' ? 'Connexion' : currentStep === 'signin' ? 'Inscription' : 'Validation 2FA'}</Card.Title>
 					</Card.Header>
 					<Card.Content class="flex flex-col gap-3">
-						<Input bind:value={username} placeholder="Username" autocomplete="username" required class="h-10 bg-card" />
 						{#if currentStep === 'signin'}
-							<Input type="email" bind:value={email} placeholder="Email" autocomplete="email" required class="h-10 bg-card" />
+							<Input bind:value={username} placeholder="Username" autocomplete="username" minlength={3} maxlength={24} pattern="[a-zA-Z0-9]+" required class="h-10 bg-card" />
 						{/if}
+						<Input type="email" bind:value={email} placeholder="Email" autocomplete="email" required class="h-10 bg-card" />
 						<div class="relative">
 							<Input type={showPassword ? 'text' : 'password'} bind:value={password} placeholder="Mot de passe" autocomplete={currentStep === 'signin' ? 'new-password' : 'current-password'} required class="h-10 bg-card pr-10" />
 							<button type="button" onclick={() => (showPassword = !showPassword)} aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'} class="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground">
