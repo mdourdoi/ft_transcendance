@@ -1,0 +1,46 @@
+meta {
+  name: Player who left is not matched
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+script:pre-request {
+  const socket = require("./lib/socket.js");
+  const baseUrl = bru.getEnvVar("baseUrl");
+  const result = {};
+  try {
+    const clientA = await socket.connectAs(baseUrl, bru.getVar("tokenA"));
+    const clientB = await socket.connectAs(baseUrl, bru.getVar("tokenB"));
+    await socket.joinQueue(clientA, "UNRANKED");
+    await socket.leaveQueue(clientA);
+    await socket.joinQueue(clientB, "UNRANKED");
+    result.matchedA = await socket.receives(clientA, "queue.matched", 3500);
+    await socket.leaveQueue(clientB);
+    socket.closeAll(clientA, clientB);
+  } catch (error) {
+    result.error = error.message;
+  }
+  bru.setVar("queueResult", JSON.stringify(result));
+}
+
+tests {
+  const result = JSON.parse(bru.getVar("queueResult"));
+
+  test("scenario ran without error", function () {
+    expect(result.error).to.be.undefined;
+  });
+
+  test("player A is not matched after leaving", function () {
+    expect(result.matchedA).to.equal(false);
+  });
+}

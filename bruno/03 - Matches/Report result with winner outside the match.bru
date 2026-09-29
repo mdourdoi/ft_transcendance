@@ -1,0 +1,27 @@
+meta {
+  name: Report result with winner outside the match
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/matches/{{unrankedMatchId}}/result
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+body:json {
+  {
+    "winnerId": {{idC}}
+  }
+}
+
+tests {
+  test("returns 403", function () {
+    expect(res.getStatus()).to.equal(403);
+  });
+}
