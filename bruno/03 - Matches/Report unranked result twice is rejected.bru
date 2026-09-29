@@ -1,0 +1,27 @@
+meta {
+  name: Report unranked result twice is rejected
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/matches/{{unrankedMatchId}}/result
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenB}}
+}
+
+body:json {
+  {
+    "winnerId": {{idB}}
+  }
+}
+
+tests {
+  test("returns 403", function () {
+    expect(res.getStatus()).to.equal(403);
+  });
+}

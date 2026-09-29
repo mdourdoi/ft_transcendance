@@ -8,11 +8,19 @@ export type Routes = Record<string, Component<any>>;
 export type ResolvedRoute = { component: Component<any>; params: RouteParams };
 
 export const path = writable(window.location.pathname);
+export const animateNavigation = writable(false);
 
-window.addEventListener("popstate", () => path.set(window.location.pathname));
+window.addEventListener("popstate", () => {
+  animateNavigation.set(false);
+  path.set(window.location.pathname);
+});
 
-export function navigate(to: string, { replace = false } = {}) {
+export type NavigateOptions = { replace?: boolean; useAnimation?: boolean };
+
+export function navigate(to: string, options: NavigateOptions = {}) {
+  const { replace = false, useAnimation = false } = options;
   if (to === window.location.pathname) return;
+  animateNavigation.set(useAnimation);
   history[replace ? "replaceState" : "pushState"]({}, "", to);
   path.set(to);
 }

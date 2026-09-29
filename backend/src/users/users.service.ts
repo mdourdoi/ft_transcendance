@@ -1,13 +1,24 @@
-
 import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { ErrorCode } from '../common/error-codes';
+import bcrypt from 'bcrypt';
+import { fileTypeFromFile } from 'file-type';
+import { unlink } from 'node:fs/promises';
+import { join } from 'node:path';
+import { verify } from 'otplib';
+import { decryptSecret } from '../common/crypto.js';
+import { ErrorCode } from '../common/error-codes.js';
+import { MIME_TO_EXT } from '../common/mime-types.js';
+import { AVATAR_UPLOAD_DIR } from '../constants.js';
+import { Prisma } from '../generated/prisma/client.js';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { ChangePasswordDto } from './dto/change-password.dto.js';
+import { UpdateUserDto } from './dto/update-user.dto.js';
 
 @Injectable()
 export class UsersService {
@@ -22,8 +33,18 @@ export class UsersService {
       id: row.id,
       email: row.email,
       username: row.username,
+      avatarUrl: row.avatarUrl,
+      rating: row.rating,
       createdAt: row.createdAt,
     };
+  }
+
+  async findById(userId: number) {
+    const row = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!row) {
+      throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+    }
+    return row;
   }
 
   async update(userId: number, dto: UpdateUserDto) {
@@ -43,12 +64,115 @@ export class UsersService {
         where: { id: userId },
         data,
       });
-      return { id: userId, username: row.username, email: row.email };
+      return {
+        id: userId,
+        username: row.username,
+        email: row.email,
+        avatarUrl: row.avatarUrl,
+      };
     } catch (e) {
-      if (e.code === 'P2002')
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2002'
+      )
         throw new ConflictException(ErrorCode.USERNAME_OR_EMAIL_ALREADY_TAKEN);
       throw e;
     }
   }
 
+  async updateAvatar(userId: number, filename: string) {
+    const type = await fileTypeFromFile(join(AVATAR_UPLOAD_DIR, filename));
+    if (!type || !MIME_TO_EXT[type.mime]) {
+      await this.removeAvatarFile(filename);
+      throw new BadRequestException(ErrorCode.INVALID_FILE_TYPE);
+    }
+
+    const current = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!current) {
+      await this.removeAvatarFile(filename);
+      throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+    }
+
+    const row = await this.prisma.user.update({
+      where: { id: userId },
+      data: { avatarUrl: filename },
+    });
+    if (current.avatarUrl) {
+      await this.removeAvatarFile(current.avatarUrl);
+    }
+    return {
+      id: row.id,
+      email: row.email,
+      username: row.username,
+      avatarUrl: row.avatarUrl,
+      createdAt: row.createdAt,
+    };
+  }
+
+  private async removeAvatarFile(filename: string) {
+    try {
+      await unlink(join(AVATAR_UPLOAD_DIR, filename));
+    } catch (e) {
+      console.warn('avatar cleanup failed:', e);
+    }
+  }
+
+  async changePassword(userId: number, dto: ChangePasswordDto) {
+    const row = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!row) {
+      throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+    }
+    if (dto.newPassword === dto.oldPassword) {
+      throw new BadRequestException(ErrorCode.PASSWORD_UNCHANGED);
+    }
+    const corresponding = await bcrypt.compare(
+      dto.oldPassword,
+      row.passwordHash,
+    );
+    if (!corresponding) {
+      throw new UnauthorizedException(ErrorCode.INVALID_CREDENTIALS);
+    }
+
+    if (row.twoFactorEnabled) {
+      if (!dto.code) {
+        throw new UnauthorizedException(ErrorCode.TWOFA_CODE_REQUIRED);
+      }
+      if (!row.twoFactorSecret) {
+        throw new InternalServerErrorException(ErrorCode.TWOFA_NOT_INITIALIZED);
+      }
+      let secret: string;
+      try {
+        secret = decryptSecret(row.twoFactorSecret);
+      } catch {
+        throw new InternalServerErrorException(
+          ErrorCode.TWOFA_SECRET_UNREADABLE,
+        );
+      }
+      const result = await verify({
+        secret,
+        token: dto.code,
+      });
+      if (!result.valid) {
+        throw new UnauthorizedException(ErrorCode.INVALID_TWOFA_CODE);
+      }
+    }
+
+    const newPasswordHash = await bcrypt.hash(dto.newPassword, 10);
+
+    const newRow = await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash: newPasswordHash },
+    });
+    return {
+      id: userId,
+      username: newRow.username,
+      email: newRow.email,
+      avatarUrl: newRow.avatarUrl,
+    };
+  }
 }

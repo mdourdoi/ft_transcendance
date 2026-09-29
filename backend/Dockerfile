@@ -1,13 +1,15 @@
-FROM node:20-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 
 RUN apk add --no-cache postgresql-client openssl
 
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
 COPY prisma ./prisma
+COPY prisma.config.ts ./
+COPY assets/default.png /app/uploads/avatars/default.png
 RUN npx prisma generate
 
 COPY . .

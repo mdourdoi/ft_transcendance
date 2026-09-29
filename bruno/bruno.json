@@ -1,0 +1,6 @@
+{
+  "version": "1",
+  "name": "ft_transcendance",
+  "type": "collection",
+  "ignore": ["node_modules", ".git"]
+}

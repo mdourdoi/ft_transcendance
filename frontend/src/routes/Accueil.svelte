@@ -5,6 +5,7 @@
 	import type { CarouselAPI } from '$lib/components/ui/carousel/context';
 	import { InkQuote } from '$lib/components/onitama';
 	import { cn } from '$lib/utils';
+	import { navigate } from '$lib/router';
 
 	const news = [
 		{ title: 'Nouvelle saison', text: 'De nouveaux défis vous attendent sur le chemin.', image: '../assets/home/background/actuality_1.png' },
@@ -33,6 +34,7 @@
 		<Button
 			variant="ghost"
 			aria-label="Jouer"
+			onclick={() => navigate('/game', { useAnimation: true })}
 			class="absolute top-[75%] left-[69%] h-auto w-[clamp(300px,32vw,520px)] -translate-x-1/2 -translate-y-1/2 p-0 transition-transform hover:scale-[1.035] hover:bg-transparent hover:drop-shadow-lg active:scale-95"
 		>
 			<img class="pointer-events-none w-full select-none" src="../assets/home/boutton/play.png" alt="Jouer" />

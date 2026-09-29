@@ -1,5 +1,5 @@
 import { IsEmail, IsOptional, IsString } from 'class-validator';
-import { ErrorCode } from '../../common/error-codes';
+import { ErrorCode } from '../../common/error-codes.js';
 
 export class UpdateUserDto {
   @IsOptional()

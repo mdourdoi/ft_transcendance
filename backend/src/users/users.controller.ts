@@ -1,9 +1,25 @@
-
-import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { JwtGuard } from '../auth/jwt.guard';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { UpdateUserDto } from './dto/update-user.dto';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Patch,
+  Post,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { CurrentUser } from '../auth/current-user.decorator.js';
+import { JwtGuard } from '../auth/jwt.guard.js';
+import { AuthenticatedRequest } from '../auth/types/jwt-payload.interface.js';
+import { ErrorCode } from '../common/error-codes.js';
+import { MIME_TO_EXT } from '../common/mime-types.js';
+import { AVATAR_UPLOAD_DIR } from '../constants.js';
+import { ChangePasswordDto } from './dto/change-password.dto.js';
+import { UpdateUserDto } from './dto/update-user.dto.js';
+import { UsersService } from './users.service.js';
 
 @Controller('users')
 export class UsersController {
@@ -21,4 +37,44 @@ export class UsersController {
     return this.userService.update(userId, dto);
   }
 
+  @UseGuards(JwtGuard)
+  @Post('me/avatar')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: AVATAR_UPLOAD_DIR,
+        filename: (req: AuthenticatedRequest, file, cb) =>
+          cb(
+            null,
+            `${req.user.sub}-${Date.now()}.${MIME_TO_EXT[file.mimetype]}`,
+          ),
+      }),
+      limits: { fileSize: 2 * 1024 * 1024 },
+      fileFilter: (req, file, cb) => {
+        if (MIME_TO_EXT[file.mimetype]) {
+          cb(null, true);
+        } else {
+          cb(new BadRequestException(ErrorCode.INVALID_FILE_TYPE), false);
+        }
+      },
+    }),
+  )
+  updateAvatar(
+    @CurrentUser('sub') userId: number,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException(ErrorCode.MISSING_FILE);
+    }
+    return this.userService.updateAvatar(userId, file.filename);
+  }
+
+  @UseGuards(JwtGuard)
+  @Patch('me/password')
+  changePassword(
+    @CurrentUser('sub') userId: number,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    return this.userService.changePassword(userId, dto);
+  }
 }
