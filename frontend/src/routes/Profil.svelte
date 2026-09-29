@@ -186,7 +186,7 @@
 								<fieldset class="flex flex-col gap-2">
 									<legend class="mb-2 text-sm font-semibold">Pseudo</legend>
 									<Label for="profile-username">Nom d’utilisateur</Label>
-									<Input id="profile-username" autocomplete="username" minlength={3} maxlength={24} required class="bg-card" />
+									<Input id="profile-username" autocomplete="username" minlength={3} maxlength={24} pattern="[a-zA-Z0-9]+" required class="bg-card" />
 									<Button type="submit" variant="secondary" class="self-start">Enregistrer le pseudo</Button>
 								</fieldset>
 							</form>
