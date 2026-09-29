@@ -1,0 +1,29 @@
+meta {
+  name: Login player C
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "queue_c_{{suffix}}",
+    "password": "{{password}}"
+  }
+}
+
+script:post-response {
+  bru.setVar("tokenC", res.getBody().accessToken);
+}
+
+tests {
+  test("returns an access token", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().accessToken).to.be.a("string");
+  });
+}
