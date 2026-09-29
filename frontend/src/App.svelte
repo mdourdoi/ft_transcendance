@@ -3,12 +3,14 @@
   import Home_main from "./routes/Home_main.svelte";
   import Game from "./routes/Game.svelte";
   import NotFound from "./routes/NotFound.svelte";
+  import Log from "./routes/Log.svelte";
   import LocaleSwitcher from "$lib/components/LocaleSwitcher.svelte";
   import PageTransition from "$lib/components/PageTransition.svelte";
 
   const routes: Routes = {
     "/": Home_main,
     "/game": Game,
+    "/login": Log,
   };
 
   const route = $derived(resolve(routes, $path));

@@ -5,6 +5,8 @@
 	import { Input } from '$lib/components/ui/input';
 	import * as Card from '$lib/components/ui/card';
 	import CircleAlert from '@lucide/svelte/icons/circle-alert';
+	import Eye from '@lucide/svelte/icons/eye';
+	import EyeOff from '@lucide/svelte/icons/eye-off';
 	import { Stamp } from '$lib/components/onitama';
 
 	let currentStep = 'choice';
@@ -12,6 +14,8 @@
 	let password = '';
 	let username = '';
 	let error = '';
+	let twofa = '';
+	let showPassword = false;
 	let loading = false
 	// let loading = true;
 	// let error = null;
@@ -34,44 +38,81 @@
 	// })
 
 	async function addUser() {
-	  if (!email.trim() || !password.trim() || !username.trim()) return;
-	  try {
-		const res = await fetch("http://localhost:3000/auth/register", {
-			method: "POST",
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ email: email, username: username, password: password })
-		})
-		if (!res.ok) throw new Error("ERROR MAIL USERNAME PASSWORD")
-		const createdUser = await res.json();
-		console.log(createdUser)
-      	email = '';
-      	password = '';
-      	username = '';
-	   	} catch (err) {
-			error = err instanceof Error ? err.message : String(err);
+		if (!email.trim() || !password.trim() || !username.trim()) {
+			error = 'EMPTY_FIELDS';
+			return;
 		}
-		finally {
-		loading = false
-	  }
-	}
-
-	async function connectUser() {
-		if (!password.trim() || !username.trim()) return;
-		try{
-			const res = await fetch("http://localhost:3000/auth/login", {
+		try {
+			const res = await fetch("http://localhost:3000/auth/register", {
 				method: "POST",
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({username: username, password: password })
+				body: JSON.stringify({ email: email, username: username, password: password })
 			})
-			if (!res.ok) throw new Error("ERROR USERNAME OR PASSWORD")
 			const data = await res.json();
-			console.log(data);
+			if (!res.ok) throw new Error(data.message);
+			console.log(data)
+			email = '';
+			password = '';
+			username = '';
 		} catch (err) {
 			error = err instanceof Error ? err.message : String(err);
 		}
-		finally {
-			loading = false
+	}
+
+	async function connectUser() {
+		if (!password.trim() || !username.trim()) {
+			error = 'EMPTY_FIELDS';
+			return;
 		}
+		try {
+			const res = await fetch("http://localhost:3000/auth/login", {
+				method: "POST",
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ username: username, password: password })
+			})
+			const data = await res.json();
+			if (!res.ok) throw new Error(data.message);
+			console.log(data);
+			password = '';
+			username = '';
+		} catch (err) {
+			error = err instanceof Error ? err.message : String(err);
+			if (error === 'TWOFA_CODE_REQUIRED') selectMode('2fa');
+		}
+	}
+
+	async function connectTwoFa() {
+		if (!password.trim() || !username.trim() || !twofa.trim()) {
+			error = 'EMPTY_FIELDS';
+			return;
+		}
+		try {
+			const res = await fetch("http://localhost:3000/auth/login", {
+				method: "POST",
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ username: username, password: password, code: twofa })
+			})
+			const data = await res.json();
+			if (!res.ok) throw new Error(data.message);
+			console.log(data);
+			password = '';
+			username = '';
+			twofa = '';
+		} catch (err) {
+			error = err instanceof Error ? err.message : String(err);
+		}
+	}
+
+	function translateError(code: string): string {
+		const messages: Record<string, string> = {
+			INVALID_CREDENTIALS: "Nom d'utilisateur ou mot de passe incorrect",
+			INVALID_TWOFA_CODE: "Code 2FA incorrect",
+			USERNAME_OR_EMAIL_ALREADY_TAKEN: "Ce nom d'utilisateur ou cet email est déjà pris",
+			WEAK_PASSWORD: "Le mot de passe doit contenir 8 caractères min., majuscule, minuscule, chiffre et symbole",
+			EMPTY_MESSAGE: "Le message ne peut pas être vide",
+			EMPTY_FIELDS: "Veuillez remplir tous les champs"
+		};
+		return messages[code] ?? code;
 	}
 
 	function selectMode(mode: string) {
@@ -80,18 +121,20 @@
 	}
 
 	async function handleSubmit() {
-	loading = true;
-	error = '';
-	try {
-		if (currentStep === 'signin') {
-			await addUser();
-		} else {
-			await connectUser();
+		loading = true;
+		error = '';
+		try {
+			if (currentStep === 'signin') {
+				await addUser();
+			} else if (currentStep === 'login') {
+				await connectUser();
+			} else {
+				await connectTwoFa();
+			}
+		} finally {
+			loading = false;
 		}
-	} finally {
-		loading = false;
 	}
-}
 </script>
 
 <main class="relative flex h-screen w-screen items-center justify-center overflow-hidden">
@@ -114,20 +157,32 @@
 			{:else}
 				<form in:fly={{ y: 20, duration: 300 }} onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="flex flex-col gap-(--card-spacing)">
 					<Card.Header class="text-center">
-						<Card.Title class="font-display text-2xl">{currentStep === 'login' ? 'Connexion' : 'Inscription'}</Card.Title>
+						<Card.Title class="font-display text-2xl">{currentStep === 'login' ? 'Connexion' : currentStep === 'signin' ? 'Inscription' : 'Validation 2FA'}</Card.Title>
 					</Card.Header>
 					<Card.Content class="flex flex-col gap-3">
 						<Input bind:value={username} placeholder="Username" autocomplete="username" required class="h-10 bg-card" />
 						{#if currentStep === 'signin'}
 							<Input type="email" bind:value={email} placeholder="Email" autocomplete="email" required class="h-10 bg-card" />
 						{/if}
-						<Input type="password" bind:value={password} placeholder="Mot de passe" autocomplete={currentStep === 'login' ? 'current-password' : 'new-password'} required class="h-10 bg-card" />
+						<div class="relative">
+							<Input type={showPassword ? 'text' : 'password'} bind:value={password} placeholder="Mot de passe" autocomplete={currentStep === 'signin' ? 'new-password' : 'current-password'} required class="h-10 bg-card pr-10" />
+							<button type="button" onclick={() => (showPassword = !showPassword)} aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'} class="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground">
+								{#if showPassword}
+									<EyeOff class="size-4" />
+								{:else}
+									<Eye class="size-4" />
+								{/if}
+							</button>
+						</div>
+						{#if currentStep === '2fa'}
+							<Input bind:value={twofa} placeholder="Code 2FA" inputmode="numeric" autocomplete="one-time-code" required class="h-10 bg-card" />
+						{/if}
 						<Button type="submit" size="lg" disabled={loading}>Valider</Button>
 						<Button type="button" variant="link" onclick={() => selectMode('choice')}>← Retour</Button>
 						{#if error}
 							<div in:fly={{ y: -10, duration: 200 }} role="alert" class="flex items-center gap-2 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
 								<CircleAlert class="size-4 shrink-0" />
-								<span>{error}</span>
+								<span>{translateError(error)}</span>
 							</div>
 						{/if}
 					</Card.Content>
