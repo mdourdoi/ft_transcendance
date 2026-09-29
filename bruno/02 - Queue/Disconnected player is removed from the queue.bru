@@ -1,0 +1,47 @@
+meta {
+  name: Disconnected player is removed from the queue
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+script:pre-request {
+  const socket = require("./lib/socket.js");
+  const baseUrl = bru.getEnvVar("baseUrl");
+  const result = {};
+  try {
+    const clientA = await socket.connectAs(baseUrl, bru.getVar("tokenA"));
+    await socket.joinQueue(clientA, "UNRANKED");
+    clientA.disconnect();
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    const clientB = await socket.connectAs(baseUrl, bru.getVar("tokenB"));
+    await socket.joinQueue(clientB, "UNRANKED");
+    result.matchedB = await socket.receives(clientB, "queue.matched", 3500);
+    await socket.leaveQueue(clientB);
+    socket.closeAll(clientB);
+  } catch (error) {
+    result.error = error.message;
+  }
+  bru.setVar("queueResult", JSON.stringify(result));
+}
+
+tests {
+  const result = JSON.parse(bru.getVar("queueResult"));
+
+  test("scenario ran without error", function () {
+    expect(result.error).to.be.undefined;
+  });
+
+  test("player B is not matched with the disconnected player", function () {
+    expect(result.matchedB).to.equal(false);
+  });
+}
