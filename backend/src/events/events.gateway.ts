@@ -135,7 +135,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return { ok: true, message };
   }
 
-  @OnEvent('friendship.request')
+  @OnEvent('friendship.requested')
   handleFriendshipRequested(payload: {
     targetId: number;
     from: { id: number; username: string; avatarUrl: string };
