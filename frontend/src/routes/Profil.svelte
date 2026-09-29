@@ -1,7 +1,7 @@
 <script lang="ts">
 	export let onCustomize: (section: 'avatar' | 'frame' | 'title' | 'name' | 'all') => void = () => {};
- 	export let player = {name: 'Kenshii', title: 'Disciple du vent', quote: 'Le calme est ma force.', level: 42, xp: 6500, xpTarget: 10000, avatar: '/assets/profile/avatar-kenshii.png'};
-	let profileSection: 'overview' | 'achievements' | 'customization' = 'overview';
+ 	export let player = {name: 'Kenshii', title: 'Disciple du vent', quote: 'Le calme est ma force.', level: 42, xp: 6500, xpTarget: 10000, avatar: '../assets/home/avatar/avatar-kenshii.png'};
+	let profileSection: 'overview' | 'achievements' | 'customization' | 'setting';
 
   	type Achievement = {
     	title: string;
@@ -12,25 +12,28 @@
   	};
 
   	const achievements: Achievement[] = [
-    { title: 'Premier pas', description: 'Remporter une partie.', image: '/assets/profile/achievement-lotus.png', unlocked: true },
-    { title: 'Esprit du tigre', description: 'Gagner 10 parties.', image: '/assets/profile/achievement-tiger.png', unlocked: true },
-    { title: 'Voie du temple', description: 'Gagner par le temple.', image: '/assets/profile/achievement-torii.png', unlocked: true },
-    { title: 'Série parfaite', description: '4 / 5 victoires consécutives.', image: '/assets/profile/achievement-blades.png', progress: 80 },
-    { title: 'Cent victoires', description: '73 / 100 victoires.', image: '/assets/profile/achievement-crane.png', progress: 73 },
-    { title: 'Maître du dojo', description: 'Atteindre le niveau 50.', image: '/assets/profile/achievement-dragon.png', progress: 0 }
+    { title: 'Premier pas', description: 'Remporter une partie.', image: "../assets/home/avatar/dragon.png", unlocked: true },
+    { title: 'Esprit du tigre', description: 'Gagner 10 parties.', image: "../assets/home/avatar/dragon.png", unlocked: true },
+    { title: 'Voie du temple', description: 'Gagner par le temple.', image: "../assets/home/avatar/dragon.png", unlocked: true },
+    { title: 'Série parfaite', description: '4 / 5 victoires consécutives.', image: "../assets/home/avatar/dragon.png", progress: 80 },
+    { title: 'Cent victoires', description: '73 / 100 victoires.', image: "../assets/home/avatar/dragon.png", progress: 73 },
+    { title: 'Maître du dojo', description: 'Atteindre le niveau 50.', image: "../assets/home/avatar/dragon.png", progress: 0 },
+	{ title: 'Maître du dojo', description: 'Atteindre le niveau 50.', image: "../assets/home/avatar/dragon.png", progress: 0 }
   	];
 
     $: levelProgress = player.xpTarget > 0 ? Math.max(0, Math.min(100, Math.round((player.xp / player.xpTarget) * 100))) : 0;
+	$: visibleAchievements = profileSection === 'achievements' ? achievements : achievements.slice(0, 6);
 
 </script>
 
 <main class="Profil_page">
 	<aside class="Profil_sidebar">
-		<div class="Profil_kanji"> 統 </div>
+	<br><br><br><br><br>
 		<nav class="Profil_filters" aria-label="Rubriques du profil">
             <button type="button" class:active={profileSection === 'overview'} aria-pressed={profileSection === 'overview'} onclick={() => profileSection = 'overview'}>Vue d’ensemble</button>
             <button type="button" class:active={profileSection === 'achievements'} aria-pressed={profileSection === 'achievements'} onclick={() => profileSection = 'achievements'}>Succès</button>
-            <button type="button" class:active={profileSection === 'customization'} aria-pressed={profileSection === 'customization'} onclick={() => profileSection = 'customization'}>Personnalisation</button>
+            <button type="button" class:active={profileSection === 'customization'} aria-pressed={profileSection === 'customization'} onclick={() => profileSection = 'customization'}>Personnaliser</button>
+			<button type="button" class:active={profileSection === 'setting'} aria-pressed={profileSection === 'setting'} onclick={() => profileSection = 'setting'}>Settings</button>
         </nav>
         <div class="Profil_sidebar_quote">
             <p>« La maîtrise<br />de soi mène<br />à la victoire. »</p>
@@ -42,25 +45,25 @@
 			<h1><strong>Mon Profil</strong></h1>
 			<p>Montre ton style et ta patience</p>
 		</header>
-		<section class="identity-card parchment-card" aria-label="Identité et niveau">
-			<div class="avatar-block">
-			<div class="avatar-ring">
+		<section class="Identity_card Parchment_card" aria-label="Identité et niveau">
+			<div class="Avatar_block">
+			<div class="Avatar_ring">
 				<img src={player.avatar} alt={`Avatar de ${player.name}`} />
 				<button type="button" aria-label="Changer la photo" onclick={() => onCustomize('avatar')}>◉</button>
 			</div>
-			<button class="outline-button" type="button" onclick={() => onCustomize('avatar')}>Changer l’avatar</button>
+			<button class="Outline_button" type="button" onclick={() => onCustomize('avatar')}>Changer l’avatar</button>
 			</div>
-			<div class="identity-copy">
+			<div class="Identity_copy">
 			<h2>{player.name} <button type="button" aria-label="Modifier le nom" onclick={() => onCustomize('name')}>✎</button></h2>
 			<strong>{player.title} <button type="button" aria-label="Modifier le titre" onclick={() => onCustomize('title')}>✎</button></strong>
-			<span class="brush-line"></span>
+			<span class="Brush_line"></span>
 			<q>{player.quote}</q>
 			</div>
-			<div class="level-block">
-			<div class="enso-level"><span>{player.level}</span></div>
-			<div class="level-copy">
+			<div class="Level_block">
+			<div class="Enso_level"><span>{player.level}</span></div>
+			<div class="Level_copy">
 				<strong>NIVEAU</strong>
-				<div class="progress" role="progressbar" aria-label="Progression du niveau" aria-valuenow={levelProgress} aria-valuemin={0} aria-valuemax={100}><span style={`width: ${levelProgress}%`}></span></div>
+				<div class="Progression" role="progressbar" aria-label="Progression du niveau" aria-valuenow={levelProgress} aria-valuemin={0} aria-valuemax={100}><span style={`width: ${levelProgress}%`}></span></div>
 				<b>{levelProgress}%</b>
 				<p>{player.xp.toLocaleString('fr-FR')} / {player.xpTarget.toLocaleString('fr-FR')} XP</p>
 				<small>Niveau suivant : {player.level + 1}</small>
@@ -68,52 +71,102 @@
 			</div>
 		</section>
 
-		<section class="panel parchment-card" class:hidden={profileSection === 'customization'}>
-			<header class="section-heading">
+		<section class="Panel Parchment_card" class:hidden={profileSection === 'customization' || profileSection === 'setting'}>
+			<header class="Section_header">
 			<h2><span>◒</span> Succès de partie</h2>
 			<div><b>{achievements.filter((achievement) => achievement.unlocked).length} / {achievements.length} débloqués</b><button type="button" onclick={() => profileSection = 'achievements'}>Voir tous　›</button></div>
 			</header>
-			<div class="achievement-grid">
-			{#each achievements as achievement}
+			<div class="Achievement_grid">
+			{#each visibleAchievements as achievement}
 				<article class:locked={!achievement.unlocked && achievement.progress === 0}>
 				<img src={achievement.image} alt="" />
 				<div>
 					<h3>{achievement.title}</h3>
 					<p>{achievement.description}</p>
 					{#if achievement.progress !== undefined}
-					<div class="mini-progress">
+					<div class="Mini_progression">
 						<span><i style={`width: ${achievement.progress}%`}></i></span>
 						<b>{achievement.progress}%</b>
 					</div>
 					{/if}
 				</div>
-				{#if achievement.unlocked}<span class="achievement-seal">達</span>{:else if achievement.progress === 0}<span class="lock">♟</span>{/if}
+				{#if achievement.unlocked}<span class="Achievement_seal">達</span>{:else if achievement.progress === 0}<span class="lock">♟</span>{/if}
 				</article>
 			{/each}
 			</div>
 		</section>
-		<section class="customization parchment-card" class:hidden={profileSection === 'achievements'}>
-			<header class="section-heading"><h2><span>◒</span> Personnalisation</h2></header>
-			<div class="customization-content">
-			<button class="choice" type="button" onclick={() => onCustomize('avatar')}>
+		<section class="Customization Parchment_card" class:hidden={profileSection === 'achievements' || profileSection === 'setting'}>
+			<header class="Section_header"><h2><span>◒</span> Personnalisation</h2></header>
+			<div class="Customization_content">
+			<button class="Choice" type="button" onclick={() => onCustomize('avatar')}>
 				<img src={player.avatar} alt="" />
 				<span><b>Avatar</b><small>Modifiez votre avatar de profil.</small></span>
 			</button>
-			<button class="choice" type="button" onclick={() => onCustomize('frame')}>
-				<span class="frame-preview"></span>
+			<button class="Choice" type="button" onclick={() => onCustomize('frame')}>
+				<span class="Frame_preview"></span>
 				<span><b>Cadre</b><small>Choisissez un cadre pour votre avatar.</small></span>
 			</button>
-			<button class="choice" type="button" onclick={() => onCustomize('title')}>
-				<span class="title-preview">Disciple du vent</span>
+			<button class="Choice" type="button" onclick={() => onCustomize('title')}>
+				<span class="Title_preview">Disciple du vent</span>
 				<span><b>Titre</b><small>Affichez votre titre favori.</small></span>
 			</button>
-			<div class="customize-cta">
-				<button class="ink-button" type="button" onclick={() => onCustomize('all')}>Personnaliser</button>
+			<div class="Customize">
+				<button class="Ink_button" type="button" onclick={() => onCustomize('all')}>Personnaliser</button>
 				<q>L’apparence suit l’esprit.</q>
 				<span>— 御 寺 間 —　<em>棋</em></span>
 			</div>
 			</div>
 		</section>
+		<!--  -->
+		<section class="Settings Parchment_card" class:hidden={profileSection === 'achievements' || profileSection === 'customization'} aria-label="Paramètres">
+			<header class="Section_header"><h2><span>◒</span> Paramètres</h2><span>Ton compte, ton ambiance, ton jeu</span></header>
+			{#if profileSection === 'overview'}
+				<div class="Settings_summary"><p>Compte et sécurité, musique, bruitages et confort de jeu.</p><button type="button" class="Ink_button" onclick={() => selectSection('setting')}>Ouvrir les paramètres</button></div>
+			{:else if profileSection === 'setting'}
+				<div class="Settings_grid">
+					<section class="Settings_block" aria-labelledby="account-heading">
+						<h3 id="account-heading">Compte</h3>
+						<!-- onsubmit={changeUsername} -->
+						<form>
+							<fieldset><legend>Pseudo</legend>
+								<label for="profile-username">Nom d’utilisateur</label>
+								<input id="profile-username"  autocomplete="username" minlength="3" maxlength="24" required />
+								<button type="submit" class="Ink_button">Enregistrer le pseudo</button>
+							</fieldset>
+						</form>
+						<!-- onsubmit={changePassword} -->
+						<form>
+							<fieldset><legend>Mot de passe</legend>
+								<label for="current-password">Mot de passe actuel</label>
+								<input id="current-password" type="password" autocomplete="current-password" required/>
+								<label for="new-password">Nouveau mot de passe</label>
+								<input id="new-password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required aria-describedby="password-hint" />
+								<small id="password-hint">12 à 128 caractères. Les règles du serveur restent applicables.</small>
+								<label for="confirm-password">Confirmer le nouveau mot de passe</label>
+								<input id="confirm-password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required />
+								<button type="submit" class="Ink_button">Changer le mot de passe</button>
+							</fieldset>
+						</form>
+					</section>
+					<section class="Settings_block" aria-labelledby="security-heading">
+						<h3 id="security-heading">Double authentification · 2FA</h3>
+						<p>Ajoute un code temporaire généré par ton application d’authentification à la connexion.</p>
+					</section>
+					<section class="Settings_block" aria-labelledby="audio-heading">
+						<h3 id="audio-heading">Ambiance sonore</h3>
+						<fieldset>
+							<legend>Volumes</legend>
+						</fieldset>
+					</section>
+					<section class="Settings_block" aria-labelledby="game-heading">
+						<h3 id="game-heading">Confort de jeu</h3>
+					</section>
+				</div>
+				<!-- onclick={resetPreferences} -->
+				<div class="Settings_bottom"><button type="button" class="Outline_button">Réinitialiser les préférences audio et jeu</button><small>Les réglages de compte et de sécurité sont conservés.</small></div>
+			{/if}
+		</section>
+		<!--  -->
 	</section>
 </main>
 
@@ -125,7 +178,7 @@
         z-index: 10;
 
 		/* Lenght */
-		grid-template-columns: clamp(165px, 13.5vw, 210px) minmax(0, 1fr);
+		grid-template-columns: 13.5vw minmax(0, 1fr);
 
 		/* Display */
 		display: grid;
@@ -170,7 +223,7 @@
         min-height: 0;
 
 		/* Alignement */
-        padding: clamp(25px, 3vh, 40px) 18px 25px 25px;
+        padding: 25px 18px 25px 25px;
 
 		/* Display */
         display: flex;
@@ -180,7 +233,7 @@
 
     .Profil_kanji {
 		/* Alignement */
-        margin-bottom: clamp(25px, 4vh, 42px);
+        margin-bottom: 4vh;
 
 		/* Display */
         color: #15100d;
@@ -202,7 +255,7 @@
 
     .Profil_filters button {
 		/* Lenght */
-        min-height: 42px;
+        /* min-height: 42px; */
 
 		/* Alignement */
         padding: 7px 12px;
@@ -257,8 +310,10 @@
 	}
     .Profil_stamp {
 		/* Lenght */
-		width: 43px;
-		height: 51px;
+		/* width: 43px; */
+		/* height: 51px; */
+		width: 2vw;
+		/* height: 6vh; */
 
 		/* Alignement */
 		margin: 20px auto 0;
@@ -287,8 +342,8 @@
 
 		/* Alignement */
 		align-content: start;
-        gap: clamp(10px, 1.5vh, 16px);
-        padding: clamp(24px, 4vh, 48px) clamp(18px, 3vw, 50px) 22px 0;
+        gap: 1.5vh;
+        padding: 4vh 3vw  22px 0;
 
 		/* Display */
         display: grid;
@@ -318,7 +373,7 @@
 		font-size: clamp(14px, 1.25vw, 20px);
 	}
 
-    .parchment-card {
+    .Parchment_card {
 		/* Lenght */
 		min-width: 0;
 
@@ -330,7 +385,7 @@
 		border-radius: 5px;
 	}
 
-    .identity-card {
+    .Identity_card {
 		/* Lenght */
 		grid-template-columns: minmax(100px, .65fr) minmax(0, 1.3fr) minmax(0, 1.2fr);
 
@@ -343,7 +398,7 @@
         display: grid;
     }
 
-    .avatar-block {
+    .Avatar_block {
 		/* Lenght */
 		min-width: 0;
 
@@ -355,12 +410,12 @@
 		justify-items: center;
 	}
 
-    .avatar-ring {
+    .Avatar_ring {
 		/* Position */
 		position: relative;
 		
 		/* Lenght */
-		width: clamp(76px, 9vh, 116px);
+		width: 9vh;
 		
 		/* Display */
 		aspect-ratio: 1;
@@ -375,7 +430,7 @@
 		box-shadow: 0 0 0 2px #e9d4af;
 	}
 
-    .avatar-ring img {
+    .Avatar_ring img {
 		/* Lenght */
 		width: 100%;
 		height: 100%;
@@ -384,28 +439,7 @@
 		object-fit: cover;
 	}
 
-    .avatar-ring button {
-		/* Position */
-		position: absolute;
-		bottom: 0;
-		right: 0;
-		
-		/* Lenght */
-		width: 28px;
-		height: 28px;
-
-		/* Display */
-		color: #eee2cf;
-
-		/* Background */
-		background: var(--ink);
-		
-		/* Border */
-		border: 0;
-		border-radius: 50%;
-	}
-
-    .outline-button {
+    .Outline_button {
 		/* Lenght */
 		max-width: 100%;
 
@@ -423,7 +457,7 @@
 		font-size: 12px;
 	}
 
-    .identity-copy {
+    .Identity_copy {
 		/* Lenght */
 		min-width: 0;
 		
@@ -431,7 +465,7 @@
 		overflow-wrap: anywhere;
 	}
 
-    .identity-copy h2 {
+    .Identity_copy h2 {
 		/* Alignement */
 		margin: 0 0 7px;
 		
@@ -439,7 +473,7 @@
 		font-size: clamp(21px, 2vw, 30px);
 	}
 
-    .identity-copy button {
+    .Identity_copy button {
 		/* Background */
 		background: transparent;
 
@@ -447,18 +481,18 @@
 		border: 0;
 	}
 
-    .identity-copy strong {
+    .Identity_copy strong {
 		/* Text */
 		font-size: 14px;
 	}
 
-    .identity-copy q {
+    .Identity_copy q {
 		/* Text */
 		font-size: 14px;
 		font-style: italic;
 	}
 
-    .brush-line {
+    .Brush_line {
 		/* Lenght */
 		width: min(100%, 220px);
 		height: 5px;
@@ -476,7 +510,7 @@
 		clip-path: polygon(0 42%, 100% 0, 91% 64%, 5% 100%);
 	}
 
-    .level-block {
+    .Level_block {
 		/* Lenght */
 		min-width: 0;
 
@@ -488,7 +522,7 @@
 		display: flex;
 	}
 
-    .enso-level {
+    .Enso_level {
 		/* Alignement */
 		flex: 0 0 clamp(65px, 7vw, 95px);
 		place-items: center;
@@ -504,14 +538,14 @@
 		border-radius: 48% 52% 46% 54%;
 	}
 
-    .enso-level span {
+    .Enso_level span {
 		/* Animation */
 		transform: rotate(7deg);
 
 		/* Text */
 		font-size: clamp(28px, 2.8vw, 40px);
 	}
-    .level-copy {
+    .Level_copy {
 		/* Lenght */
 		min-width: 0;
 		grid-template-columns: minmax(0, 1fr) auto;
@@ -529,13 +563,13 @@
 		font-size: 12px;
 	}
 
-    .level-copy > strong, .level-copy p, .level-copy small {
+    .Level_copy > strong, .Level_copy p, .Level_copy small {
 		/* Alignement */
 		grid-column: 1 / -1;
 		margin: 0;
 	}
 
-    .progress, .mini-progress > span {
+    .Progression, .Mini_Progression > span {
 		/* Lenght */
 		min-width: 0;
 		height: 10px;
@@ -551,7 +585,7 @@
 		border-radius: 3px;
 	}
 
-    .progress span, .mini-progress i {
+    .Progress span, .Mini_progression i {
 		/* Lenght */
 		height: 100%; 
 
@@ -562,7 +596,7 @@
 		background: linear-gradient(90deg, #701713, #a22520);
 	}
 
-    .panel, .customization {
+    .Panel, .Customization {
 		/* Alignement */
 		padding: 0 10px 10px;
 	}
@@ -572,7 +606,7 @@
 		display: none;
 	}
 
-    .section-heading {
+    .Section_header {
 		/* Lenght */
 		min-height: 38px;
 
@@ -595,7 +629,7 @@
 		border-radius: 50% 6px 40% 8px / 15% 10% 18% 10%;
 	}
 
-    .section-heading h2 {
+    .Section_header h2 {
 		/* Alignement */
 		margin: 0;
 		
@@ -603,12 +637,12 @@
 		font-size: clamp(15px, 1.2vw, 19px);
 	}
 
-    .section-heading h2 span {
+    .Section_header h2 span {
 		/* Alignement */
 		margin-right: 6px;
 	}
 
-    .section-heading > div {
+    .Section_header > div {
 		/* Alignement */
 		align-items: center;
 		flex-wrap: wrap;
@@ -621,7 +655,7 @@
 		font-size: 12px;
 	}
 
-    .section-heading button {
+    .Section_header button {
 		/* Alignement */
 		padding: 0;
 
@@ -635,7 +669,7 @@
 		text-decoration: underline;
 	}
 
-    .achievement-grid {
+    .Achievement_grid {
 		/* Lenght */
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 
@@ -646,7 +680,7 @@
 		display: grid;
 	}
 
-    .achievement-grid article {
+    .Achievement_grid article {
 		/* Lenght */
 		min-width: 0;
 		grid-template-columns: 48px minmax(0, 1fr) 20px;
@@ -666,12 +700,12 @@
 		border-bottom: 1px solid var(--line);
 	}
 
-    .achievement-grid article:hover {
+    .Achievement_grid article:hover {
 		/* Background */
 		background: rgba(245, 224, 194, .48);
 	}
 
-    .achievement-grid article > img {
+    .Achievement_grid article > img {
 		/* Lenght */
 		width: 48px;
 		height: 48px;
@@ -680,7 +714,7 @@
 		object-fit: contain;
 	}
 
-    .achievement-grid h3 {
+    .Achievement_grid h3 {
 		/* Alignement */
 		margin: 0 0 5px;
 
@@ -691,7 +725,7 @@
 		font-size: 13px;
 	}
 
-    .achievement-grid p {
+    .Achievement_grid p {
 		/* Alignement */
 		margin: 0;
 
@@ -703,7 +737,7 @@
 		line-height: 1.3;
 	}
 
-    .achievement-seal {
+    .Achievement_seal {
 		/* Lenght */
 		width: 20px;
 		height: 27px;
@@ -720,18 +754,18 @@
 		border-radius: 2px;
 	}
 
-    .locked {
+    .Locked {
 		/* Display */
 		filter: grayscale(.8);
 		opacity: .82;
 	}
 
-    .lock {
+    .Lock {
 		/* Text */
 		font-size: 20px;
 	}
 
-    .mini-progress {
+    .Mini_progression {
 		/* Alignement */
 		align-items: center;
 		gap: 5px;
@@ -741,7 +775,7 @@
 		display: flex;
 	}
 
-    .mini-progress > span {
+    .Mini_progression > span {
 		/* Lenght */
 		height: 7px;
 
@@ -749,12 +783,12 @@
 		flex: 1;
 	}
 
-    .mini-progress b {
+    .Mini_progression b {
 		/* Text */
 		font-size: 10px;
 	}
 
-    .customization-content {
+    .Customization_content {
 		/* Lenght */
 		grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.1fr);
 
@@ -765,7 +799,7 @@
 		display: grid;
 	}
 
-    .choice {
+    .Choice {
 		/* Lenght */
 		min-width: 0;
 
@@ -789,7 +823,7 @@
 		text-align: left;
 	}
 
-    .choice > span:last-child {
+    .Choice > span:last-child {
 		/* Lenght */
 		min-width: 0;
 
@@ -798,7 +832,7 @@
 		overflow-wrap: anywhere;
 	}
 
-    .choice img, .frame-preview {
+    .Choice img, .Frame_preview {
 		/* Lenght */
 		width: 42px;
 		height: 42px;
@@ -813,7 +847,7 @@
 		object-fit: cover;
 	}
 
-    .choice b {
+    .Choice b {
 		/* Display */
 		display: block;
 		
@@ -821,7 +855,7 @@
 		font-size: 13px;
 	}
 
-    .choice small {
+    .Choice small {
 		/* Alignement */
 		margin-top: 4px;
 
@@ -833,7 +867,7 @@
 		line-height: 1.3;
 	}
 	
-    .frame-preview {
+    .Frame_preview {
 		/* Display */
 		outline: 2px solid var(--red);
 
@@ -841,7 +875,7 @@
 		border: 5px solid var(--ink);
 	}
 
-    .title-preview {
+    .Title_preview {
 		/* Lenght */
 		max-width: 100%;
 		
@@ -861,7 +895,7 @@
 		font-size: 11px;
 	}
 
-    .customize-cta {
+    .Customize {
 		/* Lenght */
 		min-width: 0;
 
@@ -879,7 +913,7 @@
 		font-size: 11px;
 	}
 
-    .ink-button {
+    .Ink_button {
 		/* Lenght */
 		max-width: 100%;
 		
@@ -900,12 +934,12 @@
 		font-size: 12px;
 	}
 
-    .customize-cta q {
+    .Customize q {
 		/* Text */
 		font-style: italic;
 	}
 
-    .customize-cta em {
+    .Customize em {
 		/* Alignement */
 		padding: 2px;
 
@@ -924,36 +958,201 @@
 		grid-template-rows: minmax(0, 1fr);
 	}
 
+	.Settings_grid {
+		display:grid;
+		grid-template-columns:repeat(2,minmax(0,1fr));
+		gap:16px;
+	}
+
+	.Settings_block {
+		min-width:0;
+		padding:16px;
+		border:1px solid var(--line);
+		border-radius:5px;
+		background:rgba(247,233,209,.6);
+	}
+
+	.Settings_block h3 {
+		margin:0 0 14px;
+		font-size:18px;
+	}
+
+	.Settings_block p, .Settings_block small {
+		font-size:13px;
+		line-height:1.5;
+	}
+
+	.Settings_block form + form {
+		margin-top:20px;
+	}
+
+	.Settings_block fieldset {
+		display:grid;
+		gap:10px;
+		min-width:0;
+		padding:0;
+		border:0;
+		margin:0;
+	}
+
+	.Settings_block legend {
+		font-weight:bold;
+		margin-bottom:12px;
+	}
+
+	.Settings_block label {
+		font-size:14px;
+	}
+
+	.Settings_block input:not([type="checkbox"]):not([type="range"]) {
+		display:block;
+		width:100%;
+		min-width:0;
+		padding:10px 12px;
+		color:var(--ink);
+		background:#fff8e9;
+		border:1px solid #977c59;
+		border-radius:4px;
+		font:inherit;
+	}
+
+	.Settings_block input:focus-visible {
+		outline:2px solid var(--red);
+		outline-offset:3px;
+	}
+
+	.Settings_block input[type="range"] {
+		width:100%;
+		accent-color:var(--red);
+		cursor:pointer;
+	}
+
+	.Settings_block button {
+		justify-self:start;
+	}
+
+	.Settings_block .Toggle {
+		display:flex;
+		align-items:flex-start;
+		gap:10px;
+		padding:8px 0;
+	}
+
+	.Toggle input {
+		width:18px;
+		height:18px;
+		flex:0 0 18px;
+		margin:2px 0 0;
+		accent-color:var(--red);
+	}
+
+	.Toggle small {
+		display:block;
+		margin-top:4px;
+		color:#624e3c;
+	}
+
+	.Settings_hint {
+		border-left:3px solid #987744;
+		padding:8px 12px;
+		background:#e9d7b8;
+	}
+
+	.Security_status {
+		font-weight:bold;
+	}
+
+	.Settings_block summary {
+		cursor:pointer;
+		padding:10px 0;
+	}
+
+	.Settings_block .Secret {
+		font-family:monospace;
+	}
+
+	.Recovery_codes {
+		margin-top:18px;
+		padding:12px;
+		border:1px dashed #977c59;
+		overflow-wrap:anywhere;
+	}
+
+	.Recovery_codes ul {
+		padding-left:20px;
+	}
+
+	.Settings_summary, .Settings_bottom {
+		display:flex;
+		align-items:center;
+		justify-content:space-between;
+		gap:12px;
+		flex-wrap:wrap;
+		padding:8px 4px;
+	}
+
+	.Settings_bottom {
+		margin-top:16px;
+	}
+
+	.Settings_bottom small {
+		font-size:12px;
+	}
+
+	.Settings_error {
+		color:#9b221b;
+	}
+
+	.Danger_button {
+		background:#86231e;
+	}
+
+	button:disabled, fieldset:disabled {
+		opacity:.55;
+	}
+
+	button:disabled {
+		cursor:not-allowed;
+	}
+
+	.Reduced_motion .Profil_filters button {
+		transition:none;
+	}
+
     @container profile-content (max-width: 760px) {
-        .identity-card { grid-template-columns: 100px minmax(0, 1fr); }
-        .level-block { grid-column: 1 / -1; }
-        .enso-level { flex-basis: 58px; border-width: 6px; }
-        .enso-level span { font-size: 26px; }
-        .achievement-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .customization-content { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .choice { border: 0; }
+        .Identity_card 			{ grid-template-columns: 100px minmax(0, 1fr); }
+        .Level_block 			{ grid-column: 1 / -1; }
+        .Enso_level 			{ flex-basis: 58px; border-width: 6px; }
+        .Enso_level span 		{ font-size: 26px; }
+        .Achievement_grid 		{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .Customization_content	{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .Choice 				{ border: 0; }
+		.Settings_grid { grid-template-columns:minmax(0,1fr); }
     }
     @container profile-content (max-width: 420px) {
-        .identity-card { grid-template-columns: minmax(0, 1fr); text-align: center; }
-        .brush-line { margin-inline: auto; }
-        .level-block { text-align: left; }
-        .achievement-grid, .customization-content { grid-template-columns: minmax(0, 1fr); }
-        .customize-cta { padding: 8px; }
+        .Identity_card 			{ grid-template-columns: minmax(0, 1fr); text-align: center; }
+        .Brush_line 			{ margin-inline: auto; }
+        .Level_block 			{ text-align: left; }
+        .achievement-grid,
+		.customization-content	{ grid-template-columns: minmax(0, 1fr); }
+        .Customize 				{ padding: 8px; }
     }
     @media (max-width: 900px) {
-        .Profil_page { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
-        .Profil_sidebar { padding: 8px 12px; }
-        .Profil_kanji, .Profil_sidebar_quote { display: none; }
-        .Profil_filters { flex-direction: row; flex-wrap: wrap; gap: 4px; }
-        .Profil_filters button { min-height: 36px; padding: 7px 9px; font-size: 12px; }
-        .Profil_content { padding: 12px; }
+        .Profil_page 			{ grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+        .Profil_sidebar 		{ padding: 8px 12px; }
+        .Profil_kanji, 
+		.Profil_sidebar_quote 	{ display: none; }
+        .Profil_filters 		{ flex-direction: row; flex-wrap: wrap; gap: 4px; }
+        .Profil_filters button	{ min-height: 36px; padding: 7px 9px; font-size: 12px; }
+        .Profil_content 		{ padding: 12px; }
     }
     @media (max-height: 740px) {
-        .Profil_content { padding-top: 16px; padding-bottom: 14px; gap: 8px; }
-        .Profil_header p { margin-top: 4px; }
-        .identity-card { padding-block: 8px; }
+        .Profil_content 		{ padding-top: 16px; padding-bottom: 14px; gap: 8px; }
+        .Profil_header p 		{ margin-top: 4px; }
+        .Identity_card 			{ padding-block: 8px; }
     }
     @media (prefers-reduced-motion: reduce) {
-        .Profil_filters button { transition: none;}
+        .Profil_filters button	{ transition: none;}
     }
+
 </style>

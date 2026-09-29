@@ -1,7 +1,7 @@
 <script>
-	import Log from './routes/Home_test.svelte';
+	import Log from './routes/Home_main.svelte';
 </script>
 
 <main>	
-	<Log />
+	<Log/>
 </main>

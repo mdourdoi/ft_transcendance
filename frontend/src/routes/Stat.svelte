@@ -6,18 +6,18 @@
 	{name: "Événements",value: 12,color: "#171717"}];
 
 	const mostPlayedCards =
-	[{rank: 1,name: "Tigre",games: 56,image: "../assets/stats/cards/tigre.png"},
-	{rank: 2,name: "Dragon",games: 48,image: "../assets/stats/cards/dragon.png"},
-	{rank: 3,name: "Grue",games: 42,image: "../assets/stats/cards/grue.png"},
-	{rank: 4,name: "Serpent",games: 38,image: "../assets/stats/cards/serpent.png"},
-	{rank: 5,name: "Mante",games: 31,image: "../assets/stats/cards/mante.png"}];
+	[{rank: 1,name: "Tigre",games: 56,image: "../assets/home/avatar/dragon.png"},
+	{rank: 2,name: "Dragon",games: 48,image: "../assets/home/avatar/dragon.png"},
+	{rank: 3,name: "Grue",games: 42,image: "../assets/home/avatar/dragon.png"},
+	{rank: 4,name: "Serpent",games: 38,image: "../assets/home/avatar/dragon.png"},
+	{rank: 5,name: "Mante",games: 31,image: "../assets/home/avatar/dragon.png"}];
 
 	const frequentOpponents =
-	[{rank: 1,name: "RaiNeko",games: 67,avatar: "../assets/raineko.png"},
-	{rank: 2,name: "Tsuki",games: 54,avatar: "../assets/tsuki.png"},
-	{rank: 3,name: "Daiko",games: 49,avatar: "../assets/daiko.png"},
-	{rank: 4,name: "Akemi",games: 37,avatar: "../assets/akemi.png"},
-	{rank: 5,name: "Shiro",games: 33,avatar: "../assets/shiro.png"}];
+	[{rank: 1,name: "RaiNeko",games: 67,avatar: "../assets/home/avatar/daiko.png"},
+	{rank: 2,name: "Tsuki",games: 54,avatar: "../assets/home/avatar/daiko.png"},
+	{rank: 3,name: "Daiko",games: 49,avatar: "../assets/home/avatar/daiko.png"},
+	{rank: 4,name: "Akemi",games: 37,avatar: "../assets/home/avatar/daiko.png"},
+	{rank: 5,name: "Shiro",games: 33,avatar: "../assets/home/avatar/daiko.png"}];
 
 	const hourlyStats =
 	[{ label: "0h", value: 6 },
@@ -45,9 +45,9 @@
 		.join(" ");
 </script>
 
-<main class="stats_page">
-	<aside class="stats_sidebar">
-		<div class="stats_kanji"> 統 </div>
+<main class="Stat_page">
+	<aside class="Stat_sidebar">
+		<!-- <div class="stats_kanji"> 統 </div>
 		<div class="stats_side_quote">« La maîtrise<br> de soi mène<br> à la victoire. » </div>
 		<div class="stats_stamp"> 棋 </div>
 		<nav class="stats_filters">
@@ -57,85 +57,85 @@
 			<button>Adversaires</button>
 			<button>Cartes les plus jouées</button>
 			<button>Progression</button>
-		</nav>
+		</nav> -->
 	</aside>
-	<section class="stats_content">
-		<header class="stats_header">
+	<section class="Stat_content">
+		<header class="Stat_header">
 			<h1>Statistiques globales</h1>
 			<p>Un chemin de discipline, une progression sans fin.</p>
 		</header>
-		<section class="stats_summary">
-			<div class="summary_card">
-				<div class="summary_main">
-					<span class="summary_icon">⚔</span>
+		<section class="Stat_resume">
+			<div class="Resume_card">
+				<div class="Resume_main">
+					<span class="Resume_icon">⚔</span>
 					<strong>287</strong>
 				</div>
 				<span>Parties jouées</span>
 			</div>
-			<div class="summary_card">
-				<div class="summary_main red">
-					<span class="summary_icon">♛</span>
+			<div class="Resume_card">
+				<div class="Resume_main red">
+					<span class="Resume_icon">♛</span>
 					<strong>203</strong>
 				</div>
 				<span>Victoires</span>
 			</div>
-			<div class="summary_card">
-				<div class="summary_main">
-					<span class="summary_icon skull">☠</span>
+			<div class="Resume_card">
+				<div class="Resume_main">
+					<span class="Resume_icon skull">☠</span>
 					<strong>84</strong>
 				</div>
 				<span>Défaites</span>
 			</div>
-			<div class="summary_card">
-				<div class="summary_main">
-					<span class="summary_icon">★</span>
+			<div class="Resume_card">
+				<div class="Resume_main">
+					<span class="Resume_icon">★</span>
 					<strong>70%</strong>
 				</div>
 				<span>Taux de victoire</span>
 			</div>
 		</section>
-		<section class="stats_middle">
-			<div class="stats_box modes_box">
+		<section class="Stat_middle">
+			<div class="Stat_box Modes_box">
 				<h2>Répartition par mode de jeu</h2>
-				<div class="mode_distribution">
-					<div class="donut"></div>
-					<div class="mode_legend">
+				<div class="Mode_distribution">
+					<div class="Graph"></div>
+					<div class="Mode_definition">
 						{#each statsModes as mode}
-							<div class="legend_line">
-								<span class="legend_dot" style={`background:${mode.color}`}></span>
-								<span class="legend_name">{mode.name}</span>
+							<div class="Legend_line">
+								<span class="Legend_dot" style={`background:${mode.color}`}></span>
+								<span class="Legend_name">{mode.name}</span>
 								<strong>{mode.value}%</strong>
 							</div>
 						{/each}
 					</div>
 				</div>
 			</div>
-			<div class="stats_box rank_box">
-				<div class="rank_header">
+			<div class="Stat_box Rank_box">
+				<div class="Rank_header">
 					<h2>Évolution du rang</h2>
 					<select>
 						<option>6 derniers mois</option>
 					</select>
 				</div>
-				<div class="rank_chart">
-					<div class="rank_labels">
+				<div class="Rank_chart">
+					<div class="Rank_labels">
 						<span>Maître</span>
 						<span>Expert</span>
 						<span>Adepte</span>
 						<span>Disciple</span>
 						<span>Novice</span>
 					</div>
-					<div class="rank_graph">
+					<div class="Rank_graph">
 						<svg viewBox="0 0 100 100" preserveAspectRatio="none">
 							{#each [18, 38, 58, 78] as y}
-								<line x1="0" y1={y} x2="100" y2={y} class="rank_grid_line"/>
+								<line x1="0" y1={y} x2="100" y2={y} class="Rank_grid_line"/>
 							{/each}
 							<polyline points={rankPolyline} class="rank_line"/>
 							{#each rankProgress as point}
-								<circle cx={point.x} cy={point.y} r="1.8" class="rank_point"/>
+								<circle cx={point.x} cy={point.y} r="1.8" class="Rank_point"/>
 							{/each}
 						</svg>
-						<div class="rank_months">
+						<div class="Rank_months">
 							{#each rankProgress as point}
 								<span>{point.month}</span>
 							{/each}
@@ -144,53 +144,53 @@
 				</div>
 			</div>
 		</section>
-		<section class="stats_bottom">
-			<div class="stats_box ranking_box">
+		<section class="Stat_bottom">
+			<div class="Stat_box Ranking_box">
 				<h2>Cartes les plus jouées</h2>
 				{#each mostPlayedCards as card}
-					<div class="ranking_row">
-						<span class="ranking_position">{card.rank}</span>
-						<img class="ranking_card_image" src={card.image} alt={card.name}/>
-						<span class="ranking_name">{card.name}</span>
-						<span class="ranking_games">{card.games} parties</span>
+					<div class="Ranking_row">
+						<span class="Ranking_position">{card.rank}</span>
+						<img class="Ranking_card_image" src={card.image} alt={card.name}/>
+						<span class="Ranking_name">{card.name}</span>
+						<span class="Ranking_games">{card.games} parties</span>
 					</div>
 				{/each}
 			</div>
-			<div class="stats_box ranking_box">
+			<div class="Stat_box Ranking_box">
 				<h2>Adversaires fréquents</h2>
 				{#each frequentOpponents as opponent}
-					<div class="ranking_row opponent_row">
-						<span class="ranking_position">{opponent.rank}</span>
-						<img class="opponent_avatar" src={opponent.avatar} alt={opponent.name}/>
-						<span class="ranking_name">{opponent.name}</span>
-						<span class="ranking_games">{opponent.games} parties</span>
+					<div class="Ranking_row opponent_row">
+						<span class="Ranking_position">{opponent.rank}</span>
+						<img class="Opponent_avatar" src={opponent.avatar} alt={opponent.name}/>
+						<span class="Ranking_name">{opponent.name}</span>
+						<span class="Ranking_games">{opponent.games} parties</span>
 					</div>
 				{/each}
 			</div>
-			<div class="stats_right_bottom">
-				<div class="stats_box hourly_box">
+			<div class="Stat_right_bottom">
+				<div class="Stat_box Time_box">
 					<h2> Performance par heure</h2>
-					<div class="bar_chart">
-						<div class="bar_scale">
+					<div class="Bar_chart">
+						<div class="Bar_scale">
 							<span>100%</span>
 							<span>75%</span>
 							<span>25%</span>
 							<span>0%</span>
 						</div>
-						<div class="bars">
+						<div class="Bars">
 							{#each hourlyStats as hour, index}
-								<div class="bar_column">
-									<div class:red_bar={index >= 6 && index <= 7} class="bar" style={`height:${hour.value}%`}></div>
+								<div class="Bar_column">
+									<div class:Red_bar={index >= 6 && index <= 7} class="Bar" style={`height:${hour.value}%`}></div>
 									<span>{hour.label}</span>
 								</div>
 							{/each}
 						</div>
 					</div>
 				</div>
-				<div class="stats_quote_bottom">
+				<div class="Stats_quote_bottom">
 					<p>« Chaque partie est une leçon. »</p>
 					<span>— 御 寺 間 —</span>
-					<div class="stats_quote_stamp">棋</div>
+					<div class="Stat_quote_stamp">棋</div>
 				</div>
 			</div>
 		</section>
@@ -198,7 +198,7 @@
 </main>
 
 <style>
-	.stats_page {
+	.Stat_page {
 		/* Position */
 		position: fixed;
 		top: var(--topbar-height);
@@ -216,8 +216,10 @@
 		overflow: hidden;
 	}
 
-	.stats_sidebar {
+	.Stat_sidebar {
 		/* Position */
+		/* left: -20px; */
+		top: 20px;
 		position: relative;
 
 		/* Lenght */
@@ -230,9 +232,13 @@
 		display: flex;
 		flex-direction: column;
 		overflow: hidden;
+
+		/* Background */
+		background: no-repeat url("../assets/home/background/samourai3.png");
+		background-size: cover;
 	}
 
-	.stats_kanji {
+	.Stat_kanji {
 		/* Alignement */
 		margin-bottom: 25px;
 
@@ -246,7 +252,7 @@
 		line-height: 0.9;
 	}
 
-	.stats_side_quote {
+	.Stat_side_quote {
 		/* Alignement */
 		margin-bottom: 16px;
 
@@ -256,8 +262,8 @@
 		line-height: 1.45;
 	}
 
-	.stats_stamp,
-	.stats_quote_stamp {
+	.Stat_stamp,
+	.Stat_quote_stamp {
 		/* Lenght */
 		width: 47px;
 		height: 55px;
@@ -281,12 +287,12 @@
 		font-size: 27px;
 	}
 
-	.stats_stamp {
+	.Stat_stamp {
 		/* Alignement */
 		margin: 0 auto 25px;
 	}
 
-	.stats_filters {
+	.Stat_filters {
 		/* Alignement */
 		gap: 5px;
 
@@ -295,7 +301,7 @@
 		flex-direction: column;
 	}
 
-	.stats_filters button {
+	.Stat_filters button {
 		/* Position */
 		position: relative;
 
@@ -326,12 +332,12 @@
 		font-size: clamp(13px, 1vw, 16px);
 	}
 
-	.stats_filters button:hover {
+	.Stat_filters button:hover {
 		/* Animation */
 		transform: translateX(4px);
 	}
 
-	.stats_filters button.active {
+	.Stat_filters button.active {
 		/* Display */
 		color: #f3dbc0;
 
@@ -342,7 +348,7 @@
 		border-radius: 50% 9% 45% 12% / 35% 50% 30% 45%;
 	}
 
-	.stats_content {
+	.Stat_content {
 		/* Lenght */
 		min-width: 0;
 		min-height: 0;
@@ -357,7 +363,7 @@
 		display: grid;
 	}
 
-	.stats_header h1 {
+	.Stat_header h1 {
 		/* Alignement */
 		margin: 0;
 
@@ -366,7 +372,7 @@
 		font-size: clamp(27px, 2.3vw, 36px);
 	}
 
-	.stats_header p {
+	.Stat_header p {
 		/* Alignement */
 		margin: 7px 0 0;
 
@@ -375,7 +381,7 @@
 		font-size: clamp(14px, 1.2vw, 20px);
 	}
 
-	.stats_summary {
+	.Stat_resume {
 		/* Lenght */
 		grid-template-columns: repeat(4, minmax(0, 1fr));
 
@@ -386,9 +392,9 @@
 		display: grid;
 	}
 
-	.summary_card,
-	.stats_box,
-	.stats_quote_bottom {
+	.Resume_card,
+	.Stat_box,
+	.Stat_quote_bottom {
 		/* Background */
 		background: rgba(243, 224, 194, 0.28);
 
@@ -397,7 +403,7 @@
 		border-radius: 5px;
 	}
 
-	.summary_card {
+	.Resume_card {
 		/* Lenght */
 		min-height: clamp(95px, 12vh, 120px);
 
@@ -414,7 +420,7 @@
 		font-family: Georgia, serif;
 	}
 
-	.summary_main {
+	.Resume_main {
 		/* Alignement */
 		align-items: center;
 		gap: 18px;
@@ -426,28 +432,28 @@
 		font-size: clamp(25px, 2vw, 32px);
 	}
 
-	.summary_main strong {
+	.Resume_main strong {
 		/* Text */
 		font-size: clamp(24px, 2vw, 32px);
 	}
 
-	.summary_main.red {
+	.Resume_main.red {
 		/* Display */
 		color: #b31818;
 	}
 
-	.summary_icon {
+	.Resume_icon {
 		/* Text */
 		font-size: clamp(32px, 3vw, 45px);
 		line-height: 1;
 	}
 
-	.summary_card > span {
+	.Resume_card > span {
 		/* Text */
 		font-size: clamp(14px, 1.15vw, 18px);
 	}
 
-	.stats_middle {
+	.Stat_middle {
 		/* Lenght */
 		min-height: 0;
 		grid-template-columns: minmax(320px, 0.78fr) minmax(430px, 1.05fr);
@@ -459,7 +465,7 @@
 		display: grid;
 	}
 
-	.stats_box {
+	.Stat_box {
 		/* Lenght */
 		min-width: 0;
 		min-height: 0;
@@ -471,7 +477,7 @@
 		overflow: hidden;
 	}
 
-	.stats_box h2 {
+	.Stat_box h2 {
 		/* Alignement */
 		margin: 0 0 14px;
 
@@ -480,7 +486,7 @@
 		font-size: clamp(15px, 1.25vw, 20px);
 	}
 
-	.mode_distribution {
+	.Mode_distribution {
 		/* Lenght */
 		height: calc(100% - 35px);
 		grid-template-columns: minmax(135px, 1fr) minmax(150px, 0.9fr);
@@ -493,7 +499,7 @@
 		display: grid;
 	}
 
-	.donut {
+	.Graph {
 		/* Position */
 		position: relative;
 
@@ -511,7 +517,7 @@
 		border-radius: 50%;
 	}
 
-	.donut::after {
+	.Graph::after {
 		/* Position */
 		position: absolute;
 		inset: 28%;
@@ -526,7 +532,7 @@
 		border-radius: 50%;
 	}
 
-	.mode_legend {
+	.Mode_legend {
 		/* Alignement */
 		gap: 14px;
 
@@ -538,7 +544,7 @@
 		font-family: Georgia, serif;
 	}
 
-	.legend_line {
+	.Legend_line {
 		/* Lenght */
 		grid-template-columns: 13px 1fr auto;
 
@@ -553,7 +559,7 @@
 		font-size: clamp(12px, 0.95vw, 15px);
 	}
 
-	.legend_dot {
+	.Legend_dot {
 		/* Lenght */
 		width: 12px;
 		height: 12px;
@@ -562,13 +568,13 @@
 		border-radius: 50%;
 	}
 
-	.rank_box {
+	.Rank_box {
 		/* Display */
 		display: flex;
 		flex-direction: column;
 	}
 
-	.rank_header {
+	.Rank_header {
 		/* Alignement */
 		align-items: center;
 
@@ -577,12 +583,12 @@
 		justify-content: space-between;
 	}
 
-	.rank_header h2 {
+	.Rank_header h2 {
 		/* Alignement */
 		margin-bottom: 0;
 	}
 
-	.rank_header select {
+	.Rank_header select {
 		/* Alignement */
 		padding: 6px 35px 6px 12px;
 
@@ -597,7 +603,7 @@
 		font-family: Georgia, serif;
 	}
 
-	.rank_chart {
+	.Rank_chart {
 		/* Lenght */
 		min-height: 0;
 		grid-template-columns: 65px minmax(0, 1fr);
@@ -610,7 +616,7 @@
 		flex: 1;
 	}
 
-	.rank_labels {
+	.Rank_labels {
 		/* Alignement */
 		padding: 10px 5px 26px 0;
 
@@ -624,7 +630,7 @@
 		font-size: clamp(10px, 0.8vw, 13px);
 	}
 
-	.rank_graph {
+	.Rank_graph {
 		/* Position */
 		position: relative;
 
@@ -632,7 +638,7 @@
 		min-height: 0;
 	}
 
-	.rank_graph svg {
+	.Rank_graph svg {
 		/* Position */
 		position: absolute;
 		inset: 0 0 25px 0;
@@ -645,13 +651,13 @@
 		overflow: visible;
 	}
 
-	.rank_grid_line {
+	.Rank_grid_line {
 		/* Object */
 		stroke: rgba(70, 53, 38, 0.15);
 		stroke-width: 0.4;
 	}
 
-	.rank_line {
+	.Rank_line {
 		/* Object */
 		fill: none;
 		stroke: #aa1715;
@@ -659,12 +665,12 @@
 		vector-effect: non-scaling-stroke;
 	}
 
-	.rank_point {
+	.Rank_point {
 		/* Object */
 		fill: #bf1b18;
 	}
 
-	.rank_months {
+	.Rank_months {
 		/* Position */
 		position: absolute;
 		left: 0;
@@ -683,7 +689,7 @@
 		text-align: center;
 	}
 
-	.stats_bottom {
+	.Stat_bottom {
 		/* Lenght */
 		min-height: 0;
 		grid-template-columns: minmax(260px, 1fr) minmax(245px, 0.92fr) minmax(300px, 1.05fr);
@@ -695,13 +701,13 @@
 		display: grid;
 	}
 
-	.ranking_box {
+	.Ranking_box {
 		/* Display */
 		display: flex;
 		flex-direction: column;
 	}
 
-	.ranking_row {
+	.Ranking_row {
 		/* Lenght */
 		min-height: 0;
 		grid-template-columns: 22px 72px minmax(0, 1fr) auto;
@@ -722,12 +728,12 @@
 		font-size: clamp(10px, 0.85vw, 14px);
 	}
 
-	.ranking_position {
+	.Ranking_position {
 		/* Text */
 		text-align: center;
 	}
 
-	.ranking_card_image {
+	.Ranking_card_image {
 		/* Lenght */
 		width: 70px;
 		height: 39px;
@@ -736,12 +742,12 @@
 		object-fit: cover;
 	}
 
-	.opponent_row {
+	.Opponent_row {
 		/* Lenght */
 		grid-template-columns: 22px 43px minmax(0, 1fr) auto;
 	}
 
-	.opponent_avatar {
+	.Opponent_avatar {
 		/* Lenght */
 		width: 39px;
 		height: 39px;
@@ -753,13 +759,13 @@
 		object-fit: cover;
 	}
 
-	.ranking_name,
-	.ranking_games {
+	.Ranking_name,
+	.Ranking_games {
 		/* Text */
 		white-space: nowrap;
 	}
 
-	.stats_right_bottom {
+	.Stat_right_bottom {
 		/* Lenght */
 		min-height: 0;
 		grid-template-rows: minmax(0, 1fr) auto;
@@ -771,13 +777,13 @@
 		display: grid;
 	}
 
-	.hourly_box {
+	.Hourly_box {
 		/* Display */
 		display: flex;
 		flex-direction: column;
 	}
 
-	.bar_chart {
+	.Bar_chart {
 		/* Lenght */
 		min-height: 0;
 		grid-template-columns: 38px minmax(0, 1fr);
@@ -787,7 +793,7 @@
 		flex: 1;
 	}
 
-	.bar_scale {
+	.Bar_scale {
 		/* Alignement */
 		padding-bottom: 22px;
 
@@ -801,7 +807,7 @@
 		font-size: 10px;
 	}
 
-	.bars {
+	.Bars {
 		/* Lenght */
 		min-height: 0;
 		grid-template-columns: repeat(11, 1fr);
@@ -820,7 +826,7 @@
 		border-bottom: 1px solid rgba(60, 45, 32, 0.35);
 	}
 
-	.bar_column {
+	.Bar_column {
 		/* Lenght */
 		height: 100%;
 		min-width: 0;
@@ -834,7 +840,7 @@
 		justify-content: flex-end;
 	}
 
-	.bar {
+	.Bar {
 		/* Lenght */
 		width: 75%;
 		min-height: 3px;
@@ -843,12 +849,12 @@
 		background: #1c1a17;
 	}
 
-	.bar.red_bar {
+	.Bar.red_bar {
 		/* Background */
 		background: #b71916;
 	}
 
-	.bar_column span {
+	.Bar_column span {
 		/* Lenght */
 		height: 20px;
 
@@ -863,7 +869,7 @@
 		font-size: 9px;
 	}
 
-	.stats_quote_bottom {
+	.Stat_quote_bottom {
 		/* Position */
 		position: relative;
 
@@ -880,7 +886,7 @@
 		justify-content: center;
 	}
 
-	.stats_quote_bottom p {
+	.Stat_quote_bottom p {
 		/* Alignement */
 		margin: 0;
 
@@ -891,7 +897,7 @@
 		text-align: center;
 	}
 
-	.stats_quote_bottom > span {
+	.Stat_quote_bottom > span {
 		/* Alignement */
 		margin-top: 7px;
 
@@ -900,7 +906,7 @@
 		font-size: 13px;
 	}
 
-	.stats_quote_stamp {
+	.Stat_quote_stamp {
 		/* Position */
 		position: absolute;
 		right: 15px;
@@ -915,12 +921,12 @@
 	}
 
 	@media (max-width: 1250px) {
-		.stats_page {grid-template-columns: 175px minmax(0, 1fr);}
-		.stats_content {padding-right: 20px;}
-		.stats_middle {grid-template-columns: 0.8fr 1fr;}
-		.stats_bottom {grid-template-columns: 1fr 1fr;}
-		.stats_right_bottom {grid-column: 1 / -1;grid-template-columns: 1fr 0.7fr;grid-template-rows: 1fr;}
-		.ranking_card_image {width: 55px;}
+		.Stat_page {grid-template-columns: 175px minmax(0, 1fr);}
+		.Stat_content {padding-right: 20px;}
+		.Stat_middle {grid-template-columns: 0.8fr 1fr;}
+		.Stat_bottom {grid-template-columns: 1fr 1fr;}
+		.Stat_right_bottom {grid-column: 1 / -1;grid-template-columns: 1fr 0.7fr;grid-template-rows: 1fr;}
+		.Ranking_card_image {width: 55px;}
 	}
 
 </style>

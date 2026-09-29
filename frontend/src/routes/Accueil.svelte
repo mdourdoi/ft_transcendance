@@ -2,46 +2,46 @@
 
 </script>
 
-<div class="home_page">
-	<section class="home_hero">
+<div class="Home_page">
+	<section class="Home_content">
 		<!-- <img class="home_quote" src="../assets/paysage-principal.png" alt="L'art du déplacement, la maîtrise de soi"/> -->
-		<button class="play_button" aria-label="Jouer">
-		<img src="../assets/jouer.png" alt="Jouer"/>
+		<button class="Play_button" aria-label="Jouer">
+		<img src="../assets/home/boutton/play.png" alt="Jouer"/>
 		</button>
 	</section>
-	<section class="home_bottom">
-		<section class="news_panel">
-			<div class="news_title"> ACTUALITÉS </div>
-			<img class="news_background" src="../assets/actualites-temple2.png" alt=""/>
-			<div class="news_gradient"></div>
-			<div class="news_content">
+	<section class="Home_bottom">
+		<section class="News_page">
+			<div class="News_title"> ACTUALITÉS </div>
+			<img class="News_background" src="../assets/home/background/actuality_1.png" alt=""/>
+			<div class="News_css"></div>
+			<div class="News_content">
 				<h2> Nouvelle saison </h2>
 				<p> De nouveaux défis vous attendent sur le chemin. </p>
-				<div class="news_navigation">
-					<button class="news_arrow" aria-label="Actualité précédente"> ‹ </button>
-					<div class="news_dots">
-						<button class="news_dot active" aria-label="Actualité 1"></button>
-						<button class="news_dot" aria-label="Actualité 2" ></button>
-						<button class="news_dot" aria-label="Actualité 3" ></button>
+				<div class="News_carrousel">
+					<button class="News_arrows" aria-label="Actualité précédente"> ‹ </button>
+					<div class="News_boutton">
+						<button class="News_boutton_active" aria-label="Actualité 1"></button>
+						<button class="News_boutton" aria-label="Actualité 2" ></button>
+						<button class="News_boutton" aria-label="Actualité 3" ></button>
 					</div>
-					<button class="news_arrow" aria-label="Actualité suivante"> › </button>
+					<button class="News_arrows" aria-label="Actualité suivante"> › </button>
 				</div>
 			</div>
 		</section>
-		<section class="game_modes">
-			<button class="game_mode_card" aria-label="Partie classée">
+		<section class="Game_modes">
+			<button class="Game_modes_cards" aria-label="Partie classée">
 				<h1><br>RANKED GAMES</h1>
-				<img src="../assets/ranked-card.png" alt="Parties classées"/>
+				<img src="../assets/home/background/ranked_card.png" alt="Parties classées"/>
 			</button>
-			<button class="game_mode_card" aria-label="Partie normale">
+			<button class="Game_modes_cards" aria-label="Partie normale">
 				<h1><br>NORMAL GAMES</h1>
-				<img src="../assets/normal-card.png" alt="Partie normale"/>
+				<img src="../assets/home/background/normal_card.png" alt="Partie normale"/>
 			</button>
-			<button class="game_mode_card" aria-label="Défis">
+			<button class="Game_modes_cards" aria-label="Défis">
 				<h1><br>TRAINING GAMES</h1>
-				<img src="../assets/challenge-card.png" alt="Défis"/>
+				<img src="../assets/home/background/training_card.png" alt="Défis"/>
 			</button>
-			<div class="home_bottom_quote">
+			<div class="Home_bottom_quote">
 				<p> « Un petit pas déplace un grand destin. » </p>
 				<span> — 御 寺 間 —</span>
 			</div>
@@ -50,15 +50,17 @@
 </div>
 
 <style>
-	.home_page {
+	.Home_page {
 		/* Position */
 		position: fixed;
 		left: 0;
-		top: clamp(115px, 14vh, 145px);
+		/* top: clamp(115px, 14vh, 145px); */
+		top: 14vh;
 		z-index: 10;
 
 		/* Lenght */
 		width:calc(100vw - var(--friends-width));
+		/* height:calc(100vh - clamp(115px, 14vh, 145px)); */
 		height:calc(100vh - clamp(115px, 14vh, 145px));
 		grid-template-rows:minmax(330px, 52%) minmax(0, 48%);
 
@@ -67,7 +69,7 @@
 		overflow: hidden;
 	}
 
-	.home_hero {
+	.Home_content {
 		/* Position */
 		position: relative;
 		left: 8px;
@@ -81,33 +83,33 @@
 		overflow: hidden;
 
 		/* Background */
-		background: url("../assets/paysage-sans-interface2.png");
+		background: url("../assets/home/background/home.png");
 		background-size: 100% 101%;
 
 		/* Border */
 		border-radius: 3%;	
 
 	}
-
-	.home_quote {
+/* 
+	.Home_bottom {
 		/* Position */
-		position: absolute;
+		/* position: absolute;
 		left:clamp(0px, 0vw, 0px);
-		top:clamp(0px,0px,0px);
+		top:clamp(0px,0px,0px); */
 
 		/* Lenght */
-		width:clamp(1800px,1400px,900px);
-		height: auto;
+		/* width:clamp(1800px,1400px,900px);
+		height: auto; */
 
 		/* Cursor */
-		pointer-events: none;
-		user-select: none;
+		/* pointer-events: none; */
+		/* user-select: none; */
 
 		/* Object */
-		object-fit: contain;
-	}
+		/* object-fit: contain; */
+	/* } */
 
-	.play_button {
+	.Play_button {
 		/* Position */
 		position: absolute;
 		left: 69%;
@@ -137,7 +139,7 @@
 		cursor: pointer;
 	}
 
-	.play_button img {
+	.Play_button img {
 		/* Lenght */
 		width: 100%;
 		height: auto;
@@ -153,7 +155,7 @@
 		user-select: none;
 	}
 
-	.play_button:hover {
+	.Play_button:hover {
 		/* Display */
 		filter:drop-shadow(0 7px 7px rgba(0, 0, 0, 0.2));
 
@@ -161,12 +163,12 @@
 		transform:translate(-50%, -50%) scale(1.035);
 	}
 
-	.play_button:active {
+	.Play_button:active {
 		/* Animation */
 		transform:translate(-50%, -50%) scale(0.975);
 	}
 
-	.home_bottom {
+	.Home_bottom {
 		/* Lenght */
 		min-height: 0;
 		width: 100%;
@@ -185,7 +187,7 @@
 		background-size: cover;
 	}
 
-	.news_panel {
+	.News_page {
 		/* Position */
 		position: relative;
 		/* top: -5px; */
@@ -209,7 +211,7 @@
 		/* box-shadow:0 4px 10px rgba(0, 0, 0, 0.2); */
 	}
 
-	.news_background {
+	.News_background {
 		/* Position */
 		position: absolute;
 		inset: 0;
@@ -228,7 +230,7 @@
 		pointer-events: none;
 	}
 
-	.news_gradient {
+	.News_css {
 		/* Position */
 		position: absolute;
 		inset: 0;
@@ -241,7 +243,7 @@
 		pointer-events: none;
 	}
 
-	.news_title {
+	.News_title {
 		/* Position */
 		position: absolute;
 		top: 0;
@@ -266,7 +268,7 @@
 		font-weight: 600;
 	}
 
-	.news_content {
+	.News_content {
 		/* Position */
 		position: absolute;
 		left:clamp(14px,1.3vw,22px);
@@ -278,7 +280,7 @@
 		color:#f0e2ca;
 	}
 
-	.news_content h2 {
+	.News_content h2 {
 		/* Alignement */
 		margin:0 0 6px;
 
@@ -287,7 +289,7 @@
 		font-size:clamp(18px, 1.6vw, 27px);
 	}
 
-	.news_content p {
+	.News_content p {
 		/* Alignement */
 		margin: 0;
 
@@ -297,7 +299,7 @@
 		line-height: 1.4;
 	}
 
-	.news_navigation {
+	.News_carrousel {
 		/* Lenght */
 		grid-template-columns:40px 1fr 40px;
 
@@ -309,7 +311,7 @@
 		display: grid;
 	}
 
-	.news_arrow {
+	.News_arrows {
 		/* Lenght */
 		width: 38px;
 		height: 32px;
@@ -340,7 +342,7 @@
 		font-size: 34px;
 	}
 
-	.news_arrow:hover {
+	.News_arrows:hover {
 		/* Display */
 		opacity: 0.8;
 
@@ -348,7 +350,7 @@
 		transform:scale(1.18);
 	}
 
-	.news_dots {
+	.News_boutton {
 		/* Alignement */
 		align-items: center;
 		gap: 10px;
@@ -358,7 +360,7 @@
 		justify-content: center;
 	}
 
-	.news_dot {
+	.News_boutton {
 		/* Lenght */
 		width: 9px;
 		height: 9px;
@@ -377,12 +379,12 @@
 		cursor: pointer;
 	}
 
-	.news_dot.active {
+	.News_boutton.active {
 		/* Background */
 		background:#eee0c7;
 	}
 
-	.game_modes {
+	.Game_modes {
 		/* Lenght */
 		min-width: 0;
 		min-height: 0;
@@ -396,7 +398,7 @@
 		display: grid;
 	}
 
-	.game_mode_card {
+	.Game_modes_cards {
 		/* Lenght */
 		min-width: 0;
 		min-height: 0;
@@ -423,7 +425,7 @@
 		cursor: pointer;
 	}
 
-	.game_mode_card img {
+	.Game_modes_cards img {
 		/* Lenght */
 		width: 100%;
 		height: 100%;
@@ -440,7 +442,7 @@
 		user-select: none;
 	}
 
-	.game_mode_card:hover {
+	.Game_modes_cards:hover {
 		/* Display */
 		filter:drop-shadow(0 6px 5px rgba(0, 0, 0, 0.15));
 
@@ -448,12 +450,12 @@
 		transform:translateY(-5px) scale(1.012);
 	}
 
-	.game_mode_card:active {
+	.Game_modes_cards:active {
 		/* Animation */
 		transform:translateY(-1px) scale(0.985);
 	}
 
-	.home_bottom_quote {
+	.Home_bottom_quote {
 		/* Alignement */
 		align-items: center;
 		gap: 3px;
@@ -470,7 +472,7 @@
 		text-align: center;
 	}
 
-	.home_bottom_quote p {
+	.Home_bottom_quote p {
 		/* Alignement */
 		margin: 0;
 
@@ -480,17 +482,17 @@
 		font-size:clamp(16px,1.55vw, 26px);
 	}
 
-	.home_bottom_quote span {
+	.Home_bottom_quote span {
 		/* Text */
 		font-family: Georgia, serif;
 		font-size:clamp(10px, 0.85vw, 14px);
 	}
 
 		@media (max-width: 1250px) {
-		.home_page {grid-template-rows: minmax(300px, 50%) minmax(0, 50%);}
-		.home_quote {width:clamp(160px, 17vw, 210px);}
-		.play_button {left: 67%; width: clamp(300px, 32vw, 400px);}
-		.home_bottom {grid-template-columns: minmax(280px, 38%) minmax(0, 1fr); padding-left: 15px;}
-		.game_modes {gap: 5px;}
+		.Home_page {grid-template-rows: minmax(300px, 50%) minmax(0, 50%);}
+		.Home_quote {width:clamp(160px, 17vw, 210px);}
+		.Play_button {left: 67%; width: clamp(300px, 32vw, 400px);}
+		.Home_bottom {grid-template-columns: minmax(280px, 38%) minmax(0, 1fr); padding-left: 15px;}
+		.Game_modes {gap: 5px;}
 	}
 </style>
