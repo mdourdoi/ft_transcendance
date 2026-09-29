@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
-	import { onMount } from 'svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import * as Card from '$lib/components/ui/card';
@@ -13,29 +12,10 @@
 	let email = '';
 	let password = '';
 	let username = '';
-	let error = '';
 	let twofa = '';
+	let error = '';
 	let showPassword = false;
-	let loading = false
-	// let loading = true;
-	// let error = null;
-	// let result = null;
-	// let test = null
-
-	// const API_URL = "http://localhost:3000/test";
-
-	// onMount(async () => {
-	//     try {
-	// 	  const result = await fetch(API_URL);
-	// 	  if (!result.ok) throw new Error(`Error fetch api ${res.status}`);
-	// 	  test = await result.json();
-	// 	  console.log(test)
-	// 	} catch (err) {
-	// 	  error = err;
-	// 	} finally {
-	// 	  loading = false;
-	// 	}
-	// })
+	let loading = false;
 
 	async function addUser() {
 		if (!email.trim() || !password.trim() || !username.trim()) {
@@ -43,19 +23,20 @@
 			return;
 		}
 		try {
-			const res = await fetch("http://localhost:3000/auth/register", {
-				method: "POST",
+			const res = await fetch('http://localhost:3000/auth/register', {
+				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ email: email, username: username, password: password })
-			})
+			});
 			const data = await res.json();
 			if (!res.ok) throw new Error(data.message);
-			console.log(data)
+			console.log(data);
 			email = '';
 			password = '';
 			username = '';
 		} catch (err) {
 			error = err instanceof Error ? err.message : String(err);
+			console.log(err);
 		}
 	}
 
@@ -65,11 +46,11 @@
 			return;
 		}
 		try {
-			const res = await fetch("http://localhost:3000/auth/login", {
-				method: "POST",
+			const res = await fetch('http://localhost:3000/auth/login', {
+				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ username: username, password: password })
-			})
+			});
 			const data = await res.json();
 			if (!res.ok) throw new Error(data.message);
 			console.log(data);
@@ -87,11 +68,11 @@
 			return;
 		}
 		try {
-			const res = await fetch("http://localhost:3000/auth/login", {
-				method: "POST",
+			const res = await fetch('http://localhost:3000/auth/login', {
+				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ username: username, password: password, code: twofa })
-			})
+			});
 			const data = await res.json();
 			if (!res.ok) throw new Error(data.message);
 			console.log(data);
@@ -106,11 +87,12 @@
 	function translateError(code: string): string {
 		const messages: Record<string, string> = {
 			INVALID_CREDENTIALS: "Nom d'utilisateur ou mot de passe incorrect",
-			INVALID_TWOFA_CODE: "Code 2FA incorrect",
+			INVALID_TWOFA_CODE: 'Code 2FA incorrect',
 			USERNAME_OR_EMAIL_ALREADY_TAKEN: "Ce nom d'utilisateur ou cet email est déjà pris",
-			WEAK_PASSWORD: "Le mot de passe doit contenir 8 caractères min., majuscule, minuscule, chiffre et symbole",
-			EMPTY_MESSAGE: "Le message ne peut pas être vide",
-			EMPTY_FIELDS: "Veuillez remplir tous les champs"
+			WEAK_PASSWORD:
+				'Le mot de passe doit contenir 8 caractères min., majuscule, minuscule, chiffre et symbole',
+			EMPTY_MESSAGE: 'Le message ne peut pas être vide',
+			EMPTY_FIELDS: 'Veuillez remplir tous les champs'
 		};
 		return messages[code] ?? code;
 	}
