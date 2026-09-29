@@ -1,5 +1,5 @@
 import { IsOptional, IsString, Length } from 'class-validator';
-import { ErrorCode } from '../../common/error-codes';
+import { ErrorCode } from '../../common/error-codes.js';
 
 export class LoginDto {
   @IsString({ message: ErrorCode.INVALID_USERNAME })

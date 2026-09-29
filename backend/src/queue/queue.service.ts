@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { QueueMode } from '@prisma/client';
-import Redis from 'ioredis';
-import { REDIS_CLIENT } from '../redis/redis.constants';
-import { QueueEntry } from './types/queue-entry.interface';
+import { QueueMode } from '../generated/prisma/client.js';
+import { Redis } from 'ioredis';
+import { REDIS_CLIENT } from '../redis/redis.constants.js';
+import { QueueEntry } from './types/queue-entry.interface.js';
 
 const UNRANKED_LIST_KEY = 'queue:unranked:list';
 const RANKED_ZSET_KEY = 'queue:ranked:zset';

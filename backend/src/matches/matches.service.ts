@@ -3,9 +3,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Match, MatchStatus, QueueMode } from '@prisma/client';
-import { ErrorCode } from '../common/error-codes';
-import { PrismaService } from '../prisma/prisma.service';
+import { Match, MatchStatus, QueueMode } from '../generated/prisma/client.js';
+import { ErrorCode } from '../common/error-codes.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 
 const RATING_K_FACTOR = 32;
 

@@ -1,5 +1,5 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
-import { ErrorCode } from './error-codes';
+import { ErrorCode } from './error-codes.js';
 
 export function encryptSecret(plain: string): string {
   if (!process.env.TWOFA_ENCRYPTION_KEY) {

@@ -8,10 +8,10 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { JwtGuard } from '../auth/jwt.guard';
-import { ReportMatchResultDto } from './dto/report-match-result.dto';
-import { MatchesService } from './matches.service';
+import { CurrentUser } from '../auth/current-user.decorator.js';
+import { JwtGuard } from '../auth/jwt.guard.js';
+import { ReportMatchResultDto } from './dto/report-match-result.dto.js';
+import { MatchesService } from './matches.service.js';
 
 @Controller('matches')
 @UseGuards(JwtGuard)

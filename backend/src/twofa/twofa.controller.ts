@@ -1,8 +1,8 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { JwtGuard } from '../auth/jwt.guard';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { TwofaService } from './twofa.service';
-import { TwofaCodeDto } from './dto/twofa-code.dto';
+import { CurrentUser } from '../auth/current-user.decorator.js';
+import { JwtGuard } from '../auth/jwt.guard.js';
+import { TwofaCodeDto } from './dto/twofa-code.dto.js';
+import { TwofaService } from './twofa.service.js';
 
 @Controller('twofa')
 export class TwofaController {

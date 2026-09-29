@@ -1,5 +1,5 @@
 import { Expose, Type } from 'class-transformer';
-import { MessageDto } from './message.dto';
+import { MessageDto } from './message.dto.js';
 
 export class ConversationDto {
   @Expose() public nextCursor: string | null;

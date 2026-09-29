@@ -1,4 +1,4 @@
-import { QueueMode } from '@prisma/client';
+import { QueueMode } from '../../generated/prisma/client.js';
 import { IsEnum } from 'class-validator';
 
 export class JoinQueueDto {

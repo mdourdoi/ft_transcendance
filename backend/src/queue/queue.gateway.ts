@@ -14,14 +14,14 @@ import {
   WebSocketServer,
   WsException,
 } from '@nestjs/websockets';
-import { QueueMode } from '@prisma/client';
+import { QueueMode } from '../generated/prisma/client.js';
 import { Server, Socket } from 'socket.io';
-import { JwtPayload } from '../auth/types/jwt-payload.interface';
-import { ErrorCode } from '../common/error-codes';
-import { UsersService } from '../users/users.service';
-import { JoinQueueDto } from './dto/join-queue.dto';
-import { MatchmakingService } from './matchmaking.service';
-import { QueueService } from './queue.service';
+import { JwtPayload } from '../auth/types/jwt-payload.interface.js';
+import { ErrorCode } from '../common/error-codes.js';
+import { UsersService } from '../users/users.service.js';
+import { JoinQueueDto } from './dto/join-queue.dto.js';
+import { MatchmakingService } from './matchmaking.service.js';
+import { QueueService } from './queue.service.js';
 
 const MATCHMAKING_TICK_MS = 1500;
 

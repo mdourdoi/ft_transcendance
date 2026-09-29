@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { QueueMode } from '@prisma/client';
-import { MatchesService } from '../matches/matches.service';
-import { QueueService } from './queue.service';
-import { QueueEntry } from './types/queue-entry.interface';
+import { QueueMode } from '../generated/prisma/client.js';
+import { MatchesService } from '../matches/matches.service.js';
+import { QueueService } from './queue.service.js';
+import { QueueEntry } from './types/queue-entry.interface.js';
 
 const BASE_RATING_RANGE = 50;
 const RATING_RANGE_PER_SECOND = 20;

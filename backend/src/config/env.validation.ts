@@ -1,4 +1,4 @@
-import { ErrorCode } from '../common/error-codes';
+import { ErrorCode } from '../common/error-codes.js';
 
 export function validateEnv(config: Record<string, unknown>) {
   const key = config.TWOFA_ENCRYPTION_KEY;

@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "types": ["node", "multer"],
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -9,13 +11,10 @@
     "target": "ES2021",
     "sourceMap": true,
     "outDir": "./dist",
-    "paths": {
-      "@/*": ["./*"],
-      "src/*": ["./src/*"]
-    },
     "rootDir": ".",
     "incremental": true,
     "skipLibCheck": true,
+    "strict": false,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
