@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ErrorCode } from '../common/error-codes.js';
-import { DEFAULT_AVATAR_URL } from '../constants.js';
+import { DEFAULT_AVATAR_FILENAME } from '../constants.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ConversationDto } from './dto/conversation.dto.js';
 import { MessageDto } from './dto/message.dto.js';
@@ -37,7 +37,7 @@ export class MessagesService {
       }),
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       include: {
-        sender: { select: { id: true, username: true } },
+        sender: { select: { id: true, username: true, avatarUrl: true } },
       },
     });
 
@@ -53,8 +53,7 @@ export class MessagesService {
         sender: {
           id: item.sender.id,
           username: item.sender.username,
-          // TODO, waiting for the avatar system
-          avatarUrl: DEFAULT_AVATAR_URL,
+          avatarUrl: item.sender.avatarUrl ?? DEFAULT_AVATAR_FILENAME,
         },
       });
       itemsDto.push(dto);
@@ -98,8 +97,7 @@ export class MessagesService {
       sender: {
         id: sender.id,
         username: sender.username,
-        // TODO, waiting for the avatar system
-        avatarUrl: DEFAULT_AVATAR_URL,
+        avatarUrl: sender.avatarUrl ?? DEFAULT_AVATAR_FILENAME,
       },
     };
   }
@@ -157,5 +155,15 @@ export class MessagesService {
       },
     });
     return !!conversation;
+  }
+
+  public async getConversationMembers(
+    conversationId: number,
+  ): Promise<number[]> {
+    const idList = await this.prisma.conversationAccess.findMany({
+      where: { conversationId },
+      select: { userId: true },
+    });
+    return idList.map((row) => row.userId);
   }
 }
