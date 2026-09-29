@@ -19,6 +19,7 @@ import { MessageDto } from '../messages/dto/message.dto.js';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { ErrorCode } from '../common/error-codes.js';
+import { OnEvent } from '@nestjs/event-emitter';
 
 @WebSocketGateway()
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -132,5 +133,15 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       throw e;
     }
     return { ok: true, message };
+  }
+
+  @OnEvent('friendship.request')
+  handleFriendshipRequested(payload: {
+    targetId: number;
+    from: { id: number; username: string; avatarUrl: string };
+  }) {
+    this.server
+      .to(`user:${payload.targetId}`)
+      .emit('friendRequest', payload.from);
   }
 }

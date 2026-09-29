@@ -20,12 +20,14 @@ import { FriendRequestDto } from './dto/friend-request.dto.js';
 import { FriendshipDto } from './dto/friendship.dto.js';
 import { RemoveFriendDto } from './dto/remove-friend.dto.js';
 import { UnblockUserDto } from './dto/unblock-user.dto.js';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class FriendshipsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly messagesService: MessagesService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   public async getFriendships(
@@ -104,6 +106,20 @@ export class FriendshipsService {
           status: FriendshipStatus.PENDING,
         },
       });
+      const expeditor = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true, username: true, avatarUrl: true },
+      });
+      if (expeditor) {
+        this.eventEmitter.emit('friendship.requested', {
+          targetId: dto.targetId,
+          from: {
+            id: expeditor.id,
+            username: expeditor.username,
+            avatarUrl: expeditor.avatarUrl ?? DEFAULT_AVATAR_FILENAME,
+          },
+        });
+      }
       return;
     }
 
