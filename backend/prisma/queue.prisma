@@ -1,0 +1,31 @@
+enum QueueMode {
+  RANKED
+  UNRANKED
+}
+
+enum MatchStatus {
+  ACTIVE
+  FINISHED
+  CANCELLED
+}
+
+model Match {
+  id Int @id @default(autoincrement())
+
+  mode   QueueMode
+  status MatchStatus @default(ACTIVE)
+
+  playerOneId Int
+  playerTwoId Int
+  winnerId    Int?
+
+  createdAt  DateTime  @default(now())
+  finishedAt DateTime?
+
+  playerOne User  @relation("PlayerOne", fields: [playerOneId], references: [id], onDelete: Cascade)
+  playerTwo User  @relation("PlayerTwo", fields: [playerTwoId], references: [id], onDelete: Cascade)
+  winner    User? @relation("Winner", fields: [winnerId], references: [id], onDelete: SetNull)
+
+  @@index([playerOneId])
+  @@index([playerTwoId])
+}

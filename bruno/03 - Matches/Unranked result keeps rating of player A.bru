@@ -1,0 +1,22 @@
+meta {
+  name: Unranked result keeps rating of player A
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+tests {
+  test("rating is 1000", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().rating).to.equal(1000);
+  });
+}

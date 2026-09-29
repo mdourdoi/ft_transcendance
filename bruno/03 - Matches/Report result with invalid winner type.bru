@@ -1,0 +1,27 @@
+meta {
+  name: Report result with invalid winner type
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/matches/{{unrankedMatchId}}/result
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+body:json {
+  {
+    "winnerId": "abc"
+  }
+}
+
+tests {
+  test("returns 400", function () {
+    expect(res.getStatus()).to.equal(400);
+  });
+}

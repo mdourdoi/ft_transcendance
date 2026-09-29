@@ -1,0 +1,59 @@
+meta {
+  name: Ranked matchmaking pairs two players
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+script:pre-request {
+  const socket = require("./lib/socket.js");
+  const baseUrl = bru.getEnvVar("baseUrl");
+  const result = {};
+  try {
+    const clientA = await socket.connectAs(baseUrl, bru.getVar("tokenA"));
+    const clientB = await socket.connectAs(baseUrl, bru.getVar("tokenB"));
+    const matchedA = socket.waitFor(clientA, "queue.matched");
+    const matchedB = socket.waitFor(clientB, "queue.matched");
+    await socket.joinQueue(clientA, "RANKED");
+    await socket.joinQueue(clientB, "RANKED");
+    result.matchedA = await matchedA;
+    result.matchedB = await matchedB;
+    bru.setVar("rankedMatchId", result.matchedA.matchId);
+    socket.closeAll(clientA, clientB);
+  } catch (error) {
+    result.error = error.message;
+  }
+  bru.setVar("queueResult", JSON.stringify(result));
+}
+
+tests {
+  const result = JSON.parse(bru.getVar("queueResult"));
+
+  test("scenario ran without error", function () {
+    expect(result.error).to.be.undefined;
+  });
+
+  test("both players receive the same match", function () {
+    expect(result.matchedA.matchId).to.be.a("number");
+    expect(result.matchedA.matchId).to.equal(result.matchedB.matchId);
+  });
+
+  test("match mode is RANKED", function () {
+    expect(result.matchedA.mode).to.equal("RANKED");
+    expect(result.matchedB.mode).to.equal("RANKED");
+  });
+
+  test("each player gets the other as opponent", function () {
+    expect(result.matchedA.opponentId).to.equal(bru.getVar("idB"));
+    expect(result.matchedB.opponentId).to.equal(bru.getVar("idA"));
+  });
+}
