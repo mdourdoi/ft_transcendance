@@ -16,7 +16,7 @@
 	{#each items as item (item.value)}
 		<Tabs.Trigger
 			value={item.value}
-			class="h-auto justify-start rounded-md px-3 py-2 text-base text-foreground/75 transition-transform hover:translate-x-1 hover:text-foreground data-active:bg-primary data-active:text-primary-foreground data-active:shadow-sm"
+			class="brush-tab h-auto justify-start rounded-md px-3 py-2 text-base text-foreground/75 transition-transform hover:translate-x-1 hover:text-foreground data-active:bg-transparent data-active:text-white data-active:hover:text-white dark:data-active:text-white dark:data-active:hover:text-white dark:data-active:border-transparent dark:data-active:bg-transparent"
 		>
 			{item.label}
 		</Tabs.Trigger>
