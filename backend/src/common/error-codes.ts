@@ -27,6 +27,8 @@ export const ErrorCode = {
   EMPTY_MESSAGE: 'EMPTY_MESSAGE',
   INVALID_QUEUE_MODE: 'INVALID_QUEUE_MODE',
   MATCH_NOT_FOUND: 'MATCH_NOT_FOUND',
+  INVALID_CONVERSATION_ID: 'INVALID_CONVERSATION_ID',
+  INVALID_MESSAGE: 'INVALID_MESSAGE',
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];

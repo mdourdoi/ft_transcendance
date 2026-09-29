@@ -4,6 +4,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { AuthModule } from './auth/auth.module.js';
 import { validateEnv } from './config/env.validation.js';
 import { AVATAR_UPLOAD_DIR } from './constants.js';
+import { EventsModule } from './events/events.module.js';
 import { FriendshipsModule } from './friendships/friendships.module.js';
 import { MatchesModule } from './matches/matches.module.js';
 import { MessagesModule } from './messages/messages.module.js';
@@ -29,6 +30,7 @@ import { UsersModule } from './users/users.module.js';
     FriendshipsModule,
     MatchesModule,
     QueueModule,
+    EventsModule,
   ],
 })
 export class AppModule {}
