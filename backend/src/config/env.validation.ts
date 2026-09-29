@@ -8,5 +8,14 @@ export function validateEnv(config: Record<string, unknown>) {
   if (typeof config.JWT_SECRET !== 'string' || config.JWT_SECRET.length < 32) {
     throw new Error(ErrorCode.BAD_JWT_SECRET);
   }
+  if (config.SMTP_HOST) {
+    for (const k of ['SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'MAIL_FROM']) {
+      if (typeof config[k] !== 'string' || !config[k]) {
+        throw new Error(ErrorCode.BAD_SMTP_CONFIG);
+      }
+    }
+  }
+  if (typeof config.APP_URL !== 'string' || !config.APP_URL)
+    throw new Error(ErrorCode.BAD_APP_URL);
   return config;
 }
