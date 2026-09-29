@@ -6,17 +6,26 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   ConnectedSocket,
+  MessageBody,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { JwtPayload } from '../auth/types/jwt-payload.interface.js';
 import { FriendshipsService } from '../friendships/friendships.service.js';
 import { FriendshipStatus } from '../generated/prisma/client.js';
-import { Logger } from '@nestjs/common';
+import { HttpException, Logger } from '@nestjs/common';
+import { MessagesService } from '../messages/messages.service.js';
+import { SendMessageDto } from './dto/send-message.dto.js';
+import { MessageDto } from '../messages/dto/message.dto.js';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
+import { ErrorCode } from '../common/error-codes.js';
 
 @WebSocketGateway()
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private onlineUsers: Map<number, Set<string>> = new Map();
   private readonly logger = new Logger(EventsGateway.name);
+  @WebSocketServer()
+  server: Server;
 
   private async notifyPresence(userId: number, onlineStatus: boolean) {
     const friendList = await this.friends.getFriendships(userId, [
@@ -29,11 +38,10 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @WebSocketServer()
-  server: Server;
   constructor(
     private jwt: JwtService,
     private friends: FriendshipsService,
+    private messages: MessagesService,
   ) {}
 
   handleConnection(client: Socket) {
@@ -89,5 +97,40 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
     }
     return statuses;
+  }
+
+  @SubscribeMessage('sendMessage')
+  async handleSendMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() raw: unknown,
+  ) {
+    const dto = plainToInstance(SendMessageDto, raw);
+    const errors = await validate(dto);
+    if (errors.length) {
+      return {
+        ok: false,
+        error: Object.values(errors[0].constraints ?? {})[0],
+      };
+    }
+    let message: MessageDto;
+    try {
+      message = await this.messages.sendMessage(
+        client.data.userId,
+        dto.conversationId,
+        dto.content,
+      );
+      const members = await this.messages.getConversationMembers(
+        dto.conversationId,
+      );
+      for (const member of members) {
+        this.server.to(`user:${member}`).emit('newMessage', message);
+      }
+    } catch (e) {
+      if (e instanceof HttpException) {
+        return { ok: false, error: e.message };
+      }
+      throw e;
+    }
+    return { ok: true, message };
   }
 }

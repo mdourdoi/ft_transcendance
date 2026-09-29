@@ -9,6 +9,7 @@ RUN npm ci
 
 COPY prisma ./prisma
 COPY prisma.config.ts ./
+COPY assets/default.png /app/uploads/avatars/default.png
 RUN npx prisma generate
 
 COPY . .
