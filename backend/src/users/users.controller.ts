@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Patch,
   Post,
   UploadedFile,
@@ -18,6 +19,7 @@ import { ErrorCode } from '../common/error-codes.js';
 import { MIME_TO_EXT } from '../common/mime-types.js';
 import { AVATAR_UPLOAD_DIR } from '../constants.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
+import { EmailTokenDto } from './dto/email-token.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { UsersService } from './users.service.js';
 
@@ -76,5 +78,37 @@ export class UsersController {
     @Body() dto: ChangePasswordDto,
   ) {
     return this.userService.changePassword(userId, dto);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('me/export')
+  exportData(@CurrentUser('sub') userId: number) {
+    return this.userService.exportData(userId);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('me/verify-email')
+  @HttpCode(204)
+  requestEmailVerification(@CurrentUser('sub') userId: number) {
+    return this.userService.requestEmailVerification(userId);
+  }
+
+  @Post('verify-email/confirm')
+  @HttpCode(204)
+  confirmEmailVerification(@Body() dto: EmailTokenDto) {
+    return this.userService.confirmEmailVerification(dto.token);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('me/delete-request')
+  @HttpCode(204)
+  requestDeletion(@CurrentUser('sub') userId: number) {
+    return this.userService.requestDeletion(userId);
+  }
+
+  @Post('delete-confirm')
+  @HttpCode(204)
+  confirmDeletion(@Body() dto: EmailTokenDto) {
+    return this.userService.confirmDeletion(dto.token);
   }
 }

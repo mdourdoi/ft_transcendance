@@ -30,6 +30,7 @@
     "class-validator": "^0.15.1",
     "file-type": "^22.1.1",
     "multer": "^2.4.0",
+    "nodemailer": "^10.0.12",
     "otplib": "^13.5.0",
     "pg": "^8.23.0",
     "qrcode": "^1.5.4",

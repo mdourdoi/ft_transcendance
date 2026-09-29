@@ -6,6 +6,7 @@ import { validateEnv } from './config/env.validation.js';
 import { AVATAR_UPLOAD_DIR } from './constants.js';
 import { EventsModule } from './events/events.module.js';
 import { FriendshipsModule } from './friendships/friendships.module.js';
+import { MailModule } from './mail/mail.module.js';
 import { MessagesModule } from './messages/messages.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { TwofaModule } from './twofa/twofa.module.js';
@@ -19,6 +20,7 @@ import { UsersModule } from './users/users.module.js';
       serveRoot: '/avatars',
     }),
     PrismaModule,
+    MailModule,
     AuthModule,
     UsersModule,
     MessagesModule,
