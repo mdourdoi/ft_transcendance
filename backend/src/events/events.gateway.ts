@@ -18,10 +18,9 @@ import { SendMessageDto } from './dto/send-message.dto.js';
 import { MessageDto } from '../messages/dto/message.dto.js';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { ErrorCode } from '../common/error-codes.js';
 import { OnEvent } from '@nestjs/event-emitter';
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: { origin: '*' } })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private onlineUsers: Map<number, Set<string>> = new Map();
   private readonly logger = new Logger(EventsGateway.name);
@@ -61,6 +60,15 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
     client.data.userId = payload.sub;
+    if (payload.exp) {
+      client.data.expiryTimer = setTimeout(
+        () => {
+          client.emit('auth.expired');
+          client.disconnect(true);
+        },
+        payload.exp * 1000 - Date.now(),
+      );
+    }
     client.join(`user:${payload.sub}`);
     const sockets = this.onlineUsers.get(payload.sub);
     if (!sockets) {
@@ -73,6 +81,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: Socket) {
+    clearTimeout(client.data.expiryTimer);
     const sockets = this.onlineUsers.get(client.data.userId);
     if (!sockets) {
       return;
