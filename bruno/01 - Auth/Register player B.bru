@@ -1,0 +1,30 @@
+meta {
+  name: Register player B
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/auth/register
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "queue_b_{{suffix}}@test.com",
+    "username": "queue_b_{{suffix}}",
+    "password": "{{password}}"
+  }
+}
+
+script:post-response {
+  bru.setVar("idB", res.getBody().id);
+}
+
+tests {
+  test("user is created", function () {
+    expect(res.getStatus()).to.equal(201);
+    expect(res.getBody().id).to.be.a("number");
+  });
+}

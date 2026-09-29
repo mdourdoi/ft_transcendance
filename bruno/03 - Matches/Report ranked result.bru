@@ -1,0 +1,32 @@
+meta {
+  name: Report ranked result
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/matches/{{rankedMatchId}}/result
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenB}}
+}
+
+body:json {
+  {
+    "winnerId": {{idA}}
+  }
+}
+
+tests {
+  test("returns 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test("match is finished with the winner", function () {
+    expect(res.getBody().status).to.equal("FINISHED");
+    expect(res.getBody().mode).to.equal("RANKED");
+    expect(res.getBody().winnerId).to.equal(bru.getVar("idA"));
+  });
+}
