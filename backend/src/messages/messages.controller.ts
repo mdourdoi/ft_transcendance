@@ -7,15 +7,12 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
-  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { JwtGuard } from '../auth/jwt.guard.js';
 import { ConversationDto } from './dto/conversation.dto.js';
-import { CreateMessageDto } from './dto/create-message.dto.js';
-import { MessageDto } from './dto/message.dto.js';
 import { MessagesService } from './messages.service.js';
 
 @Controller('conversations/:conversationId')
@@ -46,27 +43,6 @@ export class MessagesController {
       conversationId,
       cursor,
       Math.min(Math.max(take, 1), 100),
-    );
-  }
-
-  /**
-   * Send a message to a conversation, as an author.
-   *
-   * @param dto The message object passed as a validated DTO to create a message (send).
-   * @returns An object containing the created message.
-   * @example POST localhost:5173/conversations/17/send {...}
-   */
-  @Post('send')
-  @HttpCode(HttpStatus.CREATED)
-  public send(
-    @CurrentUser('sub') userId: number,
-    @Param('conversationId', ParseIntPipe) conversationId: number,
-    @Body() dto: CreateMessageDto,
-  ): Promise<MessageDto> {
-    return this.messagesService.sendMessage(
-      userId,
-      conversationId,
-      dto.content,
     );
   }
 }
