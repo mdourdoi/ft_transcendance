@@ -1,5 +1,5 @@
 /**
- * Tests e2e des routes /friendships et /conversations.
+ * Tests e2e des routes /friendships.
  *
  * Tape sur une API qui tourne vraiment (pas de mock) et crée ses propres comptes à
  * chaque exécution, donc relançable à volonté. Les comptes créés restent en base.
@@ -167,17 +167,9 @@ async function test(
 const entry = (list, user) =>
   Array.isArray(list) ? list.find((f) => f.user?.id === user.id) : undefined;
 const has = (list, user) => entry(list, user) !== undefined;
-const ids = (page) => page?.items?.map((m) => m.id) ?? [];
-const chronological = (items) =>
-  items.every(
-    (m, i) =>
-      i === 0 || new Date(items[i - 1].createdAt) <= new Date(m.createdAt),
-  );
-const sameIds = (a, b) =>
-  a.length === b.length && a.every((id, i) => id === b[i]);
 
 async function makeUser(name) {
-  const username = `t${RUN}_${name}`;
+  const username = `t${RUN}${name}`;
   const reg = await call(null, 'POST', '/auth/register', {
     email: `${username}@test.local`,
     username,
@@ -187,7 +179,7 @@ async function makeUser(name) {
     throw new Error(`register ${name} → ${reg.status} ${fmt(reg.body)}`);
 
   const login = await call(null, 'POST', '/auth/login', {
-    username,
+    email: `${username}@test.local`,
     password: PASSWORD,
   });
   if (login.status !== 200)
@@ -207,7 +199,7 @@ async function makeUser(name) {
 
 // ══════════════════════════════════════════════════════════════════════════════
 
-console.log(c.bold(`Tests e2e friendships + messages → ${API}`));
+console.log(c.bold(`Tests e2e friendships → ${API}`));
 
 try {
   await fetch(API);
@@ -245,16 +237,6 @@ await test('Envoyer une demande sans jeton', {
   method: 'POST',
   path: '/friendships/send',
   body: { targetId: bob.id },
-  status: 401,
-});
-await test('Lire une conversation sans jeton', {
-  path: '/conversations/1/messages',
-  status: 401,
-});
-await test('Envoyer un message sans jeton', {
-  method: 'POST',
-  path: '/conversations/1/send',
-  body: { content: 'x' },
   status: 401,
 });
 
@@ -499,19 +481,6 @@ await test("La demande acceptée n'est plus dans les demandes reçues de bob", {
   status: 200,
   checks: (list) => [['alice absente', () => !has(list, alice)]],
 });
-await test('La conversation est vide et lisible par les deux', {
-  as: bob,
-  path: `/conversations/${convAB}/messages`,
-  status: 200,
-  checks: (page) => [
-    [
-      'items === []',
-      () => Array.isArray(page.items) && page.items.length === 0,
-    ],
-    ['hasMore === false', () => page.hasMore === false],
-    ['nextCursor === null', () => page.nextCursor === null],
-  ],
-});
 await test('alice renvoie une demande alors qu’ils sont déjà amis', {
   as: alice,
   method: 'POST',
@@ -547,27 +516,18 @@ await test(
     status: 201,
   },
 );
-const aliceFriends2 = await test(
-  'alice et dave sont amis, avec une conversation',
-  {
-    as: alice,
-    path: '/friendships',
-    status: 200,
-    checks: (list) => [
-      ['dave est présent', () => has(list, dave)],
-      ['status === ACCEPTED', () => entry(list, dave).status === 'ACCEPTED'],
-      [
-        'conversationId est un entier',
-        () => Number.isInteger(entry(list, dave).conversationId),
-      ],
-    ],
-  },
-);
-const convAD = entry(aliceFriends2, dave)?.conversationId;
-await test('dave lit la conversation', {
-  as: dave,
-  path: `/conversations/${convAD}/messages`,
+await test('alice et dave sont amis, avec une conversation', {
+  as: alice,
+  path: '/friendships',
   status: 200,
+  checks: (list) => [
+    ['dave est présent', () => has(list, dave)],
+    ['status === ACCEPTED', () => entry(list, dave).status === 'ACCEPTED'],
+    [
+      'conversationId est un entier',
+      () => Number.isInteger(entry(list, dave).conversationId),
+    ],
+  ],
 });
 await test("alice ne peut pas retirer carol, qui n'est pas son amie", {
   as: alice,
@@ -589,11 +549,6 @@ await test("dave n'est plus dans les amis d'alice", {
   status: 200,
   checks: (list) => [['dave absent', () => !has(list, dave)]],
 });
-await test("La conversation est supprimée en cascade → dave n'y a plus accès", {
-  as: dave,
-  path: `/conversations/${convAD}/messages`,
-  status: 403,
-});
 await test('alice retire dave une seconde fois', {
   as: alice,
   method: 'POST',
@@ -603,283 +558,8 @@ await test('alice retire dave une seconde fois', {
 });
 
 // ─── 6 ────────────────────────────────────────────────────────────────────────
-section('6. Messages — droits d’accès et validation');
+section('6. Blocage d’un ami');
 
-await test('carol (étrangère) ne peut pas lire la conversation alice↔bob', {
-  as: carol,
-  path: `/conversations/${convAB}/messages`,
-  status: 403,
-});
-await test('carol (étrangère) ne peut pas y écrire', {
-  as: carol,
-  method: 'POST',
-  path: `/conversations/${convAB}/send`,
-  body: { content: 'intrusion' },
-  status: 403,
-});
-await test('Conversation inexistante', {
-  as: alice,
-  path: `/conversations/${NOPE}/messages`,
-  status: 403,
-});
-await test("conversationId non numérique dans l'URL", {
-  as: alice,
-  path: '/conversations/abc/messages',
-  status: 400,
-});
-await test('content absent', {
-  as: alice,
-  method: 'POST',
-  path: `/conversations/${convAB}/send`,
-  body: {},
-  status: 400,
-});
-await test('content vide', {
-  as: alice,
-  method: 'POST',
-  path: `/conversations/${convAB}/send`,
-  body: { content: '' },
-  status: 400,
-});
-await test('content de type number', {
-  as: alice,
-  method: 'POST',
-  path: `/conversations/${convAB}/send`,
-  body: { content: 123 },
-  status: 400,
-});
-await test('content de 1025 caractères (limite 1024)', {
-  as: alice,
-  method: 'POST',
-  path: `/conversations/${convAB}/send`,
-  body: { content: 'x'.repeat(1025) },
-  status: 400,
-});
-await test('content composé uniquement d’espaces → 400 attendu', {
-  as: alice,
-  method: 'POST',
-  path: `/conversations/${convAB}/send`,
-  body: { content: '   ' },
-  status: 400,
-  known: '§3.7',
-});
-await test('content de exactement 1024 caractères', {
-  as: alice,
-  method: 'POST',
-  path: `/conversations/${convAB}/send`,
-  body: { content: 'x'.repeat(1024) },
-  status: 201,
-});
-await test(
-  "alice envoie un message — le conversationId du body est ignoré au profit de l'URL",
-  {
-    as: alice,
-    method: 'POST',
-    path: `/conversations/${convAB}/send`,
-    body: { content: 'Salut bob', conversationId: NOPE },
-    status: 201,
-    checks: (m) => [
-      ['id est une string', () => typeof m.id === 'string'],
-      ['content === "Salut bob"', () => m.content === 'Salut bob'],
-      [
-        'createdAt est une date valide',
-        () => !Number.isNaN(Date.parse(m.createdAt)),
-      ],
-      ['sender.id === alice', () => m.sender.id === alice.id],
-      ['sender.username === alice', () => m.sender.username === alice.username],
-    ],
-  },
-);
-await test('bob reçoit le message en dernière position', {
-  as: bob,
-  path: `/conversations/${convAB}/messages`,
-  status: 200,
-  checks: (page) => {
-    const last = page.items.at(-1);
-    return [
-      ['dernier message === "Salut bob"', () => last.content === 'Salut bob'],
-      ['envoyé par alice', () => last.sender.id === alice.id],
-    ];
-  },
-});
-
-// ─── 7 ────────────────────────────────────────────────────────────────────────
-section('7. Messages — pagination par curseur');
-
-const before = await call(
-  alice,
-  'GET',
-  `/conversations/${convAB}/messages?take=100`,
-);
-const initial = before.body?.items?.length ?? 0;
-{
-  const statuses = [];
-  for (let i = 1; i <= 25; i++) {
-    const res = await call(bob, 'POST', `/conversations/${convAB}/send`, {
-      content: `page-${String(i).padStart(2, '0')}`,
-    });
-    statuses.push(res.status);
-  }
-  const bad = statuses.filter((s) => s !== 201);
-  report(
-    `bob envoie 25 messages d'affilée (${initial} déjà présents)`,
-    `POST /conversations/${convAB}/send · bob · ×25`,
-    [{ label: '25 × statut 201', ok: bad.length === 0, got: bad.join(',') }],
-  );
-}
-const total = initial + 25;
-
-const page1 = await test('Page 1 sans curseur (take par défaut = 20)', {
-  as: alice,
-  path: `/conversations/${convAB}/messages`,
-  status: 200,
-  checks: (p) => [
-    ['20 messages', () => p.items.length === 20],
-    ['hasMore === true', () => p.hasMore === true],
-    [
-      'nextCursor === id du plus ancien de la page (items[0])',
-      () => p.nextCursor === p.items[0].id,
-    ],
-    ['ordre chronologique croissant', () => chronological(p.items)],
-    [
-      'le dernier est le plus récent (page-25)',
-      () => p.items.at(-1).content === 'page-25',
-    ],
-  ],
-});
-const page2 = await test('Page 2 avec le curseur de la page 1', {
-  as: alice,
-  path: `/conversations/${convAB}/messages?cursor=${page1?.nextCursor}`,
-  status: 200,
-  checks: (p) => [
-    [`${total - 20} messages restants`, () => p.items.length === total - 20],
-    ['hasMore === false', () => p.hasMore === false],
-    ['nextCursor === null', () => p.nextCursor === null],
-    ['ordre chronologique croissant', () => chronological(p.items)],
-    [
-      'aucun doublon avec la page 1',
-      () => !p.items.some((m) => ids(page1).includes(m.id)),
-    ],
-    [
-      'tous plus anciens que la page 1',
-      () =>
-        new Date(p.items.at(-1).createdAt) <=
-        new Date(page1.items[0].createdAt),
-    ],
-  ],
-});
-{
-  const all = [...ids(page2), ...ids(page1)];
-  report('Pages 1 + 2 couvrent toute la conversation', null, [
-    {
-      label: `${total} messages au total`,
-      ok: all.length === total,
-      got: all.length,
-    },
-    { label: 'tous distincts', ok: new Set(all).size === all.length },
-  ]);
-}
-await test('take=5', {
-  as: alice,
-  path: `/conversations/${convAB}/messages?take=5`,
-  status: 200,
-  checks: (p) => [
-    ['5 messages', () => p.items.length === 5],
-    ['hasMore === true', () => p.hasMore === true],
-  ],
-});
-await test('take=0 est ramené à 1', {
-  as: alice,
-  path: `/conversations/${convAB}/messages?take=0`,
-  status: 200,
-  checks: (p) => [['1 message', () => p.items.length === 1]],
-});
-await test('take=-5 est ramené à 1', {
-  as: alice,
-  path: `/conversations/${convAB}/messages?take=-5`,
-  status: 200,
-  checks: (p) => [['1 message', () => p.items.length === 1]],
-});
-await test('take=1000 est plafonné à 100', {
-  as: alice,
-  path: `/conversations/${convAB}/messages?take=1000`,
-  status: 200,
-  checks: (p) => [
-    [
-      `${Math.min(total, 100)} messages`,
-      () => p.items.length === Math.min(total, 100),
-    ],
-    ['hasMore cohérent', () => p.hasMore === total > 100],
-  ],
-});
-// Le ValidationPipe global (transform: true) convertit `take` via `+value` AVANT les pipes
-// du paramètre : 'abc' → NaN, que DefaultValuePipe remplace par 20 ; '' → 0, ramené à 1.
-// ParseIntPipe ne voit donc jamais la chaîne d'origine.
-await test('take=abc → silencieusement remplacé par 20 (pas de 400)', {
-  as: alice,
-  path: `/conversations/${convAB}/messages?take=abc`,
-  status: 200,
-  checks: (p) => [['20 messages', () => p.items.length === 20]],
-});
-await test('take= (vide) → converti en 0 puis ramené à 1', {
-  as: alice,
-  path: `/conversations/${convAB}/messages?take=`,
-  status: 200,
-  checks: (p) => [['1 message', () => p.items.length === 1]],
-});
-await test('take=12.7 → refusé par ParseIntPipe (incohérent avec take=abc)', {
-  as: alice,
-  path: `/conversations/${convAB}/messages?take=12.7`,
-  status: 400,
-});
-await test('Curseur inexistant → retombe sur la page 1', {
-  as: alice,
-  path: `/conversations/${convAB}/messages?cursor=nexistepas`,
-  status: 200,
-  checks: (p) => [
-    ['mêmes messages que la page 1', () => sameIds(ids(p), ids(page1))],
-  ],
-});
-
-// Curseur venant d'une autre conversation : il faut une seconde conversation avec un message.
-await call(dave, 'POST', '/friendships/send', { targetId: bob.id });
-await call(bob, 'POST', '/friendships/accept', { targetId: dave.id });
-const bobFriends = await call(bob, 'GET', '/friendships');
-const convBD = entry(bobFriends.body, dave)?.conversationId;
-const foreign = await call(dave, 'POST', `/conversations/${convBD}/send`, {
-  content: 'ailleurs',
-});
-report(
-  'Préparation : bob↔dave amis, dave écrit dans leur conversation',
-  `conversation ${convBD}, message ${foreign.body?.id}`,
-  [
-    { label: 'conversation créée', ok: Number.isInteger(convBD), got: convBD },
-    {
-      label: 'message créé (201)',
-      ok: foreign.status === 201,
-      got: foreign.status,
-    },
-  ],
-);
-await test("Curseur d'une autre conversation → ignoré, retombe sur la page 1", {
-  as: bob,
-  path: `/conversations/${convAB}/messages?cursor=${foreign.body?.id}`,
-  status: 200,
-  checks: (p) => [
-    ['mêmes messages que la page 1', () => sameIds(ids(p), ids(page1))],
-  ],
-});
-
-// ─── 8 ────────────────────────────────────────────────────────────────────────
-section('8. Blocage d’un ami — le bloqué ne doit plus pouvoir écrire');
-
-await test('Avant blocage : bob peut écrire à alice', {
-  as: bob,
-  method: 'POST',
-  path: `/conversations/${convAB}/send`,
-  body: { content: 'encore là' },
-  status: 201,
-});
 await test('alice bloque bob', {
   as: alice,
   method: 'POST',
@@ -887,26 +567,6 @@ await test('alice bloque bob', {
   body: { targetId: bob.id },
   status: 201,
 });
-await test('bob (bloqué) tente d’écrire → refusé', {
-  as: bob,
-  method: 'POST',
-  path: `/conversations/${convAB}/send`,
-  body: { content: 'tu me lis ?' },
-  status: 403,
-});
-await test('bob (bloqué) tente de lire → refusé', {
-  as: bob,
-  path: `/conversations/${convAB}/messages`,
-  status: 403,
-});
-await test(
-  "alice n'a plus accès non plus (historique supprimé, choix assumé §5)",
-  {
-    as: alice,
-    path: `/conversations/${convAB}/messages`,
-    status: 403,
-  },
-);
 await test('alice voit bob dans ses bloqués', {
   as: alice,
   path: '/friendships/blocked',
@@ -981,8 +641,8 @@ await test('alice re-bloque bob (idempotent)', {
   status: 201,
 });
 
-// ─── 9 ────────────────────────────────────────────────────────────────────────
-section('9. Déblocage — la relation repart de zéro');
+// ─── 7 ────────────────────────────────────────────────────────────────────────
+section('7. Déblocage — la relation repart de zéro');
 
 await test('alice débloque bob', {
   as: alice,
@@ -1024,7 +684,7 @@ await test('bob accepte', {
   body: { targetId: alice.id },
   status: 200,
 });
-const aliceFriends3 = await test('Nouvelle amitié → nouvelle conversation', {
+await test('Nouvelle amitié → nouvelle conversation', {
   as: alice,
   path: '/friendships',
   status: 200,
@@ -1038,21 +698,9 @@ const aliceFriends3 = await test('Nouvelle amitié → nouvelle conversation', {
     ],
   ],
 });
-const convAB2 = entry(aliceFriends3, bob)?.conversationId;
-await test('La nouvelle conversation est vide', {
-  as: bob,
-  path: `/conversations/${convAB2}/messages`,
-  status: 200,
-  checks: (p) => [['items === []', () => p.items.length === 0]],
-});
-await test("L'ancienne conversation reste inaccessible", {
-  as: alice,
-  path: `/conversations/${convAB}/messages`,
-  status: 403,
-});
 
-// ─── 10 ───────────────────────────────────────────────────────────────────────
-section('10. Blocage sans amitié préalable');
+// ─── 8 ────────────────────────────────────────────────────────────────────────
+section('8. Blocage sans amitié préalable');
 
 await test("S'auto-bloquer", {
   as: alice,
