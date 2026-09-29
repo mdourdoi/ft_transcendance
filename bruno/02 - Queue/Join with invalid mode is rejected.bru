@@ -1,0 +1,49 @@
+meta {
+  name: Join with invalid mode is rejected
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+script:pre-request {
+  const socket = require("./lib/socket.js");
+  const baseUrl = bru.getEnvVar("baseUrl");
+  const result = {};
+  try {
+    const client = await socket.connectAs(baseUrl, bru.getVar("tokenA"));
+    const joined = socket.receives(client, "queue.joined", 2000);
+    const exception = socket.waitFor(client, "exception", 2000);
+    client.emit("queue.join", { mode: "INVALID" });
+    result.exception = await exception;
+    result.joined = await joined;
+    socket.closeAll(client);
+  } catch (error) {
+    result.error = error.message;
+  }
+  bru.setVar("queueResult", JSON.stringify(result));
+}
+
+tests {
+  const result = JSON.parse(bru.getVar("queueResult"));
+
+  test("scenario ran without error", function () {
+    expect(result.error).to.be.undefined;
+  });
+
+  test("emits an exception", function () {
+    expect(result.exception).to.have.property("status", "error");
+  });
+
+  test("does not join the queue", function () {
+    expect(result.joined).to.equal(false);
+  });
+}
