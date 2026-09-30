@@ -16,6 +16,7 @@
 	let password = '';
 	let username = '';
 	let error = '';
+	let token = '';
 	let loading = false;
 
 	async function addUser() {
@@ -58,7 +59,9 @@
 			});
 			const data = await res.json();
 			if (!res.ok) throw new Error(data.message);
-			console.log(data);
+			//console.log(data.accessToken);
+			token = data.accessToken;
+			console.log(token);
 			password = '';
 			email = '';
 		} catch (err) {
@@ -115,6 +118,7 @@
 	}
 
 	async function handleSubmit() {
+		if (loading) return;
 		loading = true;
 		error = '';
 		try {
@@ -154,7 +158,7 @@
 	/>
 
 	{#if currentStep === 'login'}
-	<div class="absolute top-[500px] left-1/2 -translate-x-1/2 w-[550px] h-[600px]">
+	<form novalidate on:submit|preventDefault={handleSubmit} class="absolute top-[500px] left-1/2 -translate-x-1/2 w-[550px] h-[600px]">
 		<img src={frame} alt="frame" class="absolute inset-0 w-full h-full" />
 		<div class="absolute inset-0 flex justify-center top-[75px] text-black" style="font-size: 40px;">
 			<p>Connexion</p>
@@ -208,12 +212,11 @@
 			{/if}
 		</div>
 		<button
-			type="button"
+			type="submit"
 			class="group absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
 				top-[150px] left-[calc(50%-175px)] relative w-[340px] h-[60px]
 				flex items-center justify-center"
 			style="background: transparent !important; box-shadow: none !important;"
-			on:click={() => handleSubmit()}
 		>
 			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
 			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
@@ -243,7 +246,7 @@
 		>
 			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
 			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
-				Cree un compte
+				Creer un compte
 			</span>
 		</button>
 		<img
@@ -259,13 +262,13 @@
 			alt="logo"
 			class="absolute top-[660px] left-[calc(50%+120px)] -translate-x-1/2 w-[90px] h-auto"
 		/>
-	</div>
+	</form>
 
 	{:else if currentStep === 'signin'}
-	<div class="absolute top-[500px] left-1/2 -translate-x-1/2 w-[550px] h-[600px]">
+	<form novalidate on:submit|preventDefault={handleSubmit} class="absolute top-[500px] left-1/2 -translate-x-1/2 w-[550px] h-[600px]">
 		<img src={frame} alt="frame" class="absolute inset-0 w-full h-full" />
 		<div class="absolute inset-0 flex justify-center top-[75px] text-black" style="font-size: 40px;">
-			<p>Cree un compte</p>
+			<p>Creer un compte</p>
 		</div>
 		<div class="absolute inset-0 flex justify-center top-[130px] text-black" style="font-size: 15px;">
 			<p>Retrouvez votre chemin sur le tatami.</p>
@@ -274,7 +277,7 @@
 			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
 			<input
 				type="text"
-				placeholder="user name"
+				placeholder="Username"
 				bind:value={username}
 				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
 			/>
@@ -285,7 +288,7 @@
 		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
 			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
 			<input
-				type="text"
+				type="email"
 				placeholder="Email"
 				bind:value={email}
 				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
@@ -328,16 +331,15 @@
 			{/if}
 		</div>
 		<button
-			type="button"
+			type="submit"
 			class="group absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
 				top-[130px] left-[calc(50%-175px)] relative w-[340px] h-[60px]
 				flex items-center justify-center"
 			style="background: transparent !important; box-shadow: none !important;"
-			on:click={() => handleSubmit()}
 		>
 			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
 			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
-				Cree un compte
+				Creer un compte
 			</span>
 		</button>
 		<img
@@ -379,10 +381,10 @@
 			alt="logo"
 			class="absolute top-[660px] left-[calc(50%+120px)] -translate-x-1/2 w-[90px] h-auto"
 		/>
-	</div>
+	</form>
 
 	{:else if currentStep === '2fa'}
-	<div class="absolute top-[500px] left-1/2 -translate-x-1/2 w-[550px] h-[600px]">
+	<form novalidate on:submit|preventDefault={handleSubmit} class="absolute top-[500px] left-1/2 -translate-x-1/2 w-[550px] h-[600px]">
 		<img src={frame} alt="frame" class="absolute inset-0 w-full h-full" />
 		<div class="absolute inset-0 flex justify-center top-[75px] text-black" style="font-size: 40px;">
 			<p>2fa validation</p>
@@ -448,12 +450,11 @@
 			{/if}
 		</div>
 		<button
-			type="button"
+			type="submit"
 			class="group absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
 				top-[130px] left-[calc(50%-175px)] relative w-[340px] h-[60px]
 				flex items-center justify-center"
 			style="background: transparent !important; box-shadow: none !important;"
-			on:click={() => handleSubmit()}
 		>
 			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
 			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
@@ -499,7 +500,7 @@
 			alt="logo"
 			class="absolute top-[660px] left-[calc(50%+120px)] -translate-x-1/2 w-[90px] h-auto"
 		/>
-	</div>
+	</form>
 	{/if}
 </main>
 
