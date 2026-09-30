@@ -1,20 +1,22 @@
 <script lang="ts">
-	import { fade, fly } from 'svelte/transition';
-	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
-	import * as Card from '$lib/components/ui/card';
-	import CircleAlert from '@lucide/svelte/icons/circle-alert';
-	import Eye from '@lucide/svelte/icons/eye';
-	import EyeOff from '@lucide/svelte/icons/eye-off';
-	import { Stamp } from '$lib/components/onitama';
+	import logo from '../../assets/logo-onitama2.png';
+	import frame from '../../assets/frame.png';
+	import strace from '../../assets/Icone/strace.png';
+	import cadre from '../../assets/bouton_outline.png';
+	import logomail from '../../assets/Icone/email.png';
+	import logopassword from '../../assets/Icone/Maj.png';
+	import bloque from '../../assets/Icone/hide.png';
+	import user from '../../assets/Icone/user.png';
+	import debloque from '../../assets/Icone/not_hide.png';
 
-	let currentStep = 'choice';
+	let currentStep = 'login';
+	let ithide = 'hide';
+	let twofa = '';
 	let email = '';
 	let password = '';
 	let username = '';
-	let twofa = '';
 	let error = '';
-	let showPassword = false;
+	let token = '';
 	let loading = false;
 
 	async function addUser() {
@@ -22,6 +24,10 @@
 			error = 'EMPTY_FIELDS';
 			return;
 		}
+		if (!/^[a-zA-Z0-9]{3,24}$/.test(username)) {
+		error = 'INVALID_USERNAME';
+		return;
+	}
 		try {
 			const res = await fetch('http://localhost:3000/auth/register', {
 				method: 'POST',
@@ -53,7 +59,9 @@
 			});
 			const data = await res.json();
 			if (!res.ok) throw new Error(data.message);
-			console.log(data);
+			//console.log(data.accessToken);
+			token = data.accessToken;
+			console.log(token);
 			password = '';
 			email = '';
 		} catch (err) {
@@ -104,7 +112,13 @@
 		error = '';
 	}
 
+	function selectModePass(mode: string) {
+		ithide = mode;
+		error = '';
+	}
+
 	async function handleSubmit() {
+		if (loading) return;
 		loading = true;
 		error = '';
 		try {
@@ -121,57 +135,397 @@
 	}
 </script>
 
-<main class="relative flex h-screen w-screen items-center justify-center overflow-hidden">
-	<img class="pointer-events-none fixed inset-0 size-full select-none" src="../assets/home/background/background.png" alt="" />
-	<div class="relative flex flex-col items-center gap-6">
-		<img class="h-40 w-auto rounded-xl shadow-lg" src="../assets/home/logo/onitama.png" alt="Onitama" />
-		<Card.Root class="w-[340px] border-4 border-double border-border bg-card/90 shadow-xl backdrop-blur-sm">
-			{#if currentStep === 'choice'}
-				<div in:fade={{ duration: 200 }} class="flex flex-col gap-(--card-spacing)">
-					<Card.Header class="items-center text-center">
-						<Stamp class="mx-auto mb-2" />
-						<Card.Title class="font-display text-2xl">Bienvenue au dojo</Card.Title>
-						<Card.Description>Connecte-toi ou rejoins la voie.</Card.Description>
-					</Card.Header>
-					<Card.Content class="flex flex-col gap-3">
-						<Button size="lg" onclick={() => selectMode('login')}>Connexion</Button>
-						<Button size="lg" variant="secondary" onclick={() => selectMode('signin')}>Inscription</Button>
-					</Card.Content>
-				</div>
+<main class="relative flex h-screen w-screen items-center justify-center bg-[url('../../assets/Login_background.png')] bg-cover bg-center bg-no-repeat">
+	{#if error}
+	<p class="absolute top-[470px] left-1/2 -translate-x-1/2 w-[400px] text-center text-red-600 text-base font-semibold z-50">
+		{translateError(error)}
+	</p>
+	{/if}
+	<img
+		src={logo}
+		alt="logo"
+		class="absolute top-[100px] left-1/2 -translate-x-1/2 w-[500px] h-auto"
+	/>
+	<img
+		src={strace}
+		alt="logo"
+		class="absolute top-[450px] left-[calc(50%-140px)] -translate-x-1/2 w-[150px] h-auto -scale-x-100"
+	/>
+	<img
+		src={strace}
+		alt="logo"
+		class="absolute top-[450px] left-[calc(50%+140px)] -translate-x-1/2 w-[150px] h-auto"
+	/>
+
+	{#if currentStep === 'login'}
+	<form novalidate on:submit|preventDefault={handleSubmit} class="absolute top-[500px] left-1/2 -translate-x-1/2 w-[550px] h-[600px]">
+		<img src={frame} alt="frame" class="absolute inset-0 w-full h-full" />
+		<div class="absolute inset-0 flex justify-center top-[75px] text-black" style="font-size: 40px;">
+			<p>Connexion</p>
+		</div>
+		<div class="absolute inset-0 flex justify-center top-[130px] text-black" style="font-size: 15px;">
+			<p>Retrouvez votre chemin sur le tatami.</p>
+		</div>
+		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
+			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
+			<input
+				type="email"
+				bind:value={email}
+				placeholder="Email"
+				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
+			/>
+		</div>
+		<div>
+			<img src={logomail} alt="logo" class="absolute top-[175px] left-[110px]" />
+		</div>
+		<div class="relative w-[340px] h-[60px] top-[170px] left-[100px]">
+			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
+			<input
+				type={ithide === 'hide' ? 'password' : 'text'}
+				bind:value={password}
+				placeholder="Password"
+				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
+			/>
+		</div>
+		<div>
+			<img src={logopassword} alt="logo" class="absolute top-[240px] left-[110px]" />
+			{#if ithide === 'not hide'}
+				<button
+					type="button"
+					class="absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
+							top-[122px] left-[390px]"
+					style="background: transparent !important; box-shadow: none !important;"
+					on:click={() => selectModePass('hide')}
+				>
+					<img src={bloque} alt="description" class="w-[40px] h-[40px] object-contain" />
+				</button>
 			{:else}
-				<form in:fly={{ y: 20, duration: 300 }} onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="flex flex-col gap-(--card-spacing)">
-					<Card.Header class="text-center">
-						<Card.Title class="font-display text-2xl">{currentStep === 'login' ? 'Connexion' : currentStep === 'signin' ? 'Inscription' : 'Validation 2FA'}</Card.Title>
-					</Card.Header>
-					<Card.Content class="flex flex-col gap-3">
-						{#if currentStep === 'signin'}
-							<Input bind:value={username} placeholder="Username" autocomplete="username" minlength={3} maxlength={24} pattern="[a-zA-Z0-9]+" required class="h-10 bg-card" />
-						{/if}
-						<Input type="email" bind:value={email} placeholder="Email" autocomplete="email" required class="h-10 bg-card" />
-						<div class="relative">
-							<Input type={showPassword ? 'text' : 'password'} bind:value={password} placeholder="Mot de passe" autocomplete={currentStep === 'signin' ? 'new-password' : 'current-password'} required class="h-10 bg-card pr-10" />
-							<button type="button" onclick={() => (showPassword = !showPassword)} aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'} class="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground">
-								{#if showPassword}
-									<EyeOff class="size-4" />
-								{:else}
-									<Eye class="size-4" />
-								{/if}
-							</button>
-						</div>
-						{#if currentStep === '2fa'}
-							<Input bind:value={twofa} placeholder="Code 2FA" inputmode="numeric" autocomplete="one-time-code" required class="h-10 bg-card" />
-						{/if}
-						<Button type="submit" size="lg" disabled={loading}>Valider</Button>
-						<Button type="button" variant="link" onclick={() => selectMode('choice')}>← Retour</Button>
-						{#if error}
-							<div in:fly={{ y: -10, duration: 200 }} role="alert" class="flex items-center gap-2 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-								<CircleAlert class="size-4 shrink-0" />
-								<span>{translateError(error)}</span>
-							</div>
-						{/if}
-					</Card.Content>
-				</form>
+				<button
+					type="button"
+					class="absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
+							top-[122px] left-[390px]"
+					style="background: transparent !important; box-shadow: none !important;"
+					on:click={() => selectModePass('not hide')}
+				>
+					<img src={debloque} alt="description" class="w-[40px] h-[40px] object-contain" />
+				</button>
 			{/if}
-		</Card.Root>
-	</div>
+		</div>
+		<button
+			type="submit"
+			class="group absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
+				top-[150px] left-[calc(50%-175px)] relative w-[340px] h-[60px]
+				flex items-center justify-center"
+			style="background: transparent !important; box-shadow: none !important;"
+		>
+			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
+			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
+				Se connecter
+			</span>
+		</button>
+		<img
+			src={strace}
+			alt="logo"
+			class="absolute top-[415px] left-[calc(50%-130px)] -translate-x-1/2 w-[150px] h-[10px] -scale-x-100"
+		/>
+		<p class="absolute top-[405px] left-[calc(50%-100px)] w-[200px] text-center text-black text-lg font-semibold">
+			ou
+		</p>
+		<img
+			src={strace}
+			alt="logo"
+			class="absolute top-[415px] left-[calc(50%+125px)] -translate-x-1/2 w-[150px] h-[10px]"
+		/>
+		<button
+			type="button"
+			class="group absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
+				top-[230px] left-[calc(50%-175px)] relative w-[340px] h-[60px]
+				flex items-center justify-center"
+			style="background: transparent !important; box-shadow: none !important;"
+			on:click={() => selectMode('signin')}
+		>
+			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
+			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
+				Creer un compte
+			</span>
+		</button>
+		<img
+			src={strace}
+			alt="logo"
+			class="absolute top-[660px] left-[calc(50%-110px)] -translate-x-1/2 w-[90px] h-auto -scale-x-100"
+		/>
+		<p class="absolute top-[650px] left-[calc(50%-100px)] w-[200px] text-center text-black text-lg font-semibold">
+			onitama
+		</p>
+		<img
+			src={strace}
+			alt="logo"
+			class="absolute top-[660px] left-[calc(50%+120px)] -translate-x-1/2 w-[90px] h-auto"
+		/>
+	</form>
+
+	{:else if currentStep === 'signin'}
+	<form novalidate on:submit|preventDefault={handleSubmit} class="absolute top-[500px] left-1/2 -translate-x-1/2 w-[550px] h-[600px]">
+		<img src={frame} alt="frame" class="absolute inset-0 w-full h-full" />
+		<div class="absolute inset-0 flex justify-center top-[75px] text-black" style="font-size: 40px;">
+			<p>Creer un compte</p>
+		</div>
+		<div class="absolute inset-0 flex justify-center top-[130px] text-black" style="font-size: 15px;">
+			<p>Retrouvez votre chemin sur le tatami.</p>
+		</div>
+		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
+			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
+			<input
+				type="text"
+				placeholder="Username"
+				bind:value={username}
+				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
+			/>
+		</div>
+		<div>
+			<img src={user} alt="logo" class="absolute top-[170px] left-[110px]" />
+		</div>
+		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
+			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
+			<input
+				type="email"
+				placeholder="Email"
+				bind:value={email}
+				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
+			/>
+		</div>
+		<div>
+			<img src={logomail} alt="logo" class="absolute top-[235px] left-[110px]" />
+		</div>
+		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
+			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
+			<input
+				type={ithide === 'hide' ? 'password' : 'text'}
+				bind:value={password}
+				placeholder="Password"
+				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
+			/>
+		</div>
+		<div>
+			<img src={logopassword} alt="logo" class="absolute top-[292px] left-[110px]" />
+			{#if ithide === 'not hide'}
+				<button
+					type="button"
+					class="absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
+							top-[112px] left-[390px]"
+					style="background: transparent !important; box-shadow: none !important;"
+					on:click={() => selectModePass('hide')}
+				>
+					<img src={bloque} alt="description" class="w-[40px] h-[40px] object-contain" />
+				</button>
+			{:else}
+				<button
+					type="button"
+					class="absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
+							top-[112px] left-[390px]"
+					style="background: transparent !important; box-shadow: none !important;"
+					on:click={() => selectModePass('not hide')}
+				>
+					<img src={debloque} alt="description" class="w-[40px] h-[40px] object-contain" />
+				</button>
+			{/if}
+		</div>
+		<button
+			type="submit"
+			class="group absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
+				top-[130px] left-[calc(50%-175px)] relative w-[340px] h-[60px]
+				flex items-center justify-center"
+			style="background: transparent !important; box-shadow: none !important;"
+		>
+			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
+			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
+				Creer un compte
+			</span>
+		</button>
+		<img
+			src={strace}
+			alt="logo"
+			class="absolute top-[435px] left-[calc(50%-130px)] -translate-x-1/2 w-[150px] h-[10px] -scale-x-100"
+		/>
+		<p class="absolute top-[425px] left-[calc(50%-100px)] w-[200px] text-center text-black text-lg font-semibold">
+			ou
+		</p>
+		<img
+			src={strace}
+			alt="logo"
+			class="absolute top-[435px] left-[calc(50%+125px)] -translate-x-1/2 w-[150px] h-[10px]"
+		/>
+		<button
+			type="button"
+			class="group absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
+				top-[180px] left-[calc(50%-175px)] relative w-[340px] h-[60px]
+				flex items-center justify-center"
+			style="background: transparent !important; box-shadow: none !important;"
+			on:click={() => selectMode('login')}
+		>
+			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
+			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
+				Se connecter
+			</span>
+		</button>
+		<img
+			src={strace}
+			alt="logo"
+			class="absolute top-[660px] left-[calc(50%-110px)] -translate-x-1/2 w-[90px] h-auto -scale-x-100"
+		/>
+		<p class="absolute top-[650px] left-[calc(50%-100px)] w-[200px] text-center text-black text-lg font-semibold">
+			onitama
+		</p>
+		<img
+			src={strace}
+			alt="logo"
+			class="absolute top-[660px] left-[calc(50%+120px)] -translate-x-1/2 w-[90px] h-auto"
+		/>
+	</form>
+
+	{:else if currentStep === '2fa'}
+	<form novalidate on:submit|preventDefault={handleSubmit} class="absolute top-[500px] left-1/2 -translate-x-1/2 w-[550px] h-[600px]">
+		<img src={frame} alt="frame" class="absolute inset-0 w-full h-full" />
+		<div class="absolute inset-0 flex justify-center top-[75px] text-black" style="font-size: 40px;">
+			<p>2fa validation</p>
+		</div>
+		<div class="absolute inset-0 flex justify-center top-[130px] text-black" style="font-size: 15px;">
+			<p>Retrouvez votre chemin sur le tatami.</p>
+		</div>
+		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
+			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
+			<input
+				type="email"
+				placeholder="Email"
+				bind:value={email}
+				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
+			/>
+		</div>
+		<div>
+			<img src={logomail} alt="logo" class="absolute top-[170px] left-[110px]" />
+		</div>
+		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
+			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
+			<input
+				type="text"
+				placeholder="code"
+				bind:value={twofa}
+				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
+			/>
+		</div>
+		<div>
+			<img src={logopassword} alt="logo" class="absolute top-[235px] left-[110px]" />
+		</div>
+		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
+			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
+			<input
+				type={ithide === 'hide' ? 'password' : 'text'}
+				bind:value={password}
+				placeholder="Password"
+				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
+			/>
+		</div>
+		<div>
+			<img src={logopassword} alt="logo" class="absolute top-[292px] left-[110px]" />
+			{#if ithide === 'not hide'}
+				<button
+					type="button"
+					class="absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
+							top-[112px] left-[390px]"
+					style="background: transparent !important; box-shadow: none !important;"
+					on:click={() => selectModePass('hide')}
+				>
+					<img src={bloque} alt="description" class="w-[40px] h-[40px] object-contain" />
+				</button>
+			{:else}
+				<button
+					type="button"
+					class="absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
+							top-[112px] left-[390px]"
+					style="background: transparent !important; box-shadow: none !important;"
+					on:click={() => selectModePass('not hide')}
+				>
+					<img src={debloque} alt="description" class="w-[40px] h-[40px] object-contain" />
+				</button>
+			{/if}
+		</div>
+		<button
+			type="submit"
+			class="group absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
+				top-[130px] left-[calc(50%-175px)] relative w-[340px] h-[60px]
+				flex items-center justify-center"
+			style="background: transparent !important; box-shadow: none !important;"
+		>
+			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
+			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
+				Se connecter
+			</span>
+		</button>
+		<img
+			src={strace}
+			alt="logo"
+			class="absolute top-[435px] left-[calc(50%-130px)] -translate-x-1/2 w-[150px] h-[10px] -scale-x-100"
+		/>
+		<p class="absolute top-[425px] left-[calc(50%-100px)] w-[200px] text-center text-black text-lg font-semibold">
+			ou
+		</p>
+		<img
+			src={strace}
+			alt="logo"
+			class="absolute top-[435px] left-[calc(50%+125px)] -translate-x-1/2 w-[150px] h-[10px]"
+		/>
+		<button
+			type="button"
+			class="group absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
+				top-[180px] left-[calc(50%-175px)] relative w-[340px] h-[60px]
+				flex items-center justify-center"
+			style="background: transparent !important; box-shadow: none !important;"
+			on:click={() => selectMode('login')}
+		>
+			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
+			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
+				Retour
+			</span>
+		</button>
+		<img
+			src={strace}
+			alt="logo"
+			class="absolute top-[660px] left-[calc(50%-110px)] -translate-x-1/2 w-[90px] h-auto -scale-x-100"
+		/>
+		<p class="absolute top-[650px] left-[calc(50%-100px)] w-[200px] text-center text-black text-lg font-semibold">
+			onitama
+		</p>
+		<img
+			src={strace}
+			alt="logo"
+			class="absolute top-[660px] left-[calc(50%+120px)] -translate-x-1/2 w-[90px] h-auto"
+		/>
+	</form>
+	{/if}
 </main>
+
+<style>
+	button {
+		color: white;
+		background-color: rgba(0, 0, 0, 0.6);
+		border: 2px solid transparent;
+		border-radius: 50px;
+		padding: 1rem 2.5rem;
+		font-size: 1.5rem;
+		font-weight: bold;
+		text-transform: uppercase;
+		letter-spacing: 2px;
+		cursor: pointer;
+		transition: all 0.3s ease;
+		position: relative;
+		z-index: 10;
+		outline: none;
+	}
+
+	button:hover {
+		background-color: rgba(255, 255, 255, 0.9);
+		color: #000;
+		transform: scale(1.05);
+		box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+	}
+</style>
