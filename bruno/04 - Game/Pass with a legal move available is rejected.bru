@@ -1,0 +1,50 @@
+meta {
+  name: Pass with a legal move available is rejected
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+script:pre-request {
+  const socket = require("./lib/socket.js");
+  const game = require("./lib/game.js");
+  const baseUrl = bru.getEnvVar("baseUrl");
+  const result = {};
+  try {
+    const g = await game.startGame(
+      baseUrl,
+      bru.getVar("tokenA"),
+      bru.getVar("tokenB"),
+    );
+    const { current } = game.players(g, g.stateA, bru.getVar("idA"));
+    result.message = await game.expectError(current, "game.pass", {
+      matchId: g.matchId,
+      card: g.stateA.hands[g.stateA.currentPlayer][0].name,
+    });
+    await game.endGame(g);
+  } catch (error) {
+    result.error = error.message;
+  }
+  bru.setVar("gameResult", JSON.stringify(result));
+}
+
+tests {
+  const result = JSON.parse(bru.getVar("gameResult"));
+
+  test("scenario ran without error", function () {
+    expect(result.error).to.be.undefined;
+  });
+
+  test("emits MOVE_AVAILABLE", function () {
+    expect(result.message).to.equal("MOVE_AVAILABLE");
+  });
+}

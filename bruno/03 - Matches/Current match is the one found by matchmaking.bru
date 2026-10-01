@@ -1,0 +1,51 @@
+meta {
+  name: Current match is the one found by matchmaking
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/matches/current
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenB}}
+}
+
+script:pre-request {
+  const game = require("./lib/game.js");
+  const baseUrl = bru.getEnvVar("baseUrl");
+  const result = {};
+  try {
+    result.matchId = await game.startMatch(
+      baseUrl,
+      bru.getVar("tokenA"),
+      bru.getVar("tokenB"),
+    );
+    bru.setVar("currentMatchId", result.matchId);
+  } catch (error) {
+    result.error = error.message;
+  }
+  bru.setVar("matchResult", JSON.stringify(result));
+}
+
+tests {
+  const result = JSON.parse(bru.getVar("matchResult"));
+
+  test("scenario ran without error", function () {
+    expect(result.error).to.be.undefined;
+  });
+
+  test("returns the active match", function () {
+    expect(res.getStatus()).to.equal(200);
+    const match = res.getBody().match;
+    expect(match.id).to.equal(result.matchId);
+    expect(match.status).to.equal("ACTIVE");
+    expect([match.playerOneId, match.playerTwoId]).to.have.members([
+      bru.getVar("idA"),
+      bru.getVar("idB"),
+    ]);
+  });
+}

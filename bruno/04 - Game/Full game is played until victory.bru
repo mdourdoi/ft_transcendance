@@ -1,0 +1,73 @@
+meta {
+  name: Full game is played until victory
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrl}}/matches/current
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+script:pre-request {
+  const socket = require("./lib/socket.js");
+  const game = require("./lib/game.js");
+  const baseUrl = bru.getEnvVar("baseUrl");
+  const result = {};
+  try {
+    const g = await game.startGame(
+      baseUrl,
+      bru.getVar("tokenA"),
+      bru.getVar("tokenB"),
+    );
+    const over = new Promise((resolve) => g.clientA.once("game.over", resolve));
+    const { state, turns } = await game.playUntilOver(g, bru.getVar("idA"));
+    result.state = state;
+    result.turns = turns;
+    if (state.winnerId !== null) {
+      result.over = await over;
+    }
+    bru.setVar("playedMatchId", g.matchId);
+    socket.closeAll(g.clientA, g.clientB);
+  } catch (error) {
+    result.error = error.message;
+  }
+  bru.setVar("gameResult", JSON.stringify(result));
+}
+
+tests {
+  const result = JSON.parse(bru.getVar("gameResult"));
+
+  test("scenario ran without error", function () {
+    expect(result.error).to.be.undefined;
+  });
+
+  test("game ends with a winner", function () {
+    expect(result.state.winnerId).to.be.oneOf([bru.getVar("idA"), bru.getVar("idB")]);
+  });
+
+  test("victory comes from the board", function () {
+    expect(result.state.endReason).to.be.oneOf(["WAY_OF_STONE", "WAY_OF_STREAM"]);
+  });
+
+  test("game.over matches the final state", function () {
+    expect(result.over.winnerId).to.equal(result.state.winnerId);
+    expect(result.over.endReason).to.equal(result.state.endReason);
+  });
+
+  test("winner made the last move", function () {
+    const winnerIndex = result.state.playerIds.indexOf(result.state.winnerId);
+    expect(result.state.currentPlayer).to.equal(winnerIndex);
+    expect(result.state.turn).to.equal(result.turns + 1);
+  });
+
+  test("match is no longer the current one", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().match).to.equal(null);
+  });
+}

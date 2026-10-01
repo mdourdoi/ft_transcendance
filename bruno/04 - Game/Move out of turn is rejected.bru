@@ -1,0 +1,59 @@
+meta {
+  name: Move out of turn is rejected
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+script:pre-request {
+  const socket = require("./lib/socket.js");
+  const game = require("./lib/game.js");
+  const baseUrl = bru.getEnvVar("baseUrl");
+  const result = {};
+  try {
+    const g = await game.startGame(
+      baseUrl,
+      bru.getVar("tokenA"),
+      bru.getVar("tokenB"),
+    );
+    const { waiting } = game.players(g, g.stateA, bru.getVar("idA"));
+    const waitingPlayer = g.stateA.currentPlayer === 0 ? 1 : 0;
+    result.move = await game.expectError(waiting, "game.move", {
+      matchId: g.matchId,
+      ...g.stateA.legalMoves[0],
+    });
+    result.pass = await game.expectError(waiting, "game.pass", {
+      matchId: g.matchId,
+      card: g.stateA.hands[waitingPlayer][0].name,
+    });
+    await game.endGame(g);
+  } catch (error) {
+    result.error = error.message;
+  }
+  bru.setVar("gameResult", JSON.stringify(result));
+}
+
+tests {
+  const result = JSON.parse(bru.getVar("gameResult"));
+
+  test("scenario ran without error", function () {
+    expect(result.error).to.be.undefined;
+  });
+
+  test("move emits NOT_YOUR_TURN", function () {
+    expect(result.move).to.equal("NOT_YOUR_TURN");
+  });
+
+  test("pass emits NOT_YOUR_TURN", function () {
+    expect(result.pass).to.equal("NOT_YOUR_TURN");
+  });
+}

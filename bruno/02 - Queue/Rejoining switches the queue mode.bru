@@ -16,6 +16,7 @@ auth:bearer {
 
 script:pre-request {
   const socket = require("./lib/socket.js");
+  const game = require("./lib/game.js");
   const baseUrl = bru.getEnvVar("baseUrl");
   const result = {};
   try {
@@ -27,6 +28,7 @@ script:pre-request {
     await socket.joinQueue(clientB, "UNRANKED");
     result.matchedA = await matchedA;
     socket.closeAll(clientA, clientB);
+    await game.cancelMatch(baseUrl, bru.getVar("tokenA"), result.matchedA.matchId);
   } catch (error) {
     result.error = error.message;
   }

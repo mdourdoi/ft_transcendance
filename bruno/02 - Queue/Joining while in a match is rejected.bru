@@ -1,0 +1,50 @@
+meta {
+  name: Joining while in a match is rejected
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+script:pre-request {
+  const socket = require("./lib/socket.js");
+  const game = require("./lib/game.js");
+  const baseUrl = bru.getEnvVar("baseUrl");
+  const result = {};
+  try {
+    const matchId = await game.startMatch(
+      baseUrl,
+      bru.getVar("tokenA"),
+      bru.getVar("tokenB"),
+    );
+    const client = await socket.connectAs(baseUrl, bru.getVar("tokenA"));
+    result.message = await game.expectError(client, "queue.join", {
+      mode: "UNRANKED",
+    });
+    socket.closeAll(client);
+    await game.cancelMatch(baseUrl, bru.getVar("tokenA"), matchId);
+  } catch (error) {
+    result.error = error.message;
+  }
+  bru.setVar("queueResult", JSON.stringify(result));
+}
+
+tests {
+  const result = JSON.parse(bru.getVar("queueResult"));
+
+  test("scenario ran without error", function () {
+    expect(result.error).to.be.undefined;
+  });
+
+  test("queue.join emits ALREADY_IN_MATCH", function () {
+    expect(result.message).to.equal("ALREADY_IN_MATCH");
+  });
+}

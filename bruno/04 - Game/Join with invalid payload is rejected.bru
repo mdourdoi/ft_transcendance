@@ -1,0 +1,54 @@
+meta {
+  name: Join with invalid payload is rejected
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+script:pre-request {
+  const socket = require("./lib/socket.js");
+  const game = require("./lib/game.js");
+  const baseUrl = bru.getEnvVar("baseUrl");
+  const result = {};
+  try {
+    const client = await game.connectGame(baseUrl, bru.getVar("tokenA"));
+    result.missing = await game.expectError(client, "game.join", {});
+    result.wrongType = await game.expectError(client, "game.join", {
+      matchId: "abc",
+    });
+    result.notObject = await game.expectError(client, "game.join", 42);
+    socket.closeAll(client);
+  } catch (error) {
+    result.error = error.message;
+  }
+  bru.setVar("gameResult", JSON.stringify(result));
+}
+
+tests {
+  const result = JSON.parse(bru.getVar("gameResult"));
+
+  test("scenario ran without error", function () {
+    expect(result.error).to.be.undefined;
+  });
+
+  test("missing matchId emits INVALID_GAME_PAYLOAD", function () {
+    expect(result.missing).to.equal("INVALID_GAME_PAYLOAD");
+  });
+
+  test("non numeric matchId emits INVALID_GAME_PAYLOAD", function () {
+    expect(result.wrongType).to.equal("INVALID_GAME_PAYLOAD");
+  });
+
+  test("non object payload emits INVALID_GAME_PAYLOAD", function () {
+    expect(result.notObject).to.equal("INVALID_GAME_PAYLOAD");
+  });
+}

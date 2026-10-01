@@ -1,0 +1,60 @@
+meta {
+  name: Ranked resignation updates the winner rating
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrl}}/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+script:pre-request {
+  const socket = require("./lib/socket.js");
+  const game = require("./lib/game.js");
+  const baseUrl = bru.getEnvVar("baseUrl");
+  const result = {};
+  try {
+    const g = await game.startGame(
+      baseUrl,
+      bru.getVar("tokenA"),
+      bru.getVar("tokenB"),
+      "RANKED",
+    );
+    const over = socket.waitFor(g.clientA, "game.over");
+    g.clientB.emit("game.resign", { matchId: g.matchId });
+    result.mode = g.stateA.mode;
+    result.over = await over;
+    socket.closeAll(g.clientA, g.clientB);
+  } catch (error) {
+    result.error = error.message;
+  }
+  bru.setVar("gameResult", JSON.stringify(result));
+}
+
+tests {
+  const result = JSON.parse(bru.getVar("gameResult"));
+
+  test("scenario ran without error", function () {
+    expect(result.error).to.be.undefined;
+  });
+
+  test("game is ranked", function () {
+    expect(result.mode).to.equal("RANKED");
+  });
+
+  test("player A wins by resignation", function () {
+    expect(result.over.winnerId).to.equal(bru.getVar("idA"));
+    expect(result.over.endReason).to.equal("RESIGNATION");
+  });
+
+  test("rating is 1016", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().rating).to.equal(1016);
+  });
+}

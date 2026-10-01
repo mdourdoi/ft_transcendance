@@ -1,0 +1,49 @@
+meta {
+  name: Cancelled match is no longer current
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/matches/current
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+script:pre-request {
+  const game = require("./lib/game.js");
+  const baseUrl = bru.getEnvVar("baseUrl");
+  const result = {};
+  try {
+    result.over = await game.cancelMatch(
+      baseUrl,
+      bru.getVar("tokenB"),
+      bru.getVar("currentMatchId"),
+    );
+  } catch (error) {
+    result.error = error.message;
+  }
+  bru.setVar("matchResult", JSON.stringify(result));
+}
+
+tests {
+  const result = JSON.parse(bru.getVar("matchResult"));
+
+  test("scenario ran without error", function () {
+    expect(result.error).to.be.undefined;
+  });
+
+  test("leaving before the start cancels without a winner", function () {
+    expect(result.over.winnerId).to.equal(null);
+    expect(result.over.endReason).to.equal("CANCELLED");
+  });
+
+  test("player has no current match anymore", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().match).to.equal(null);
+  });
+}
