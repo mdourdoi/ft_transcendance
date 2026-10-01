@@ -6,6 +6,7 @@ import { validateEnv } from './config/env.validation.js';
 import { AVATAR_UPLOAD_DIR } from './constants.js';
 import { EventsModule } from './events/events.module.js';
 import { FriendshipsModule } from './friendships/friendships.module.js';
+import { GameModule } from './game/game.module.js';
 import { MatchesModule } from './matches/matches.module.js';
 import { MessagesModule } from './messages/messages.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
@@ -31,6 +32,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     FriendshipsModule,
     MatchesModule,
     QueueModule,
+    GameModule,
     EventsModule,
     EventEmitterModule.forRoot(),
   ],
