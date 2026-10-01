@@ -19,8 +19,9 @@ import { MessageDto } from '../messages/dto/message.dto.js';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { OnEvent } from '@nestjs/event-emitter';
+import { corsOrigins } from '../common/cors.js';
 
-@WebSocketGateway({ cors: { origin: '*' } })
+@WebSocketGateway({ cors: { origin: corsOrigins() } })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private onlineUsers: Map<number, Set<string>> = new Map();
   private readonly logger = new Logger(EventsGateway.name);
