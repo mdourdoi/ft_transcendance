@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { GameService } from '../game/game.service.js';
 import { QueueMode } from '../generated/prisma/client.js';
 import { MatchesService } from '../matches/matches.service.js';
 import { QueueService } from './queue.service.js';
@@ -16,9 +17,12 @@ export interface FormedMatch {
 
 @Injectable()
 export class MatchmakingService {
+  private readonly logger = new Logger(MatchmakingService.name);
+
   constructor(
     private readonly queueService: QueueService,
     private readonly matchesService: MatchesService,
+    private readonly gameService: GameService,
   ) {}
 
   async tick(): Promise<FormedMatch[]> {
@@ -29,60 +33,81 @@ export class MatchmakingService {
     return [...unranked, ...ranked];
   }
 
-  private async matchUnranked(): Promise<FormedMatch[]> {
-    if (!(await this.queueService.acquireMatchmakingLock(QueueMode.UNRANKED))) {
+  private async withLock(
+    mode: QueueMode,
+    fn: () => Promise<FormedMatch[]>,
+  ): Promise<FormedMatch[]> {
+    const token = await this.queueService.acquireMatchmakingLock(mode);
+    if (!token) {
       return [];
     }
-
-    const entries = await this.loadEntries(
-      QueueMode.UNRANKED,
-      await this.queueService.getUnrankedQueue(),
-    );
-
-    const matches: FormedMatch[] = [];
-    while (entries.length >= 2) {
-      const playerA = entries.shift() as QueueEntry;
-      const playerB = entries.shift() as QueueEntry;
-      matches.push(await this.formMatch(QueueMode.UNRANKED, playerA, playerB));
+    try {
+      return await fn();
+    } finally {
+      await this.queueService.releaseMatchmakingLock(mode, token);
     }
-
-    return matches;
   }
 
-  private async matchRanked(): Promise<FormedMatch[]> {
-    if (!(await this.queueService.acquireMatchmakingLock(QueueMode.RANKED))) {
-      return [];
-    }
-
-    const entries = await this.loadEntries(
-      QueueMode.RANKED,
-      await this.queueService.getRankedQueue(),
-    );
-    entries.sort((a, b) => a.joinedAt - b.joinedAt);
-
-    const matchedUserIds = new Set<number>();
-    const matches: FormedMatch[] = [];
-
-    for (const player of entries) {
-      if (matchedUserIds.has(player.userId)) {
-        continue;
-      }
-
-      const opponent = this.findClosestOpponent(
-        player,
-        entries,
-        matchedUserIds,
+  private matchUnranked(): Promise<FormedMatch[]> {
+    return this.withLock(QueueMode.UNRANKED, async () => {
+      const entries = await this.loadEntries(
+        QueueMode.UNRANKED,
+        await this.queueService.getUnrankedQueue(),
       );
-      if (!opponent) {
-        continue;
+
+      const matches: FormedMatch[] = [];
+      while (entries.length >= 2) {
+        const playerA = entries.shift() as QueueEntry;
+        const playerB = entries.shift() as QueueEntry;
+        const match = await this.formMatch(
+          QueueMode.UNRANKED,
+          playerA,
+          playerB,
+        );
+        if (match) {
+          matches.push(match);
+        }
       }
 
-      matchedUserIds.add(player.userId);
-      matchedUserIds.add(opponent.userId);
-      matches.push(await this.formMatch(QueueMode.RANKED, player, opponent));
-    }
+      return matches;
+    });
+  }
 
-    return matches;
+  private matchRanked(): Promise<FormedMatch[]> {
+    return this.withLock(QueueMode.RANKED, async () => {
+      const entries = await this.loadEntries(
+        QueueMode.RANKED,
+        await this.queueService.getRankedQueue(),
+      );
+      entries.sort((a, b) => a.joinedAt - b.joinedAt);
+
+      const matchedUserIds = new Set<number>();
+      const matches: FormedMatch[] = [];
+
+      for (const player of entries) {
+        if (matchedUserIds.has(player.userId)) {
+          continue;
+        }
+
+        const opponent = this.findClosestOpponent(
+          player,
+          entries,
+          matchedUserIds,
+        );
+        if (!opponent) {
+          continue;
+        }
+
+        matchedUserIds.add(player.userId);
+        matchedUserIds.add(opponent.userId);
+        const match = await this.formMatch(QueueMode.RANKED, player, opponent);
+        if (match) {
+          matches.push(match);
+        }
+      }
+
+      return matches;
+    });
   }
 
   private findClosestOpponent(
@@ -130,16 +155,43 @@ export class MatchmakingService {
     mode: QueueMode,
     playerA: QueueEntry,
     playerB: QueueEntry,
-  ): Promise<FormedMatch> {
-    await Promise.all([
-      this.queueService.leave(mode, playerA.userId),
-      this.queueService.leave(mode, playerB.userId),
-    ]);
-    const match = await this.matchesService.createMatch(
-      mode,
-      playerA.userId,
-      playerB.userId,
-    );
-    return { matchId: match.id, mode, players: [playerA, playerB] };
+  ): Promise<FormedMatch | null> {
+    const claimedA = await this.queueService.leave(mode, playerA.userId);
+    const claimedB = await this.queueService.leave(mode, playerB.userId);
+    if (!claimedA || !claimedB) {
+      await this.release(
+        mode,
+        [playerA, playerB].filter((_, i) => [claimedA, claimedB][i]),
+      );
+      return null;
+    }
+
+    let matchId: number;
+    try {
+      const match = await this.matchesService.createMatch(
+        mode,
+        playerA.userId,
+        playerB.userId,
+      );
+      matchId = match.id;
+      await this.gameService.createSession(match).catch((error: Error) => {
+        this.logger.warn(
+          `could not create game session for match ${match.id}: ${error.message}`,
+        );
+      });
+    } catch (error) {
+      this.logger.error(
+        `could not create ${mode} match: ${(error as Error).message}`,
+      );
+      await this.release(mode, [playerA, playerB]);
+      return null;
+    }
+    return { matchId, mode, players: [playerA, playerB] };
+  }
+
+  private async release(mode: QueueMode, entries: QueueEntry[]): Promise<void> {
+    for (const entry of entries) {
+      await this.queueService.requeue(mode, entry);
+    }
   }
 }

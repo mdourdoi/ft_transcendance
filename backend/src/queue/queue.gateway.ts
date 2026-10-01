@@ -1,8 +1,4 @@
-import {
-  OnModuleDestroy,
-  OnModuleInit,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
   ConnectedSocket,
@@ -16,8 +12,14 @@ import {
 } from '@nestjs/websockets';
 import { QueueMode } from '../generated/prisma/client.js';
 import { Server, Socket } from 'socket.io';
-import { JwtPayload } from '../auth/types/jwt-payload.interface.js';
+import { corsOrigins } from '../common/cors.js';
 import { ErrorCode } from '../common/error-codes.js';
+import {
+  authenticateSocket,
+  releaseSocket,
+  requireSocketUser,
+} from '../common/socket-auth.js';
+import { MatchesService } from '../matches/matches.service.js';
 import { UsersService } from '../users/users.service.js';
 import { JoinQueueDto } from './dto/join-queue.dto.js';
 import { MatchmakingService } from './matchmaking.service.js';
@@ -25,7 +27,7 @@ import { QueueService } from './queue.service.js';
 
 const MATCHMAKING_TICK_MS = 1500;
 
-@WebSocketGateway({ namespace: '/queue', cors: { origin: '*' } })
+@WebSocketGateway({ namespace: '/queue', cors: { origin: corsOrigins() } })
 export class QueueGateway
   implements
     OnGatewayConnection,
@@ -36,12 +38,14 @@ export class QueueGateway
   @WebSocketServer()
   server: Server;
 
-  private readonly socketUserIds = new Map<string, number>();
+  private readonly logger = new Logger(QueueGateway.name);
   private tickInterval?: NodeJS.Timeout;
+  private ticking = false;
 
   constructor(
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
+    private readonly matchesService: MatchesService,
     private readonly queueService: QueueService,
     private readonly matchmakingService: MatchmakingService,
   ) {}
@@ -58,19 +62,24 @@ export class QueueGateway
 
   handleConnection(client: Socket) {
     try {
-      const token = this.extractToken(client);
-      const payload = this.jwtService.verify<JwtPayload>(token);
-      this.socketUserIds.set(client.id, payload.sub);
+      authenticateSocket(this.jwtService, client);
     } catch {
       client.disconnect(true);
     }
   }
 
   async handleDisconnect(client: Socket) {
-    const userId = this.socketUserIds.get(client.id);
-    this.socketUserIds.delete(client.id);
-    if (userId !== undefined) {
+    releaseSocket(client);
+    const userId = client.data.userId as number | undefined;
+    if (userId === undefined) {
+      return;
+    }
+    try {
       await this.queueService.leaveAllModes(userId);
+    } catch (error) {
+      this.logger.error(
+        `could not remove user ${userId} from the queue: ${(error as Error).message}`,
+      );
     }
   }
 
@@ -79,9 +88,12 @@ export class QueueGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() body: JoinQueueDto,
   ) {
-    const userId = this.requireUserId(client);
+    const userId = requireSocketUser(client);
     if (body?.mode !== QueueMode.RANKED && body?.mode !== QueueMode.UNRANKED) {
       throw new WsException(ErrorCode.INVALID_QUEUE_MODE);
+    }
+    if (await this.matchesService.findActiveForUser(userId)) {
+      throw new WsException(ErrorCode.ALREADY_IN_MATCH);
     }
 
     const user = await this.usersService.findById(userId);
@@ -97,46 +109,35 @@ export class QueueGateway
 
   @SubscribeMessage('queue.leave')
   async handleLeave(@ConnectedSocket() client: Socket) {
-    const userId = this.requireUserId(client);
+    const userId = requireSocketUser(client);
     await this.queueService.leaveAllModes(userId);
     client.emit('queue.left', {});
   }
 
   private async tick() {
-    const matches = await this.matchmakingService.tick();
-    for (const match of matches) {
-      const [playerA, playerB] = match.players;
-      this.server.to(playerA.socketId).emit('queue.matched', {
-        matchId: match.matchId,
-        mode: match.mode,
-        opponentId: playerB.userId,
-      });
-      this.server.to(playerB.socketId).emit('queue.matched', {
-        matchId: match.matchId,
-        mode: match.mode,
-        opponentId: playerA.userId,
-      });
+    if (this.ticking) {
+      return;
     }
-  }
-
-  private extractToken(client: Socket): string {
-    const authToken = client.handshake.auth?.token as string | undefined;
-    if (authToken) {
-      return authToken;
+    this.ticking = true;
+    try {
+      const matches = await this.matchmakingService.tick();
+      for (const match of matches) {
+        const [playerA, playerB] = match.players;
+        this.server.to(playerA.socketId).emit('queue.matched', {
+          matchId: match.matchId,
+          mode: match.mode,
+          opponentId: playerB.userId,
+        });
+        this.server.to(playerB.socketId).emit('queue.matched', {
+          matchId: match.matchId,
+          mode: match.mode,
+          opponentId: playerA.userId,
+        });
+      }
+    } catch (error) {
+      this.logger.error(`matchmaking tick failed: ${(error as Error).message}`);
+    } finally {
+      this.ticking = false;
     }
-    const header = client.handshake.headers.authorization;
-    const bearerToken = header?.split(' ')[1];
-    if (!bearerToken) {
-      throw new UnauthorizedException(ErrorCode.INVALID_TOKEN);
-    }
-    return bearerToken;
-  }
-
-  private requireUserId(client: Socket): number {
-    const userId = this.socketUserIds.get(client.id);
-    if (userId === undefined) {
-      throw new WsException(ErrorCode.INVALID_TOKEN);
-    }
-    return userId;
   }
 }
