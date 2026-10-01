@@ -9,6 +9,9 @@ model User {
   rating               Int                  @default(1000)
   createdAt            DateTime             @default(now())
   conversationAccesses ConversationAccess[]
+  emailVerifiedAt      DateTime?
+  twoFactorMethod      TwoFactorMethod      @default(TOTP)
+  emailTokens          EmailToken[]
 
   sentRequests     Friendship[] @relation("Sender")
   receivedRequests Friendship[] @relation("Receiver")
@@ -73,4 +76,31 @@ model Friendship {
   receiver User @relation("Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
 
   @@unique([senderId, receiverId])
+}
+
+enum TwoFactorMethod {
+  TOTP
+  EMAIL
+}
+
+enum EmailTokenType {
+  EMAIL_VERIFY
+  TWOFA_LOGIN
+  ACCOUNT_DELETE
+}
+
+model EmailToken {
+  id        Int            @id @default(autoincrement())
+  userId    Int
+  type      EmailTokenType
+  tokenHash String
+  expiresAt DateTime
+  usedAt    DateTime?
+  attempts  Int            @default(0)
+  createdAt DateTime       @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@index([tokenHash])
 }
