@@ -1,13 +1,16 @@
+import { ConflictException, Injectable } from '@nestjs/common';
 import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { Match, MatchStatus, QueueMode } from '../generated/prisma/client.js';
+  Match,
+  MatchEndReason,
+  MatchStatus,
+  Prisma,
+  QueueMode,
+} from '../generated/prisma/client.js';
 import { ErrorCode } from '../common/error-codes.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 const RATING_K_FACTOR = 32;
+const MIN_RATING = 0;
 
 @Injectable()
 export class MatchesService {
@@ -19,58 +22,105 @@ export class MatchesService {
     });
   }
 
-  async reportResult(
-    matchId: number,
-    userId: number,
-    winnerId: number,
-  ): Promise<Match> {
-    const match = await this.prisma.match.findUnique({
-      where: { id: matchId },
-    });
-    if (!match) {
-      throw new NotFoundException(ErrorCode.MATCH_NOT_FOUND);
-    }
-    if (match.playerOneId !== userId && match.playerTwoId !== userId) {
-      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
-    }
-    if (match.status !== MatchStatus.ACTIVE) {
-      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
-    }
-    if (winnerId !== match.playerOneId && winnerId !== match.playerTwoId) {
-      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
-    }
+  findById(matchId: number): Promise<Match | null> {
+    return this.prisma.match.findUnique({ where: { id: matchId } });
+  }
 
-    if (match.mode === QueueMode.RANKED) {
-      await this.applyRatingChange(match, winnerId);
-    }
-
-    return this.prisma.match.update({
-      where: { id: matchId },
-      data: { status: MatchStatus.FINISHED, winnerId, finishedAt: new Date() },
+  findActiveForUser(userId: number): Promise<Match | null> {
+    return this.prisma.match.findFirst({
+      where: {
+        status: MatchStatus.ACTIVE,
+        OR: [{ playerOneId: userId }, { playerTwoId: userId }],
+      },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
-  private async applyRatingChange(match: Match, winnerId: number) {
+  findActiveCreatedBefore(date: Date): Promise<Match[]> {
+    return this.prisma.match.findMany({
+      where: { status: MatchStatus.ACTIVE, createdAt: { lt: date } },
+    });
+  }
+
+  finishMatch(
+    matchId: number,
+    winnerId: number,
+    endReason: MatchEndReason,
+  ): Promise<Match> {
+    return this.prisma.$transaction(async (tx) => {
+      const match = await tx.match.findUnique({ where: { id: matchId } });
+      if (!match) {
+        throw new ConflictException(ErrorCode.MATCH_NOT_FOUND);
+      }
+      if (
+        match.status === MatchStatus.FINISHED &&
+        match.winnerId === winnerId
+      ) {
+        return match;
+      }
+      if (winnerId !== match.playerOneId && winnerId !== match.playerTwoId) {
+        throw new ConflictException(ErrorCode.IMPOSSIBLE_REQUEST);
+      }
+
+      const { count } = await tx.match.updateMany({
+        where: { id: matchId, status: MatchStatus.ACTIVE },
+        data: {
+          status: MatchStatus.FINISHED,
+          winnerId,
+          endReason,
+          finishedAt: new Date(),
+        },
+      });
+      if (count === 0) {
+        throw new ConflictException(ErrorCode.MATCH_NOT_ACTIVE);
+      }
+
+      const ratingDelta =
+        match.mode === QueueMode.RANKED
+          ? await this.applyRatingChange(tx, match, winnerId)
+          : null;
+
+      return tx.match.update({
+        where: { id: matchId },
+        data: { ratingDelta },
+      });
+    });
+  }
+
+  async cancelMatch(matchId: number): Promise<boolean> {
+    const { count } = await this.prisma.match.updateMany({
+      where: { id: matchId, status: MatchStatus.ACTIVE },
+      data: { status: MatchStatus.CANCELLED, finishedAt: new Date() },
+    });
+    if (count > 0) {
+      return true;
+    }
+    const match = await this.findById(matchId);
+    return match?.status === MatchStatus.CANCELLED;
+  }
+
+  private async applyRatingChange(
+    tx: Prisma.TransactionClient,
+    match: Match,
+    winnerId: number,
+  ): Promise<number> {
     const loserId =
       winnerId === match.playerOneId ? match.playerTwoId : match.playerOneId;
-    const [winner, loser] = await Promise.all([
-      this.prisma.user.findUniqueOrThrow({ where: { id: winnerId } }),
-      this.prisma.user.findUniqueOrThrow({ where: { id: loserId } }),
-    ]);
+    const winner = await tx.user.findUniqueOrThrow({ where: { id: winnerId } });
+    const loser = await tx.user.findUniqueOrThrow({ where: { id: loserId } });
 
     const expectedScore =
       1 / (1 + 10 ** ((loser.rating - winner.rating) / 400));
     const delta = Math.round(RATING_K_FACTOR * (1 - expectedScore));
 
-    await Promise.all([
-      this.prisma.user.update({
-        where: { id: winnerId },
-        data: { rating: { increment: delta } },
-      }),
-      this.prisma.user.update({
-        where: { id: loserId },
-        data: { rating: { decrement: delta } },
-      }),
-    ]);
+    await tx.user.update({
+      where: { id: winnerId },
+      data: { rating: winner.rating + delta },
+    });
+    await tx.user.update({
+      where: { id: loserId },
+      data: { rating: Math.max(MIN_RATING, loser.rating - delta) },
+    });
+    return delta;
   }
 }
