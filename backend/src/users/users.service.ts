@@ -6,6 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import bcrypt from 'bcrypt';
 import { fileTypeFromFile } from 'file-type';
 import { unlink } from 'node:fs/promises';
@@ -30,6 +31,7 @@ export class UsersService {
     private mail: MailService,
     private config: ConfigService,
     private twofaVerifier: TwofaVerifierService,
+    private events: EventEmitter2,
   ) {}
 
   async me(userId: number) {
@@ -280,9 +282,25 @@ export class UsersService {
           select: { conversationId: true, content: true, createdAt: true },
           orderBy: { createdAt: 'asc' },
         },
+        matchesAsPlayerOne: {
+          include: {
+            playerTwo: { select: { username: true } },
+          },
+        },
+        matchesAsPlayerTwo: {
+          include: {
+            playerOne: {
+              select: { username: true },
+            },
+          },
+        },
       },
     });
     if (!row) throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+
+    this.mail
+      .sendExportedData(row.email)
+      .catch((e) => console.warn('data exported mail failed:', e));
 
     return {
       exportedAt: new Date(),
@@ -295,7 +313,9 @@ export class UsersService {
         emailVerifiedAt: row.emailVerifiedAt,
         twoFactorEnabled: row.twoFactorEnabled,
         twoFactorMethod: row.twoFactorMethod,
+        rating: row.rating,
       },
+      messages: row.messages,
       friendships: [
         ...row.sentRequests.map((f) => ({
           with: f.receiver.username,
@@ -310,7 +330,25 @@ export class UsersService {
           createdAt: f.createdAt,
         })),
       ],
-      messages: row.messages,
+      matches: [
+        ...row.matchesAsPlayerOne.map((m) => ({
+          ...m,
+          opponent: m.playerTwo.username,
+        })),
+        ...row.matchesAsPlayerTwo.map((m) => ({
+          ...m,
+          opponent: m.playerOne.username,
+        })),
+      ]
+        .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+        .map((m) => ({
+          opponent: m.opponent,
+          mode: m.mode,
+          status: m.status,
+          won: m.winnerId === null ? null : m.winnerId === row.id,
+          createdAt: m.createdAt,
+          finishedAt: m.finishedAt,
+        })),
     };
   }
 }

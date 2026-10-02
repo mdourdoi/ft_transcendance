@@ -60,12 +60,18 @@ export class QueueGateway
     clearInterval(this.tickInterval);
   }
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     try {
       authenticateSocket(this.jwtService, client);
     } catch {
       client.disconnect(true);
     }
+  }
+
+  @OnEvent('user.deleted')
+  async handleUserDeleted(userId: number) {
+    await this.queueService.leaveAllModes(userId);
+    this.server.in(`user:${userId}`).disconnectSockets(true);
   }
 
   async handleDisconnect(client: Socket) {

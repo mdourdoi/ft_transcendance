@@ -1,19 +1,18 @@
+import { HttpException, Logger } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
 import {
+  ConnectedSocket,
+  MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
-  ConnectedSocket,
-  MessageBody,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { FriendshipsService } from '../friendships/friendships.service.js';
 import { FriendshipStatus } from '../generated/prisma/client.js';
-import { HttpException, Logger } from '@nestjs/common';
-import { MessagesService } from '../messages/messages.service.js';
-import { SendMessageDto } from './dto/send-message.dto.js';
 import { MessageDto } from '../messages/dto/message.dto.js';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
@@ -43,6 +42,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private jwt: JwtService,
     private friends: FriendshipsService,
     private messages: MessagesService,
+    private prisma: PrismaService,
   ) {}
 
   handleConnection(client: Socket) {

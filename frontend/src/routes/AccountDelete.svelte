@@ -13,7 +13,6 @@
   let step = $state<Step>(linkToken ? "ASK" : "INVALID");
   let busy = $state(false);
 
-  // Runs on click only: mail clients and link scanners may prefetch the URL.
   async function confirm() {
     busy = true;
     try {
