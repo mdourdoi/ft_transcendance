@@ -6,11 +6,13 @@ import {
   HttpCode,
   Patch,
   Post,
+  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
 import { diskStorage } from 'multer';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { JwtGuard } from '../auth/jwt.guard.js';
@@ -82,7 +84,14 @@ export class UsersController {
 
   @UseGuards(JwtGuard)
   @Get('me/export')
-  exportData(@CurrentUser('sub') userId: number) {
+  exportData(
+    @CurrentUser('sub') userId: number,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="export-${userId}.json"`,
+    );
     return this.userService.exportData(userId);
   }
 

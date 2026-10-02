@@ -22,6 +22,7 @@
  *   API_URL=http://localhost:3000        cible (défaut)
  *   BACKEND_CONTAINER=transcendence-backend
  *   DB_CONTAINER=transcendence-db
+ *   REDIS_CONTAINER=transcendence-redis
  *   VERBOSE=1                            affiche le corps de chaque réponse et chaque mail capturé
  *
  * Légende de la sortie :
@@ -35,6 +36,7 @@ import { generate } from 'otplib';
 const API = process.env.API_URL ?? 'http://localhost:3000';
 const BACKEND = process.env.BACKEND_CONTAINER ?? 'transcendence-backend';
 const DB = process.env.DB_CONTAINER ?? 'transcendence-db';
+const REDIS = process.env.REDIS_CONTAINER ?? 'transcendence-redis';
 const VERBOSE = !!process.env.VERBOSE;
 const RUN = Date.now().toString(36);
 const PASSWORD = 'Passw0rd!';
@@ -181,6 +183,57 @@ function sql(query) {
   ]);
   if (r.code !== 0) throw new Error(`psql : ${r.out.trim()}`);
   return r.out.trim();
+}
+
+function redis(...args) {
+  const r = docker(['exec', REDIS, 'redis-cli', ...args]);
+  if (r.code !== 0) throw new Error(`redis-cli : ${r.out.trim()}`);
+  return r.out.trim();
+}
+
+// ─── WebSocket ────────────────────────────────────────────────────────────────
+
+function openSocket(namespace, token) {
+  const nsp = namespace ? `${namespace},` : '';
+  const ws = new WebSocket(
+    `${API.replace(/^http/, 'ws')}/socket.io/?EIO=4&transport=websocket`,
+  );
+  const seen = new Set();
+  const waiters = [];
+  const fire = (event) => {
+    seen.add(event);
+    for (const w of waiters.filter((w) => w.event === event)) w.done();
+  };
+
+  ws.addEventListener('message', ({ data }) => {
+    const text = String(data);
+    if (text[0] === '0') ws.send(`40${nsp}${JSON.stringify({ token })}`);
+    else if (text === '2') ws.send('3');
+    else if (text.startsWith(`40${nsp}`)) fire('connect');
+    else if (text.startsWith('41') || text.startsWith('44')) fire('disconnect');
+    else if (text.startsWith(`42${nsp}`))
+      fire(JSON.parse(text.slice(2 + nsp.length))[0]);
+  });
+  ws.addEventListener('close', () => fire('disconnect'));
+  ws.addEventListener('error', () => fire('disconnect'));
+
+  return {
+    emit: (event, payload) =>
+      ws.send(`42${nsp}${JSON.stringify([event, payload])}`),
+    heard: (event, ms = 3000) =>
+      new Promise((resolve) => {
+        if (seen.has(event)) return resolve(true);
+        const timer = setTimeout(() => resolve(false), ms);
+        waiters.push({
+          event,
+          done: () => {
+            clearTimeout(timer);
+            resolve(true);
+          },
+        });
+      }),
+    close: () => ws.close(),
+  };
 }
 
 const START = new Date().toISOString();
@@ -858,7 +911,13 @@ sql(
     `('m${RUN}_2', 'hello from bob', ${bob.id}, ${convId})`,
 );
 console.log(c.dim('      (2 messages insérés en base pour le test)'));
+sql(
+  `INSERT INTO "Match" (mode, status, "playerOneId", "playerTwoId", "winnerId", "finishedAt") ` +
+    `VALUES ('RANKED', 'FINISHED', ${alice.id}, ${bob.id}, ${alice.id}, now())`,
+);
+console.log(c.dim('      (1 match classé alice > bob inséré en base)'));
 
+n = count(alice, 'Data exported');
 await test('alice exporte ses données', {
   as: alice,
   path: '/users/me/export',
@@ -881,9 +940,51 @@ await test('alice exporte ses données', {
         JSON.stringify(b.messages.map((m) => m.content)) ===
         '["hello from alice"]',
     ],
+    ['rating', () => typeof b.profile.rating === 'number'],
+    [
+      'match classé gagné contre bob',
+      () =>
+        b.matches.length === 1 &&
+        b.matches[0].opponent === bob.username &&
+        b.matches[0].mode === 'RANKED' &&
+        b.matches[0].status === 'FINISHED' &&
+        b.matches[0].won === true,
+    ],
+    [
+      'aucun identifiant interne dans les matchs',
+      () => !/playerOneId|playerTwoId|winnerId/.test(JSON.stringify(b.matches)),
+    ],
     [
       'aucun secret',
       () => !/passwordHash|twoFactorSecret|tokenHash/i.test(JSON.stringify(b)),
+    ],
+  ],
+});
+const exported = await waitMail(alice, 'Data exported', n);
+const exportRes = await fetch(`${API}/users/me/export`, {
+  headers: { Authorization: `Bearer ${alice.token}` },
+});
+check('Export : mail de confirmation et fichier nommé', [
+  ['mail « Data exported » envoyé', () => exported !== undefined],
+  [
+    'Content-Disposition attachment .json',
+    () =>
+      /^attachment; filename=".+\.json"$/.test(
+        exportRes.headers.get('content-disposition') ?? '',
+      ),
+  ],
+]);
+await test('bob voit le même match, perdu', {
+  as: bob,
+  path: '/users/me/export',
+  status: 200,
+  checks: (b) => [
+    [
+      'match perdu contre alice',
+      () =>
+        b.matches.length === 1 &&
+        b.matches[0].opponent === alice.username &&
+        b.matches[0].won === false,
     ],
   ],
 });
@@ -931,7 +1032,12 @@ await test('Confirmer avec un token bidon', {
   body: { token: 'nope' },
   status: 400,
 });
-check('Avant suppression : bob a une amitié, un message et des tokens', [
+const bobMatches = () =>
+  sql(
+    `SELECT count(*) FROM "Match" WHERE "playerOneId" = ${bob.id} OR "playerTwoId" = ${bob.id}`,
+  );
+check('Avant suppression : amitié, message, match et tokens de bob', [
+  ['1 match', () => bobMatches() === '1'],
   [
     '1 amitié',
     () =>
@@ -952,6 +1058,20 @@ check('Avant suppression : bob a une amitié, un message et des tokens', [
       '0',
   ],
 ]);
+const bobChat = openSocket('', bob.token);
+const bobQueue = openSocket('/queue', bob.token);
+const bobQueueEntry = () => redis('EXISTS', `queue:entry:UNRANKED:${bob.id}`);
+const chatOpen = await bobChat.heard('connect');
+const queueOpen = await bobQueue.heard('connect');
+if (queueOpen) bobQueue.emit('queue.join', { mode: 'UNRANKED' });
+const queueJoined = await bobQueue.heard('queue.joined');
+check('Avant suppression : bob est connecté et en file', [
+  ['socket du chat ouvert', () => chatOpen],
+  ['socket de la file ouvert', () => queueOpen],
+  ['file rejointe', () => queueJoined],
+  ['entrée dans Redis', () => bobQueueEntry() === '1'],
+]);
+
 n = count(bob, 'Account deleted');
 await test('Confirmer avec le bon token', {
   method: 'POST',
@@ -960,6 +1080,23 @@ await test('Confirmer avec le bon token', {
   status: 204,
 });
 const bye = await waitMail(bob, 'Account deleted', n);
+const chatClosed = await bobChat.heard('disconnect');
+const queueClosed = await bobQueue.heard('disconnect');
+await new Promise((r) => setTimeout(r, 300));
+check('Les sessions temps réel de bob sont fermées', [
+  ['socket du chat déconnecté', () => chatClosed],
+  ['socket de la file déconnecté', () => queueClosed],
+  ['plus d’entrée dans Redis', () => bobQueueEntry() === '0'],
+  [
+    'plus dans la liste d’attente',
+    () =>
+      !redis('LRANGE', 'queue:unranked:list', '0', '-1')
+        .split('\n')
+        .includes(String(bob.id)),
+  ],
+]);
+bobChat.close();
+bobQueue.close();
 check('Tout ce qui concerne bob a disparu', [
   [
     'ligne User',
@@ -974,6 +1111,7 @@ check('Tout ce qui concerne bob a disparu', [
           ` + (SELECT count(*) FROM "Message" WHERE "senderId" = ${bob.id})`,
       ) === '0',
   ],
+  ['matchs (cascade)', () => bobMatches() === '0'],
   ['fichier avatar', () => !avatarOnDisk()],
   ['mail « Account deleted » envoyé', () => bye !== undefined],
   [
@@ -981,6 +1119,12 @@ check('Tout ce qui concerne bob a disparu', [
     () => sql(`SELECT count(*) FROM "User" WHERE id = ${alice.id}`) === '1',
   ],
 ]);
+await test("Le match a disparu de l'historique d'alice (cascade)", {
+  as: alice,
+  path: '/users/me/export',
+  status: 200,
+  checks: (b) => [['aucun match', () => b.matches.length === 0]],
+});
 await test('Réutiliser le lien de suppression', {
   method: 'POST',
   path: '/users/delete-confirm',
@@ -993,11 +1137,33 @@ await test('bob ne peut plus se connecter', {
   body: loginBody(bob, PASSWORD),
   status: 401,
 });
-await test("L'ancien JWT de bob → utilisateur introuvable", {
+await test("L'ancien JWT de bob est refusé", {
   as: bob,
   path: '/users/me',
-  status: 404,
+  status: 401,
 });
+await test("L'ancien JWT de bob ne permet plus d'exporter", {
+  as: bob,
+  path: '/users/me/export',
+  status: 401,
+});
+await test("L'ancien JWT de bob ne permet plus d'écrire", {
+  as: bob,
+  method: 'POST',
+  path: '/friendships/send',
+  body: { targetId: alice.id },
+  status: 401,
+});
+const ghostChat = openSocket('', bob.token);
+const ghostQueue = openSocket('/queue', bob.token);
+const ghostChatClosed = await ghostChat.heard('disconnect');
+const ghostQueueClosed = await ghostQueue.heard('disconnect');
+check("L'ancien JWT de bob ne permet plus de se connecter en WebSocket", [
+  ['chat refusé', () => ghostChatClosed],
+  ['file refusée', () => ghostQueueClosed],
+]);
+ghostChat.close();
+ghostQueue.close();
 
 // ─── Bilan ────────────────────────────────────────────────────────────────────
 
