@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ErrorCode } from '../common/error-codes.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 import {
   AuthenticatedRequest,
   JwtPayload,
@@ -13,9 +14,12 @@ import {
 
 @Injectable()
 export class JwtGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    private jwtService: JwtService,
+    private prisma: PrismaService,
+  ) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const header = req.headers.authorization;
 
@@ -26,12 +30,23 @@ export class JwtGuard implements CanActivate {
     if (parts.length !== 2 || parts[0] !== 'Bearer') {
       throw new UnauthorizedException(ErrorCode.INVALID_TOKEN);
     }
+
+    let payload: JwtPayload;
     try {
-      const payload = this.jwtService.verify<JwtPayload>(parts[1]);
-      req.user = payload;
-      return true;
+      payload = this.jwtService.verify<JwtPayload>(parts[1]);
     } catch {
       throw new UnauthorizedException(ErrorCode.INVALID_TOKEN);
     }
+    const exists = await this.prisma.user.findUnique({
+      where: {
+        id: payload.sub,
+      },
+      select: {
+        id: true,
+      },
+    });
+    if (!exists) throw new UnauthorizedException(ErrorCode.INVALID_TOKEN);
+    req.user = payload;
+    return true;
   }
 }

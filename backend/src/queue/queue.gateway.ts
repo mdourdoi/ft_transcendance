@@ -3,6 +3,7 @@ import {
   OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
 import {
   ConnectedSocket,
@@ -56,14 +57,22 @@ export class QueueGateway
     clearInterval(this.tickInterval);
   }
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     try {
       const token = this.extractToken(client);
       const payload = this.jwtService.verify<JwtPayload>(token);
       this.socketUserIds.set(client.id, payload.sub);
+      void client.join(`user:${payload.sub}`);
+      await this.usersService.findById(payload.sub);
     } catch {
       client.disconnect(true);
     }
+  }
+
+  @OnEvent('user.deleted')
+  async handleUserDeleted(userId: number) {
+    await this.queueService.leaveAllModes(userId);
+    this.server.in(`user:${userId}`).disconnectSockets(true);
   }
 
   async handleDisconnect(client: Socket) {

@@ -1,24 +1,25 @@
+import { HttpException, Logger } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
 import {
+  ConnectedSocket,
+  MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
-  ConnectedSocket,
-  MessageBody,
 } from '@nestjs/websockets';
-import { Socket, Server } from 'socket.io';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
+import { Server, Socket } from 'socket.io';
 import { JwtPayload } from '../auth/types/jwt-payload.interface.js';
 import { FriendshipsService } from '../friendships/friendships.service.js';
 import { FriendshipStatus } from '../generated/prisma/client.js';
-import { HttpException, Logger } from '@nestjs/common';
-import { MessagesService } from '../messages/messages.service.js';
-import { SendMessageDto } from './dto/send-message.dto.js';
 import { MessageDto } from '../messages/dto/message.dto.js';
-import { plainToInstance } from 'class-transformer';
-import { validate } from 'class-validator';
-import { ErrorCode } from '../common/error-codes.js';
+import { MessagesService } from '../messages/messages.service.js';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { SendMessageDto } from './dto/send-message.dto.js';
 
 @WebSocketGateway()
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -42,9 +43,10 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private jwt: JwtService,
     private friends: FriendshipsService,
     private messages: MessagesService,
+    private prisma: PrismaService,
   ) {}
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     const token = client.handshake.auth?.token;
     if (!token) {
       this.logger.warn('connection rejected: missing token');
@@ -69,6 +71,15 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       sockets.add(client.id);
     }
     this.logger.log(`user ${payload.sub} connected (${client.id})`);
+
+    const exists = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+      select: { id: true },
+    });
+    if (!exists) {
+      this.logger.warn('connection rejected: unknown user');
+      client.disconnect();
+    }
   }
 
   handleDisconnect(client: Socket) {
@@ -132,5 +143,10 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       throw e;
     }
     return { ok: true, message };
+  }
+
+  @OnEvent('user.deleted')
+  handleUserDeleted(userId: number) {
+    this.server.in(`user:${userId}`).disconnectSockets(true);
   }
 }
