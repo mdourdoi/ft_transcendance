@@ -13,5 +13,53 @@
   },
   "LANGUAGE": {
     "LABEL": "Langue"
+  },
+  "PRIVACY": {
+    "TITLE": "Mes données",
+    "SUBTITLE": "Téléchargez une copie de vos données ou supprimez votre compte.",
+    "LOGIN_REQUIRED": "Connectez-vous pour gérer vos données.",
+    "EXPORT": "Télécharger mes données",
+    "DELETE": "Supprimer mon compte",
+    "DELETE_WARNING": "Cette action est définitive : votre compte, vos messages, vos amis et vos matchs seront effacés.",
+    "DELETE_CONFIRM": "Supprimer définitivement",
+    "CANCEL": "Annuler",
+    "STATUS_EXPORTED": "Vos données ont été téléchargées. Un mail de confirmation vous a été envoyé.",
+    "STATUS_SENT": "Nous vous avons envoyé un mail avec un lien pour confirmer la suppression.",
+    "STATUS_RATE": "Patientez une minute avant de redemander un mail.",
+    "STATUS_ERROR": "Une erreur est survenue. Réessayez plus tard."
+  },
+  "ACCOUNT_DELETE": {
+    "TITLE": "Supprimer mon compte",
+    "DONE": "Votre compte et toutes les données associées ont été supprimés.",
+    "INVALID": "Ce lien est invalide ou a expiré."
+  },
+  "LEGAL": {
+    "UPDATED": "Dernière mise à jour : octobre 2026"
+  },
+  "POLICY": {
+    "TITLE": "Politique de confidentialité",
+    "DATA_TITLE": "Données collectées",
+    "DATA_BODY": "Nous conservons ce que vous nous donnez pour jouer : votre adresse email, votre pseudo et votre avatar, une empreinte de votre mot de passe (jamais le mot de passe lui-même), votre secret de double authentification sous forme chiffrée, vos amitiés, les messages que vous envoyez, vos matchs et votre classement.",
+    "PURPOSE_TITLE": "Pourquoi nous les utilisons",
+    "PURPOSE_BODY": "Vos données servent uniquement à faire fonctionner le jeu : vous connecter, vous trouver des adversaires, conserver votre historique et vous permettre de discuter avec vos amis. Votre adresse email sert à vérifier votre compte, à envoyer les codes de connexion et à confirmer les opérations sensibles. Nous ne vendons ni ne partageons vos données, et nous ne les utilisons pas à des fins publicitaires.",
+    "RETENTION_TITLE": "Durée de conservation",
+    "RETENTION_BODY": "Vos données sont conservées tant que votre compte existe. Lorsque vous supprimez votre compte, votre profil, votre avatar, vos amitiés, vos messages et vos matchs sont effacés immédiatement et ne peuvent pas être récupérés.",
+    "RIGHTS_TITLE": "Vos droits",
+    "RIGHTS_BODY": "Depuis la page « Mes données », vous pouvez télécharger une copie de tout ce que nous détenons sur vous au format JSON, et demander la suppression de votre compte. La suppression se confirme par un lien envoyé à votre adresse email, et les deux opérations sont confirmées par mail. Vous pouvez corriger votre pseudo et votre adresse email depuis votre profil.",
+    "CONTACT_TITLE": "Contact",
+    "CONTACT_BODY": "Pour toute question sur vos données, écrivez à onitama.transcendance@gmail.com."
+  },
+  "TERMS": {
+    "TITLE": "Conditions d'utilisation",
+    "SERVICE_TITLE": "Le service",
+    "SERVICE_BODY": "Ce site permet de jouer à Onitama en ligne contre d'autres joueurs. C'est un projet étudiant, fourni gratuitement et sans garantie de disponibilité.",
+    "ACCOUNT_TITLE": "Votre compte",
+    "ACCOUNT_BODY": "Un compte est nécessaire pour jouer. Vous êtes responsable de la confidentialité de votre mot de passe et de vos codes de double authentification, ainsi que de tout ce qui est fait depuis votre compte. Une personne, un compte.",
+    "CONDUCT_TITLE": "Fair-play",
+    "CONDUCT_BODY": "Restez respectueux dans le chat. Le harcèlement, les contenus haineux, la triche, le jeu automatisé et toute tentative de perturber le service ou d'accéder aux données d'autres joueurs sont interdits.",
+    "TERMINATION_TITLE": "Fin de votre compte",
+    "TERMINATION_BODY": "Vous pouvez supprimer votre compte à tout moment depuis la page « Mes données ». Nous pouvons suspendre ou supprimer un compte qui enfreint ces conditions.",
+    "LIABILITY_TITLE": "Responsabilité",
+    "LIABILITY_BODY": "Le service est fourni en l'état. Nous pouvons le modifier ou l'arrêter à tout moment, et nous ne sommes pas responsables de la perte de matchs, de classement ou de données."
   }
 }
