@@ -13,5 +13,53 @@
   },
   "LANGUAGE": {
     "LABEL": "Language"
+  },
+  "PRIVACY": {
+    "TITLE": "My data",
+    "SUBTITLE": "Download a copy of your data or delete your account.",
+    "LOGIN_REQUIRED": "Log in to manage your data.",
+    "EXPORT": "Download my data",
+    "DELETE": "Delete my account",
+    "DELETE_WARNING": "This cannot be undone: your account, messages, friends and matches will be permanently erased.",
+    "DELETE_CONFIRM": "Delete permanently",
+    "CANCEL": "Cancel",
+    "STATUS_EXPORTED": "Your data has been downloaded. A confirmation email is on its way.",
+    "STATUS_SENT": "We sent you an email with a link to confirm the deletion.",
+    "STATUS_RATE": "Please wait a minute before requesting another email.",
+    "STATUS_ERROR": "Something went wrong. Please try again later."
+  },
+  "ACCOUNT_DELETE": {
+    "TITLE": "Delete my account",
+    "DONE": "Your account and all associated data have been deleted.",
+    "INVALID": "This link is invalid or has expired."
+  },
+  "LEGAL": {
+    "UPDATED": "Last updated: October 2026"
+  },
+  "POLICY": {
+    "TITLE": "Privacy Policy",
+    "DATA_TITLE": "Data we collect",
+    "DATA_BODY": "We store what you give us to play: your email address, username and avatar, a hash of your password (never the password itself), your two-factor secret in encrypted form, your friendships, the messages you send, your matches and your rating.",
+    "PURPOSE_TITLE": "Why we use it",
+    "PURPOSE_BODY": "Your data is used only to run the game: to log you in, match you with opponents, keep your history and let you chat with your friends. Your email address is used to verify your account, send login codes and confirm sensitive operations. We do not sell or share your data, and we do not use it for advertising.",
+    "RETENTION_TITLE": "How long we keep it",
+    "RETENTION_BODY": "Your data is kept for as long as your account exists. When you delete your account, your profile, avatar, friendships, messages and matches are erased immediately and cannot be recovered.",
+    "RIGHTS_TITLE": "Your rights",
+    "RIGHTS_BODY": "From the \"My data\" page you can download a copy of everything we hold about you as a JSON file, and request the deletion of your account. Deletion is confirmed by a link sent to your email address, and both operations are confirmed by email. You can correct your username and email address from your profile.",
+    "CONTACT_TITLE": "Contact",
+    "CONTACT_BODY": "For any question about your data, write to onitama.transcendance@gmail.com."
+  },
+  "TERMS": {
+    "TITLE": "Terms of Service",
+    "SERVICE_TITLE": "The service",
+    "SERVICE_BODY": "This site lets you play Onitama online against other players. It is a student project, provided free of charge and without any guarantee of availability.",
+    "ACCOUNT_TITLE": "Your account",
+    "ACCOUNT_BODY": "You need an account to play. You are responsible for keeping your password and two-factor codes secret, and for everything done from your account. One person, one account.",
+    "CONDUCT_TITLE": "Fair play",
+    "CONDUCT_BODY": "Be respectful in the chat. Harassment, hateful content, cheating, automated play and any attempt to disrupt the service or access other players' data are forbidden.",
+    "TERMINATION_TITLE": "Ending your account",
+    "TERMINATION_BODY": "You can delete your account at any time from the \"My data\" page. We may suspend or delete an account that breaks these terms.",
+    "LIABILITY_TITLE": "Liability",
+    "LIABILITY_BODY": "The service is provided as is. We may change or stop it at any time, and we are not liable for lost matches, ratings or data."
   }
 }
