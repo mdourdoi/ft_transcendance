@@ -205,6 +205,10 @@ export class FriendshipsService {
     await this.deleteFriendship_(userId, dto.targetId);
   }
 
+  public areFriends(userId: number, targetId: number): Promise<boolean> {
+    return this.mustBe_(userId, targetId, ['friend_with']);
+  }
+
   private async startFriendship_(A: number, B: number) {
     await this.updateFriendship_(A, B, FriendshipStatus.ACCEPTED);
     const friendship = await this.getFriendship_(A, B);

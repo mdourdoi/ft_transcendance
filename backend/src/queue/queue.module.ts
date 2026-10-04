@@ -10,5 +10,6 @@ import { QueueService } from './queue.service.js';
 @Module({
   imports: [AuthModule, UsersModule, MatchesModule, GameModule],
   providers: [QueueGateway, QueueService, MatchmakingService],
+  exports: [QueueService],
 })
 export class QueueModule {}
