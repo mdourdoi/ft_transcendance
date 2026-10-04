@@ -1,8 +1,8 @@
 import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
-import { randomUUID } from 'node:crypto';
 import { Redis } from 'ioredis';
 import { ErrorCode } from '../common/error-codes.js';
+import { acquireLock, releaseLock } from '../common/redis-lock.js';
 import {
   Match,
   MatchEndReason,
@@ -38,7 +38,6 @@ const UNRECORDED_KEY = 'game:unrecorded';
 const LOCK_TTL_MS = 2000;
 const LOCK_RETRY_MS = 25;
 const LOCK_MAX_ATTEMPTS = 40;
-const RELEASE_LOCK_SCRIPT = `if redis.call("get", KEYS[1]) == ARGV[1] then return redis.call("del", KEYS[1]) else return 0 end`;
 
 export interface JoinResult {
   session: GameSession;
@@ -87,7 +86,11 @@ export class GameService {
     return session;
   }
 
-  async join(matchId: number, userId: number): Promise<JoinResult> {
+  async join(
+    matchId: number,
+    userId: number,
+    onSeated: () => Promise<void> = async () => {},
+  ): Promise<JoinResult> {
     if (!(await this.load(matchId))) {
       const match = await this.matchesService.findById(matchId);
       if (!match) {
@@ -105,6 +108,7 @@ export class GameService {
     return this.withLock(matchId, async () => {
       const session = await this.requireSession(matchId);
       const index = this.playerIndex(session, userId);
+      await onSeated();
       let started = false;
       if (session.status === 'WAITING') {
         session.joined[index] = true;
@@ -132,6 +136,7 @@ export class GameService {
   async markDisconnected(
     matchId: number,
     userId: number,
+    isPresent: () => Promise<boolean> = async () => false,
   ): Promise<GameSession | null> {
     return this.withLock(matchId, async () => {
       const session = await this.load(matchId);
@@ -139,7 +144,7 @@ export class GameService {
         return null;
       }
       const index = session.playerIds.indexOf(userId);
-      if (index === -1) {
+      if (index === -1 || (await isPresent())) {
         return null;
       }
       if (session.status === 'WAITING') {
@@ -283,6 +288,10 @@ export class GameService {
       await this.redis.zrem(DEADLINES_KEY, String(matchId));
       return null;
     }
+    if (session.status === 'OVER') {
+      await this.redis.zrem(DEADLINES_KEY, String(matchId));
+      return null;
+    }
     if (session.status === 'WAITING' && now >= session.joinDeadline) {
       return this.end(session, null, 'CANCELLED');
     }
@@ -293,12 +302,20 @@ export class GameService {
         session.turnStartedAt = now;
         return this.end(session, this.otherIndex(current), 'TIMEOUT');
       }
-      const gone = session.disconnectDeadlines.findIndex(
+      const gone = session.disconnectDeadlines.map(
         (deadline) => deadline !== null && now >= deadline,
       );
-      if (gone !== -1) {
+      if (gone[0] && gone[1]) {
         this.stopClock(session, now);
-        return this.end(session, this.otherIndex(gone), 'DISCONNECTION');
+        return this.end(session, null, 'CANCELLED');
+      }
+      if (gone[0] || gone[1]) {
+        this.stopClock(session, now);
+        return this.end(
+          session,
+          this.otherIndex(gone.indexOf(true)),
+          'DISCONNECTION',
+        );
       }
     }
     await this.save(session);
@@ -488,15 +505,13 @@ export class GameService {
 
   private async withLock<T>(matchId: number, fn: () => Promise<T>): Promise<T> {
     const key = `game:lock:${matchId}`;
-    const token = randomUUID();
     for (let attempt = 0; attempt < LOCK_MAX_ATTEMPTS; attempt++) {
-      if (
-        (await this.redis.set(key, token, 'PX', LOCK_TTL_MS, 'NX')) === 'OK'
-      ) {
+      const token = await acquireLock(this.redis, key, LOCK_TTL_MS);
+      if (token) {
         try {
           return await fn();
         } finally {
-          await this.redis.eval(RELEASE_LOCK_SCRIPT, 1, key, token);
+          await releaseLock(this.redis, key, token);
         }
       }
       await new Promise((resolve) => setTimeout(resolve, LOCK_RETRY_MS));

@@ -269,6 +269,45 @@ describe('GameService', () => {
     assert.equal((await service.find(MATCH_ID))?.status, 'PLAYING');
   });
 
+  it('ignores a disconnection when the player is still present', async () => {
+    await startedGame();
+
+    const marked = await service.markDisconnected(
+      MATCH_ID,
+      PLAYER_ONE,
+      async () => true,
+    );
+    mock.timers.tick(DISCONNECT_FORFEIT_MS);
+
+    assert.equal(marked, null);
+    assert.deepEqual(await service.expireDue(), []);
+    assert.equal((await service.find(MATCH_ID))?.status, 'PLAYING');
+  });
+
+  it('cancels the match when both players stay disconnected', async () => {
+    await startedGame();
+
+    await service.markDisconnected(MATCH_ID, PLAYER_TWO);
+    await service.markDisconnected(MATCH_ID, PLAYER_ONE);
+    mock.timers.tick(DISCONNECT_FORFEIT_MS);
+    const [ended] = await service.expireDue();
+
+    assert.equal(ended.endReason, 'CANCELLED');
+    assert.equal(ended.winnerId, null);
+    assert.deepEqual(matches.cancelled, [MATCH_ID]);
+    assert.deepEqual(matches.finished, []);
+  });
+
+  it('does not record an ended game again when its deadline lingers', async () => {
+    await startedGame();
+    await service.resign(MATCH_ID, PLAYER_ONE);
+    await redis.zadd('game:deadlines', 0, String(MATCH_ID));
+
+    assert.deepEqual(await service.expireDue(), []);
+    assert.deepEqual(await redis.smembers('game:unrecorded'), []);
+    assert.equal(redis.zscore('game:deadlines', String(MATCH_ID)), undefined);
+  });
+
   it('frees the seat of a player who leaves before the start', async () => {
     await service.createSession(match());
     await service.join(MATCH_ID, PLAYER_ONE);
