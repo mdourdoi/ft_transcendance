@@ -7,6 +7,7 @@ import { AVATAR_UPLOAD_DIR } from './constants.js';
 import { EventsModule } from './events/events.module.js';
 import { FriendshipsModule } from './friendships/friendships.module.js';
 import { GameModule } from './game/game.module.js';
+import { GameInvitesModule } from './game-invites/game-invites.module.js';
 import { MailModule } from './mail/mail.module.js';
 import { MatchesModule } from './matches/matches.module.js';
 import { MessagesModule } from './messages/messages.module.js';
@@ -35,6 +36,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     MatchesModule,
     QueueModule,
     GameModule,
+    GameInvitesModule,
     EventsModule,
     EventEmitterModule.forRoot(),
   ],
