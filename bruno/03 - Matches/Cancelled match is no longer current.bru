@@ -16,7 +16,7 @@ auth:bearer {
 
 script:pre-request {
   const game = require("./lib/game.js");
-  const baseUrl = bru.getEnvVar("baseUrl");
+  const baseUrl = bru.getVar("baseUrl");
   const result = {};
   try {
     result.over = await game.cancelMatch(
