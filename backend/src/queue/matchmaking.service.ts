@@ -9,6 +9,8 @@ const BASE_RATING_RANGE = 50;
 const RATING_RANGE_PER_SECOND = 20;
 const MAX_RATING_RANGE = 1000;
 
+export type SocketProbe = (socketId: string) => Promise<boolean>;
+
 export interface FormedMatch {
   matchId: number;
   mode: QueueMode;
@@ -25,10 +27,10 @@ export class MatchmakingService {
     private readonly gameService: GameService,
   ) {}
 
-  async tick(): Promise<FormedMatch[]> {
+  async tick(isConnected: SocketProbe): Promise<FormedMatch[]> {
     const [unranked, ranked] = await Promise.all([
-      this.matchUnranked(),
-      this.matchRanked(),
+      this.matchUnranked(isConnected),
+      this.matchRanked(isConnected),
     ]);
     return [...unranked, ...ranked];
   }
@@ -48,7 +50,7 @@ export class MatchmakingService {
     }
   }
 
-  private matchUnranked(): Promise<FormedMatch[]> {
+  private matchUnranked(isConnected: SocketProbe): Promise<FormedMatch[]> {
     return this.withLock(QueueMode.UNRANKED, async () => {
       const entries = await this.loadEntries(
         QueueMode.UNRANKED,
@@ -63,6 +65,7 @@ export class MatchmakingService {
           QueueMode.UNRANKED,
           playerA,
           playerB,
+          isConnected,
         );
         if (match) {
           matches.push(match);
@@ -73,7 +76,7 @@ export class MatchmakingService {
     });
   }
 
-  private matchRanked(): Promise<FormedMatch[]> {
+  private matchRanked(isConnected: SocketProbe): Promise<FormedMatch[]> {
     return this.withLock(QueueMode.RANKED, async () => {
       const entries = await this.loadEntries(
         QueueMode.RANKED,
@@ -100,7 +103,12 @@ export class MatchmakingService {
 
         matchedUserIds.add(player.userId);
         matchedUserIds.add(opponent.userId);
-        const match = await this.formMatch(QueueMode.RANKED, player, opponent);
+        const match = await this.formMatch(
+          QueueMode.RANKED,
+          player,
+          opponent,
+          isConnected,
+        );
         if (match) {
           matches.push(match);
         }
@@ -155,6 +163,7 @@ export class MatchmakingService {
     mode: QueueMode,
     playerA: QueueEntry,
     playerB: QueueEntry,
+    isConnected: SocketProbe,
   ): Promise<FormedMatch | null> {
     const claimedA = await this.queueService.leave(mode, playerA.userId);
     const claimedB = await this.queueService.leave(mode, playerB.userId);
@@ -162,6 +171,7 @@ export class MatchmakingService {
       await this.release(
         mode,
         [playerA, playerB].filter((_, i) => [claimedA, claimedB][i]),
+        isConnected,
       );
       return null;
     }
@@ -183,15 +193,24 @@ export class MatchmakingService {
       this.logger.error(
         `could not create ${mode} match: ${(error as Error).message}`,
       );
-      await this.release(mode, [playerA, playerB]);
+      await this.release(mode, [playerA, playerB], isConnected);
       return null;
     }
     return { matchId, mode, players: [playerA, playerB] };
   }
 
-  private async release(mode: QueueMode, entries: QueueEntry[]): Promise<void> {
+  private async release(
+    mode: QueueMode,
+    entries: QueueEntry[],
+    isConnected: SocketProbe,
+  ): Promise<void> {
     for (const entry of entries) {
-      await this.queueService.requeue(mode, entry);
+      if (!(await this.queueService.requeue(mode, entry))) {
+        continue;
+      }
+      if (!(await isConnected(entry.socketId))) {
+        await this.queueService.discard(mode, entry);
+      }
     }
   }
 }
