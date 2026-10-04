@@ -4,6 +4,8 @@ import { Socket } from 'socket.io';
 import { JwtPayload } from '../auth/types/jwt-payload.interface.js';
 import { ErrorCode } from './error-codes.js';
 
+const expiryTimers = new Map<string, NodeJS.Timeout>();
+
 export function authenticateSocket(
   jwtService: JwtService,
   client: Socket,
@@ -11,19 +13,24 @@ export function authenticateSocket(
   const payload = jwtService.verify<JwtPayload>(extractSocketToken(client));
   client.data.userId = payload.sub;
   if (payload.exp) {
-    client.data.expiryTimer = setTimeout(
-      () => {
-        client.emit('auth.expired');
-        client.disconnect(true);
-      },
-      payload.exp * 1000 - Date.now(),
+    expiryTimers.set(
+      client.id,
+      setTimeout(
+        () => {
+          expiryTimers.delete(client.id);
+          client.emit('auth.expired');
+          client.disconnect(true);
+        },
+        payload.exp * 1000 - Date.now(),
+      ),
     );
   }
   return payload.sub;
 }
 
 export function releaseSocket(client: Socket): void {
-  clearTimeout(client.data.expiryTimer as NodeJS.Timeout | undefined);
+  clearTimeout(expiryTimers.get(client.id));
+  expiryTimers.delete(client.id);
 }
 
 export function requireSocketUser(client: Socket): number {
