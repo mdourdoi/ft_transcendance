@@ -1,0 +1,112 @@
+meta {
+  name: Both players receive the initial state
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+script:pre-request {
+  const socket = require("./lib/socket.js");
+  const game = require("./lib/game.js");
+  const baseUrl = bru.getVar("baseUrl");
+  const result = {};
+  try {
+    const g = await game.startGame(
+      baseUrl,
+      bru.getVar("tokenA"),
+      bru.getVar("tokenB"),
+    );
+    result.matchId = g.matchId;
+    result.waitingState = g.waitingState;
+    result.stateA = g.stateA;
+    result.stateB = g.stateB;
+    await game.endGame(g);
+  } catch (error) {
+    result.error = error.message;
+  }
+  bru.setVar("gameResult", JSON.stringify(result));
+}
+
+tests {
+  const result = JSON.parse(bru.getVar("gameResult"));
+
+  test("scenario ran without error", function () {
+    expect(result.error).to.be.undefined;
+  });
+
+  const state = result.stateA;
+
+  test("both players receive the same state", function () {
+    expect(result.stateB).to.deep.equal(state);
+  });
+
+  test("state belongs to the match", function () {
+    expect(state.matchId).to.equal(result.matchId);
+    expect(state.mode).to.equal("UNRANKED");
+    expect(state.playerIds).to.have.members([bru.getVar("idA"), bru.getVar("idB")]);
+  });
+
+  test("board is in its initial position", function () {
+    expect(state.board).to.deep.equal([
+      [-1, -1, -2, -1, -1],
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+      [1, 1, 2, 1, 1],
+    ]);
+  });
+
+  test("five distinct cards are dealt", function () {
+    expect(state.hands[0]).to.have.length(2);
+    expect(state.hands[1]).to.have.length(2);
+    const names = [...state.hands[0], ...state.hands[1], state.neutral].map(
+      (card) => card.name,
+    );
+    expect(new Set(names).size).to.equal(5);
+    expect(state.neutral.moves).to.be.an("array").that.is.not.empty;
+  });
+
+  test("starting player follows the neutral card color", function () {
+    expect(state.currentPlayer).to.equal(state.neutral.color === "RED" ? 0 : 1);
+  });
+
+  test("first player to join waits for the opponent", function () {
+    expect(result.waitingState.status).to.equal("WAITING");
+    expect(result.waitingState.legalMoves).to.be.empty;
+    expect(result.waitingState.turnStartedAt).to.equal(null);
+  });
+
+  test("game starts once both players joined", function () {
+    expect(state.status).to.equal("PLAYING");
+    expect(state.turnStartedAt).to.be.a("number");
+  });
+
+  test("each player has 10 minutes on the clock", function () {
+    expect(state.clocks).to.deep.equal([600000, 600000]);
+  });
+
+  test("game is on its first turn and not over", function () {
+    expect(state.turn).to.equal(1);
+    expect(state.winnerId).to.equal(null);
+    expect(state.endReason).to.equal(null);
+  });
+
+  test("legal moves belong to the current player", function () {
+    const sign = state.currentPlayer === 0 ? 1 : -1;
+    const hand = state.hands[state.currentPlayer].map((card) => card.name);
+    expect(state.legalMoves).to.not.be.empty;
+    state.legalMoves.forEach((move) => {
+      expect(Math.sign(state.board[move.from.row][move.from.col])).to.equal(sign);
+      expect(hand).to.include(move.card);
+    });
+  });
+}
