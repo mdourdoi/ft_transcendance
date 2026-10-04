@@ -13,7 +13,7 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { Server, Socket } from 'socket.io';
-import { corsOrigins } from '../common/cors.js';
+import { resolveCorsOrigin } from '../common/cors.js';
 import { ErrorCode } from '../common/error-codes.js';
 import {
   authenticateSocket,
@@ -32,7 +32,7 @@ const DEADLINE_TICK_MS = 1000;
 const RETRY_EVERY_TICKS = 10;
 const ORPHAN_SWEEP_EVERY_TICKS = 30;
 
-@WebSocketGateway({ namespace: '/game', cors: { origin: corsOrigins() } })
+@WebSocketGateway({ namespace: '/game', cors: { origin: resolveCorsOrigin } })
 export class GameGateway
   implements
     OnGatewayConnection,
@@ -79,10 +79,11 @@ export class GameGateway
       return;
     }
     try {
-      if (await this.isPresent(matchId, userId)) {
-        return;
-      }
-      const session = await this.gameService.markDisconnected(matchId, userId);
+      const session = await this.gameService.markDisconnected(
+        matchId,
+        userId,
+        () => this.isPresent(matchId, userId),
+      );
       if (session?.status === 'PLAYING') {
         this.server.to(this.room(matchId)).emit('game.playerDisconnected', {
           userId,
@@ -106,14 +107,8 @@ export class GameGateway
     const { session, started } = await this.gameService.join(
       dto.matchId,
       userId,
+      () => this.enterRoom(client, dto.matchId),
     );
-
-    const previousMatchId = client.data.matchId as number | undefined;
-    if (previousMatchId !== undefined && previousMatchId !== dto.matchId) {
-      await client.leave(this.room(previousMatchId));
-    }
-    client.data.matchId = dto.matchId;
-    await client.join(this.room(dto.matchId));
 
     client.to(this.room(dto.matchId)).emit('game.playerJoined', { userId });
     if (started) {
@@ -172,7 +167,15 @@ export class GameGateway
     this.tickCount++;
     try {
       const ended = await this.gameService.expireDue();
-      ended.forEach((session) => this.broadcast(session));
+      for (const session of ended) {
+        try {
+          this.broadcast(session);
+        } catch (error) {
+          this.logger.error(
+            `could not broadcast the end of match ${session.matchId}: ${(error as Error).message}`,
+          );
+        }
+      }
       if (this.tickCount % RETRY_EVERY_TICKS === 0) {
         await this.gameService.retryUnrecorded();
       }
@@ -199,6 +202,15 @@ export class GameGateway
         endReason: session.endReason,
       });
     }
+  }
+
+  private async enterRoom(client: Socket, matchId: number): Promise<void> {
+    const previousMatchId = client.data.matchId as number | undefined;
+    if (previousMatchId !== undefined && previousMatchId !== matchId) {
+      await client.leave(this.room(previousMatchId));
+    }
+    client.data.matchId = matchId;
+    await client.join(this.room(matchId));
   }
 
   private async isPresent(matchId: number, userId: number): Promise<boolean> {

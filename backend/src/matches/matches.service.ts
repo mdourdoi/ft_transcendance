@@ -115,11 +115,15 @@ export class MatchesService {
 
     await tx.user.update({
       where: { id: winnerId },
-      data: { rating: winner.rating + delta },
+      data: { rating: { increment: delta } },
     });
     await tx.user.update({
       where: { id: loserId },
-      data: { rating: Math.max(MIN_RATING, loser.rating - delta) },
+      data: { rating: { decrement: delta } },
+    });
+    await tx.user.updateMany({
+      where: { id: loserId, rating: { lt: MIN_RATING } },
+      data: { rating: MIN_RATING },
     });
     return delta;
   }

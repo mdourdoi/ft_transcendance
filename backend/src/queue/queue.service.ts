@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { randomUUID } from 'node:crypto';
 import { QueueMode } from '../generated/prisma/client.js';
 import { Redis } from 'ioredis';
+import { acquireLock, releaseLock } from '../common/redis-lock.js';
 import { REDIS_CLIENT } from '../redis/redis.constants.js';
 import { QueueEntry } from './types/queue-entry.interface.js';
 
@@ -9,7 +9,15 @@ const UNRANKED_LIST_KEY = 'queue:unranked:list';
 const RANKED_ZSET_KEY = 'queue:ranked:zset';
 const ENTRY_TTL_SECONDS = 3600;
 const MATCHMAKING_LOCK_TTL_MS = 10000;
-const RELEASE_LOCK_SCRIPT = `if redis.call("get", KEYS[1]) == ARGV[1] then return redis.call("del", KEYS[1]) else return 0 end`;
+const REQUEUE_SCRIPT = `
+if redis.call("exists", KEYS[1], KEYS[2]) > 0 then return 0 end
+redis.call("set", KEYS[1], ARGV[1], "EX", ARGV[2])
+if ARGV[3] == "RANKED" then
+  redis.call("zadd", KEYS[3], ARGV[4], ARGV[5])
+else
+  redis.call("lpush", KEYS[3], ARGV[5])
+end
+return 1`;
 
 @Injectable()
 export class QueueService {
@@ -17,11 +25,45 @@ export class QueueService {
 
   async join(mode: QueueMode, entry: QueueEntry): Promise<void> {
     await this.leaveAllModes(entry.userId);
-    await this.enqueue(mode, entry, false);
+    const tx = this.redis
+      .multi()
+      .set(
+        this.entryKey(mode, entry.userId),
+        JSON.stringify(entry),
+        'EX',
+        ENTRY_TTL_SECONDS,
+      );
+    if (mode === QueueMode.RANKED) {
+      tx.zadd(RANKED_ZSET_KEY, entry.rating, String(entry.userId));
+    } else {
+      tx.rpush(UNRANKED_LIST_KEY, String(entry.userId));
+    }
+    await tx.exec();
   }
 
-  requeue(mode: QueueMode, entry: QueueEntry): Promise<void> {
-    return this.enqueue(mode, entry, true);
+  async requeue(mode: QueueMode, entry: QueueEntry): Promise<boolean> {
+    const otherMode =
+      mode === QueueMode.RANKED ? QueueMode.UNRANKED : QueueMode.RANKED;
+    const requeued = await this.redis.eval(
+      REQUEUE_SCRIPT,
+      3,
+      this.entryKey(mode, entry.userId),
+      this.entryKey(otherMode, entry.userId),
+      mode === QueueMode.RANKED ? RANKED_ZSET_KEY : UNRANKED_LIST_KEY,
+      JSON.stringify(entry),
+      ENTRY_TTL_SECONDS,
+      mode,
+      entry.rating,
+      entry.userId,
+    );
+    return requeued === 1;
+  }
+
+  async discard(mode: QueueMode, entry: QueueEntry): Promise<void> {
+    const current = await this.getEntry(mode, entry.userId);
+    if (current?.socketId === entry.socketId) {
+      await this.leave(mode, entry.userId);
+    }
   }
 
   async leave(mode: QueueMode, userId: number): Promise<boolean> {
@@ -56,43 +98,12 @@ export class QueueService {
     return ids.map(Number);
   }
 
-  async acquireMatchmakingLock(mode: QueueMode): Promise<string | null> {
-    const token = randomUUID();
-    const result = await this.redis.set(
-      this.lockKey(mode),
-      token,
-      'PX',
-      MATCHMAKING_LOCK_TTL_MS,
-      'NX',
-    );
-    return result === 'OK' ? token : null;
+  acquireMatchmakingLock(mode: QueueMode): Promise<string | null> {
+    return acquireLock(this.redis, this.lockKey(mode), MATCHMAKING_LOCK_TTL_MS);
   }
 
-  async releaseMatchmakingLock(mode: QueueMode, token: string): Promise<void> {
-    await this.redis.eval(RELEASE_LOCK_SCRIPT, 1, this.lockKey(mode), token);
-  }
-
-  private async enqueue(
-    mode: QueueMode,
-    entry: QueueEntry,
-    front: boolean,
-  ): Promise<void> {
-    const tx = this.redis
-      .multi()
-      .set(
-        this.entryKey(mode, entry.userId),
-        JSON.stringify(entry),
-        'EX',
-        ENTRY_TTL_SECONDS,
-      );
-    if (mode === QueueMode.RANKED) {
-      tx.zadd(RANKED_ZSET_KEY, entry.rating, String(entry.userId));
-    } else if (front) {
-      tx.lpush(UNRANKED_LIST_KEY, String(entry.userId));
-    } else {
-      tx.rpush(UNRANKED_LIST_KEY, String(entry.userId));
-    }
-    await tx.exec();
+  releaseMatchmakingLock(mode: QueueMode, token: string): Promise<void> {
+    return releaseLock(this.redis, this.lockKey(mode), token);
   }
 
   private entryKey(mode: QueueMode, userId: number): string {

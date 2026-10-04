@@ -12,7 +12,7 @@ import {
 } from '@nestjs/websockets';
 import { QueueMode } from '../generated/prisma/client.js';
 import { Server, Socket } from 'socket.io';
-import { corsOrigins } from '../common/cors.js';
+import { resolveCorsOrigin } from '../common/cors.js';
 import { ErrorCode } from '../common/error-codes.js';
 import {
   authenticateSocket,
@@ -27,7 +27,7 @@ import { QueueService } from './queue.service.js';
 
 const MATCHMAKING_TICK_MS = 1500;
 
-@WebSocketGateway({ namespace: '/queue', cors: { origin: corsOrigins() } })
+@WebSocketGateway({ namespace: '/queue', cors: { origin: resolveCorsOrigin } })
 export class QueueGateway
   implements
     OnGatewayConnection,
@@ -114,13 +114,20 @@ export class QueueGateway
     client.emit('queue.left', {});
   }
 
+  private async isConnected(socketId: string): Promise<boolean> {
+    const sockets = await this.server.in(socketId).fetchSockets();
+    return sockets.length > 0;
+  }
+
   private async tick() {
     if (this.ticking) {
       return;
     }
     this.ticking = true;
     try {
-      const matches = await this.matchmakingService.tick();
+      const matches = await this.matchmakingService.tick((socketId) =>
+        this.isConnected(socketId),
+      );
       for (const match of matches) {
         const [playerA, playerB] = match.players;
         this.server.to(playerA.socketId).emit('queue.matched', {

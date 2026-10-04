@@ -10,3 +10,10 @@ export function corsOrigins(): string[] {
     .map((origin) => origin.trim())
     .filter((origin) => origin.length > 0);
 }
+
+export function resolveCorsOrigin(
+  _requestOrigin: string | undefined,
+  callback: (error: Error | null, origins: string[]) => void,
+): void {
+  callback(null, corsOrigins());
+}
