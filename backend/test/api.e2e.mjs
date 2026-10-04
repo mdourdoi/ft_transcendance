@@ -236,62 +236,61 @@ await test('Lister ses amis avec un jeton forgé', {
 await test('Envoyer une demande sans jeton', {
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: bob.id },
+  body: { username: bob.username },
   status: 401,
 });
 
 // ─── 2 ────────────────────────────────────────────────────────────────────────
 section('2. Validation des entrées des routes friendships');
 
-await test('targetId absent', {
+await test('username absent', {
   as: alice,
   method: 'POST',
   path: '/friendships/send',
   body: {},
   status: 400,
 });
-await test('targetId de type string', {
+await test('username de type number', {
   as: alice,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: 'abc' },
+  body: { username: 42 },
   status: 400,
 });
-await test('targetId négatif', {
+await test('username trop court', {
   as: alice,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: -1 },
+  body: { username: 'ab' },
   status: 400,
 });
-await test('targetId à zéro', {
+await test('username trop long', {
   as: alice,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: 0 },
+  body: { username: 'a'.repeat(25) },
   status: 400,
 });
-await test('targetId décimal (1.5) — un id est un entier', {
+await test('username non alphanumérique', {
   as: alice,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: 1.5 },
+  body: { username: 'bob; --' },
   status: 400,
 });
 await test("S'envoyer une demande à soi-même", {
   as: alice,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: alice.id },
+  body: { username: alice.username },
   status: 403,
 });
 await test("Demande vers un utilisateur qui n'existe pas → 404 attendu", {
   as: alice,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: NOPE },
+  body: { username: `nope${RUN}` },
   status: 404,
-  known: '§2.2',
 });
 await test("Accepter une demande d'un utilisateur inexistant", {
   as: alice,
@@ -308,14 +307,14 @@ await test('alice envoie une demande à bob', {
   as: alice,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: bob.id },
+  body: { username: bob.username },
   status: 201,
 });
 await test('alice renvoie la même demande (doublon)', {
   as: alice,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: bob.id },
+  body: { username: bob.username },
   status: 403,
 });
 await test('alice voit bob dans ses demandes envoyées', {
@@ -401,7 +400,7 @@ await test('alice renvoie une demande après annulation', {
   as: alice,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: bob.id },
+  body: { username: bob.username },
   status: 201,
 });
 await test('alice ne peut pas refuser sa propre demande', {
@@ -432,7 +431,7 @@ await test('alice envoie une demande à bob', {
   as: alice,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: bob.id },
+  body: { username: bob.username },
   status: 201,
 });
 await test('bob accepte', {
@@ -485,7 +484,7 @@ await test('alice renvoie une demande alors qu’ils sont déjà amis', {
   as: alice,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: bob.id },
+  body: { username: bob.username },
   status: 403,
 });
 await test('bob ré-accepte une demande déjà acceptée', {
@@ -503,7 +502,7 @@ await test('dave envoie une demande à alice', {
   as: dave,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: alice.id },
+  body: { username: alice.username },
   status: 201,
 });
 await test(
@@ -512,7 +511,7 @@ await test(
     as: alice,
     method: 'POST',
     path: '/friendships/send',
-    body: { targetId: dave.id },
+    body: { username: dave.username },
     status: 201,
   },
 );
@@ -606,14 +605,14 @@ await test('bob (bloqué) envoie une demande à alice', {
   as: bob,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: alice.id },
+  body: { username: alice.username },
   status: 403,
 });
 await test('alice (bloqueuse) envoie une demande à bob', {
   as: alice,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: bob.id },
+  body: { username: bob.username },
   status: 403,
 });
 await test(
@@ -674,7 +673,7 @@ await test('alice peut de nouveau envoyer une demande à bob', {
   as: alice,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: bob.id },
+  body: { username: bob.username },
   status: 201,
 });
 await test('bob accepte', {
@@ -737,7 +736,7 @@ await test('carol (bloquée) envoie une demande à alice', {
   as: carol,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: alice.id },
+  body: { username: alice.username },
   status: 403,
 });
 await test('alice débloque carol', {
@@ -751,7 +750,7 @@ await test('carol envoie une demande à alice', {
   as: carol,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: alice.id },
+  body: { username: alice.username },
   status: 201,
 });
 await test('alice bloque carol alors que sa demande est en attente', {
