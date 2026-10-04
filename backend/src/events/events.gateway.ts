@@ -154,4 +154,42 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       .to(`user:${payload.targetId}`)
       .emit('friendRequest', payload.from);
   }
+
+  @OnEvent('gameInvite.sent')
+  handleGameInviteSent(payload: {
+    targetId: number;
+    from: { id: number; username: string; avatarUrl: string };
+    expiresAt: number;
+  }) {
+    this.server.to(`user:${payload.targetId}`).emit('gameInvite', {
+      from: payload.from,
+      expiresAt: payload.expiresAt,
+    });
+  }
+
+  @OnEvent('gameInvite.accepted')
+  handleGameInviteAccepted(payload: {
+    targetId: number;
+    matchId: number;
+    opponentId: number;
+  }) {
+    this.server.to(`user:${payload.targetId}`).emit('gameInviteAccepted', {
+      matchId: payload.matchId,
+      opponentId: payload.opponentId,
+    });
+  }
+
+  @OnEvent('gameInvite.declined')
+  handleGameInviteDeclined(payload: { targetId: number; userId: number }) {
+    this.server
+      .to(`user:${payload.targetId}`)
+      .emit('gameInviteDeclined', { userId: payload.userId });
+  }
+
+  @OnEvent('gameInvite.cancelled')
+  handleGameInviteCancelled(payload: { targetId: number; userId: number }) {
+    this.server
+      .to(`user:${payload.targetId}`)
+      .emit('gameInviteCancelled', { userId: payload.userId });
+  }
 }
