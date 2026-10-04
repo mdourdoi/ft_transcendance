@@ -840,7 +840,7 @@ await test('alice envoie une demande d’ami à bob', {
   as: alice,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: bob.id },
+  body: { username: bob.username },
   status: 201,
 });
 const fid = sql(
