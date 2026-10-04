@@ -1,0 +1,79 @@
+meta {
+  name: Resigning ends the game
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/matches/current
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+script:pre-request {
+  const socket = require("./lib/socket.js");
+  const game = require("./lib/game.js");
+  const baseUrl = bru.getVar("baseUrl");
+  const result = {};
+  try {
+    const g = await game.startGame(
+      baseUrl,
+      bru.getVar("tokenA"),
+      bru.getVar("tokenB"),
+    );
+    const stateB = socket.waitFor(g.clientB, "game.state");
+    const overA = socket.waitFor(g.clientA, "game.over");
+    const overB = socket.waitFor(g.clientB, "game.over");
+    g.clientA.emit("game.resign", { matchId: g.matchId });
+    result.state = await stateB;
+    result.overA = await overA;
+    result.overB = await overB;
+    result.afterOver = await game.expectError(g.clientB, "game.resign", {
+      matchId: g.matchId,
+    });
+    result.rejoined = await game.joinGame(g.clientB, g.matchId);
+    result.matchId = g.matchId;
+    bru.setVar("resignedMatchId", g.matchId);
+    socket.closeAll(g.clientA, g.clientB);
+  } catch (error) {
+    result.error = error.message;
+  }
+  bru.setVar("gameResult", JSON.stringify(result));
+}
+
+tests {
+  const result = JSON.parse(bru.getVar("gameResult"));
+
+  test("scenario ran without error", function () {
+    expect(result.error).to.be.undefined;
+  });
+
+  test("both players are told the opponent won", function () {
+    expect(result.overA).to.deep.equal(result.overB);
+    expect(result.overA.matchId).to.equal(result.matchId);
+    expect(result.overA.winnerId).to.equal(bru.getVar("idB"));
+    expect(result.overA.endReason).to.equal("RESIGNATION");
+  });
+
+  test("final state has a winner and no legal moves", function () {
+    expect(result.state.winnerId).to.equal(bru.getVar("idB"));
+    expect(result.state.legalMoves).to.be.empty;
+  });
+
+  test("actions after the end emit GAME_OVER", function () {
+    expect(result.afterOver).to.equal("GAME_OVER");
+  });
+
+  test("finished game can still be joined", function () {
+    expect(result.rejoined.winnerId).to.equal(bru.getVar("idB"));
+  });
+
+  test("match is no longer the current one", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().match).to.equal(null);
+  });
+}

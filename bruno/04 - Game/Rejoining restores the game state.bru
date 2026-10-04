@@ -1,0 +1,73 @@
+meta {
+  name: Rejoining restores the game state
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+script:pre-request {
+  const socket = require("./lib/socket.js");
+  const game = require("./lib/game.js");
+  const baseUrl = bru.getVar("baseUrl");
+  const result = {};
+  try {
+    const idA = bru.getVar("idA");
+    const g = await game.startGame(
+      baseUrl,
+      bru.getVar("tokenA"),
+      bru.getVar("tokenB"),
+    );
+    const { current, waiting } = game.players(g, g.stateA, idA);
+    const { state } = await game.act(current, waiting, "game.move", {
+      matchId: g.matchId,
+      ...g.stateA.legalMoves[0],
+    });
+    result.state = state;
+    result.leaverId = g.stateA.playerIds[g.stateA.currentPlayer];
+
+    const disconnected = socket.waitFor(waiting, "game.playerDisconnected");
+    current.disconnect();
+    result.disconnected = await disconnected;
+
+    const joined = socket.waitFor(waiting, "game.playerJoined");
+    const token = bru.getVar(result.leaverId === idA ? "tokenA" : "tokenB");
+    const client = await game.connectGame(baseUrl, token);
+    result.rejoined = await game.joinGame(client, g.matchId);
+    result.joined = await joined;
+    await game.resign(waiting, g.matchId);
+    socket.closeAll(client, waiting);
+  } catch (error) {
+    result.error = error.message;
+  }
+  bru.setVar("gameResult", JSON.stringify(result));
+}
+
+tests {
+  const result = JSON.parse(bru.getVar("gameResult"));
+
+  test("scenario ran without error", function () {
+    expect(result.error).to.be.undefined;
+  });
+
+  test("opponent is told about the disconnection", function () {
+    expect(result.disconnected.userId).to.equal(result.leaverId);
+    expect(result.disconnected.forfeitInMs).to.equal(30000);
+  });
+
+  test("rejoining player gets the current state", function () {
+    expect(result.rejoined).to.deep.equal(result.state);
+  });
+
+  test("opponent is told about the return", function () {
+    expect(result.joined.userId).to.equal(result.leaverId);
+  });
+}
