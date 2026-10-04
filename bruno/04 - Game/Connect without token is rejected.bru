@@ -1,0 +1,42 @@
+meta {
+  name: Connect without token is rejected
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+script:pre-request {
+  const socket = require("./lib/socket.js");
+  const game = require("./lib/game.js");
+  const baseUrl = bru.getVar("baseUrl");
+  const result = {};
+  try {
+    const client = socket.connect(baseUrl, undefined, "/game");
+    result.reason = await socket.waitFor(client, "disconnect");
+    socket.closeAll(client);
+  } catch (error) {
+    result.error = error.message;
+  }
+  bru.setVar("gameResult", JSON.stringify(result));
+}
+
+tests {
+  const result = JSON.parse(bru.getVar("gameResult"));
+
+  test("scenario ran without error", function () {
+    expect(result.error).to.be.undefined;
+  });
+
+  test("server disconnects the socket", function () {
+    expect(result.reason).to.equal("io server disconnect");
+  });
+}

@@ -9,7 +9,6 @@ import {
   MessageBody,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { JwtPayload } from '../auth/types/jwt-payload.interface.js';
 import { FriendshipsService } from '../friendships/friendships.service.js';
 import { FriendshipStatus } from '../generated/prisma/client.js';
 import { HttpException, Logger } from '@nestjs/common';
@@ -19,8 +18,10 @@ import { MessageDto } from '../messages/dto/message.dto.js';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { OnEvent } from '@nestjs/event-emitter';
+import { resolveCorsOrigin } from '../common/cors.js';
+import { authenticateSocket, releaseSocket } from '../common/socket-auth.js';
 
-@WebSocketGateway({ cors: { origin: '*' } })
+@WebSocketGateway({ cors: { origin: resolveCorsOrigin } })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private onlineUsers: Map<number, Set<string>> = new Map();
   private readonly logger = new Logger(EventsGateway.name);
@@ -45,43 +46,27 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {}
 
   handleConnection(client: Socket) {
-    const token = client.handshake.auth?.token;
-    if (!token) {
-      this.logger.warn('connection rejected: missing token');
-      client.disconnect();
-      return;
-    }
-    let payload: JwtPayload;
+    let userId: number;
     try {
-      payload = this.jwt.verify(token);
+      userId = authenticateSocket(this.jwt, client);
     } catch {
-      this.logger.warn('connection rejected: invalid token');
+      this.logger.warn('connection rejected: missing or invalid token');
       client.disconnect();
       return;
     }
-    client.data.userId = payload.sub;
-    if (payload.exp) {
-      client.data.expiryTimer = setTimeout(
-        () => {
-          client.emit('auth.expired');
-          client.disconnect(true);
-        },
-        payload.exp * 1000 - Date.now(),
-      );
-    }
-    client.join(`user:${payload.sub}`);
-    const sockets = this.onlineUsers.get(payload.sub);
+    client.join(`user:${userId}`);
+    const sockets = this.onlineUsers.get(userId);
     if (!sockets) {
-      this.onlineUsers.set(payload.sub, new Set([client.id]));
-      void this.notifyPresence(payload.sub, true);
+      this.onlineUsers.set(userId, new Set([client.id]));
+      void this.notifyPresence(userId, true);
     } else {
       sockets.add(client.id);
     }
-    this.logger.log(`user ${payload.sub} connected (${client.id})`);
+    this.logger.log(`user ${userId} connected (${client.id})`);
   }
 
   handleDisconnect(client: Socket) {
-    clearTimeout(client.data.expiryTimer);
+    releaseSocket(client);
     const sockets = this.onlineUsers.get(client.data.userId);
     if (!sockets) {
       return;
