@@ -12,6 +12,7 @@ model User {
   emailVerifiedAt      DateTime?
   twoFactorMethod      TwoFactorMethod      @default(TOTP)
   emailTokens          EmailToken[]
+  consentedAt          DateTime?
 
   sentRequests     Friendship[] @relation("Sender")
   receivedRequests Friendship[] @relation("Receiver")
