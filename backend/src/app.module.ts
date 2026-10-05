@@ -23,7 +23,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
     ServeStaticModule.forRoot({
       rootPath: AVATAR_UPLOAD_DIR,
-      serveRoot: '/avatars',
+      serveRoot: '/api/avatars',
     }),
     PrismaModule,
     MailModule,
