@@ -1,0 +1,22 @@
+meta {
+  name: Ranked resignation updates the loser rating
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseUrl}}/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenB}}
+}
+
+tests {
+  test("rating is 984", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().rating).to.equal(984);
+  });
+}

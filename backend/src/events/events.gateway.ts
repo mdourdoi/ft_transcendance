@@ -12,8 +12,9 @@ import {
 } from '@nestjs/websockets';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { Server, Socket } from 'socket.io';
-import { JwtPayload } from '../auth/types/jwt-payload.interface.js';
+import { Socket, Server } from 'socket.io';
+import { resolveCorsOrigin } from '../common/cors.js';
+import { authenticateSocket, releaseSocket } from '../common/socket-auth.js';
 import { FriendshipsService } from '../friendships/friendships.service.js';
 import { FriendshipStatus } from '../generated/prisma/client.js';
 import { MessageDto } from '../messages/dto/message.dto.js';
@@ -21,7 +22,7 @@ import { MessagesService } from '../messages/messages.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { SendMessageDto } from './dto/send-message.dto.js';
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: { origin: resolveCorsOrigin } })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private onlineUsers: Map<number, Set<string>> = new Map();
   private readonly logger = new Logger(EventsGateway.name);
@@ -46,43 +47,28 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private prisma: PrismaService,
   ) {}
 
-  async handleConnection(client: Socket) {
-    const token = client.handshake.auth?.token;
-    if (!token) {
-      this.logger.warn('connection rejected: missing token');
-      client.disconnect();
-      return;
-    }
-    let payload: JwtPayload;
+  handleConnection(client: Socket) {
+    let userId: number;
     try {
-      payload = this.jwt.verify(token);
+      userId = authenticateSocket(this.jwt, client);
     } catch {
-      this.logger.warn('connection rejected: invalid token');
+      this.logger.warn('connection rejected: missing or invalid token');
       client.disconnect();
       return;
     }
-    client.data.userId = payload.sub;
-    client.join(`user:${payload.sub}`);
-    const sockets = this.onlineUsers.get(payload.sub);
+    client.join(`user:${userId}`);
+    const sockets = this.onlineUsers.get(userId);
     if (!sockets) {
-      this.onlineUsers.set(payload.sub, new Set([client.id]));
-      void this.notifyPresence(payload.sub, true);
+      this.onlineUsers.set(userId, new Set([client.id]));
+      void this.notifyPresence(userId, true);
     } else {
       sockets.add(client.id);
     }
-    this.logger.log(`user ${payload.sub} connected (${client.id})`);
-
-    const exists = await this.prisma.user.findUnique({
-      where: { id: payload.sub },
-      select: { id: true },
-    });
-    if (!exists) {
-      this.logger.warn('connection rejected: unknown user');
-      client.disconnect();
-    }
+    this.logger.log(`user ${userId} connected (${client.id})`);
   }
 
   handleDisconnect(client: Socket) {
+    releaseSocket(client);
     const sockets = this.onlineUsers.get(client.data.userId);
     if (!sockets) {
       return;
@@ -148,5 +134,53 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @OnEvent('user.deleted')
   handleUserDeleted(userId: number) {
     this.server.in(`user:${userId}`).disconnectSockets(true);
+  }
+
+  @OnEvent('friendship.requested')
+  handleFriendshipRequested(payload: {
+    targetId: number;
+    from: { id: number; username: string; avatarUrl: string };
+  }) {
+    this.server
+      .to(`user:${payload.targetId}`)
+      .emit('friendRequest', payload.from);
+  }
+
+  @OnEvent('gameInvite.sent')
+  handleGameInviteSent(payload: {
+    targetId: number;
+    from: { id: number; username: string; avatarUrl: string };
+    expiresAt: number;
+  }) {
+    this.server.to(`user:${payload.targetId}`).emit('gameInvite', {
+      from: payload.from,
+      expiresAt: payload.expiresAt,
+    });
+  }
+
+  @OnEvent('gameInvite.accepted')
+  handleGameInviteAccepted(payload: {
+    targetId: number;
+    matchId: number;
+    opponentId: number;
+  }) {
+    this.server.to(`user:${payload.targetId}`).emit('gameInviteAccepted', {
+      matchId: payload.matchId,
+      opponentId: payload.opponentId,
+    });
+  }
+
+  @OnEvent('gameInvite.declined')
+  handleGameInviteDeclined(payload: { targetId: number; userId: number }) {
+    this.server
+      .to(`user:${payload.targetId}`)
+      .emit('gameInviteDeclined', { userId: payload.userId });
+  }
+
+  @OnEvent('gameInvite.cancelled')
+  handleGameInviteCancelled(payload: { targetId: number; userId: number }) {
+    this.server
+      .to(`user:${payload.targetId}`)
+      .emit('gameInviteCancelled', { userId: payload.userId });
   }
 }

@@ -236,6 +236,7 @@ function openSocket(namespace, token) {
   };
 }
 
+
 const START = new Date().toISOString();
 const stripAnsi = (s) => s.replace(/\x1b\[[0-9;]*m/g, '');
 
@@ -894,7 +895,7 @@ await test('alice envoie une demande d’ami à bob', {
   as: alice,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: bob.id },
+  body: { username: bob.username },
   status: 201,
 });
 const fid = sql(
@@ -1080,19 +1081,19 @@ await test('Confirmer avec le bon token', {
   body: { token: link.token },
   status: 204,
 });
-const bye = await waitMail(bob, 'Account deleted', n);
-const chatClosed = await bobChat.heard('disconnect');
-const queueClosed = await bobQueue.heard('disconnect');
+const bye = await waitMail(bob, ‘Account deleted’, n);
+const chatClosed = await bobChat.heard(‘disconnect’);
+const queueClosed = await bobQueue.heard(‘disconnect’);
 await new Promise((r) => setTimeout(r, 300));
-check('Les sessions temps réel de bob sont fermées', [
-  ['socket du chat déconnecté', () => chatClosed],
-  ['socket de la file déconnecté', () => queueClosed],
-  ['plus d’entrée dans Redis', () => bobQueueEntry() === '0'],
+check(‘Les sessions temps réel de bob sont fermées’, [
+  [‘socket du chat déconnecté’, () => chatClosed],
+  [‘socket de la file déconnecté’, () => queueClosed],
+  [‘plus d’entrée dans Redis’, () => bobQueueEntry() === ‘0’],
   [
-    'plus dans la liste d’attente',
+    ‘plus dans la liste d’attente’,
     () =>
-      !redis('LRANGE', 'queue:unranked:list', '0', '-1')
-        .split('\n')
+      !redis(‘LRANGE’, ‘queue:unranked:list’, ‘0’, ‘-1’)
+        .split(‘\n’)
         .includes(String(bob.id)),
   ],
 ]);
@@ -1152,7 +1153,7 @@ await test("L'ancien JWT de bob ne permet plus d'écrire", {
   as: bob,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: alice.id },
+  body: { username: alice.username },
   status: 401,
 });
 const ghostChat = openSocket('', bob.token);

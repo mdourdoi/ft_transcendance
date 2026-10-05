@@ -1,0 +1,113 @@
+meta {
+  name: Illegal moves are rejected
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+script:pre-request {
+  const socket = require("./lib/socket.js");
+  const game = require("./lib/game.js");
+  const baseUrl = bru.getVar("baseUrl");
+  const result = {};
+  try {
+    const g = await game.startGame(
+      baseUrl,
+      bru.getVar("tokenA"),
+      bru.getVar("tokenB"),
+    );
+    const state = g.stateA;
+    const player = state.currentPlayer;
+    const { current } = game.players(g, state, bru.getVar("idA"));
+    const card = state.hands[player][0].name;
+    const forward = player === 0 ? -1 : 1;
+    const homeRow = player === 0 ? 4 : 0;
+    const enemyRow = player === 0 ? 0 : 4;
+    const master = { row: homeRow, col: 2 };
+    const send = (move) =>
+      game.expectError(current, "game.move", { matchId: g.matchId, ...move });
+
+    result.illegal = await send({
+      card,
+      from: master,
+      to: { row: homeRow + 3 * forward, col: 2 },
+    });
+    result.notInHand = await send({
+      card: state.neutral.name,
+      from: master,
+      to: { row: homeRow + forward, col: 2 },
+    });
+    result.notYours = await send({
+      card,
+      from: { row: enemyRow, col: 2 },
+      to: { row: enemyRow + forward, col: 2 },
+    });
+    result.empty = await send({
+      card,
+      from: { row: 2, col: 2 },
+      to: { row: 2 + forward, col: 2 },
+    });
+    result.outOfBounds = await send({
+      card,
+      from: master,
+      to: { row: homeRow - forward, col: 2 },
+    });
+    result.nullMove = await send({ card, from: master, to: master });
+    result.badPayload = await send({ card, from: master });
+    result.after = await game.joinGame(current, g.matchId);
+    result.before = state;
+    await game.endGame(g);
+  } catch (error) {
+    result.error = error.message;
+  }
+  bru.setVar("gameResult", JSON.stringify(result));
+}
+
+tests {
+  const result = JSON.parse(bru.getVar("gameResult"));
+
+  test("scenario ran without error", function () {
+    expect(result.error).to.be.undefined;
+  });
+
+  test("move not allowed by the card emits ILLEGAL_MOVE", function () {
+    expect(result.illegal).to.equal("ILLEGAL_MOVE");
+  });
+
+  test("card outside the hand emits CARD_NOT_IN_HAND", function () {
+    expect(result.notInHand).to.equal("CARD_NOT_IN_HAND");
+  });
+
+  test("opponent piece emits NOT_YOUR_ENTITY", function () {
+    expect(result.notYours).to.equal("NOT_YOUR_ENTITY");
+  });
+
+  test("empty source square emits EMPTY_SOURCE_SQUARE", function () {
+    expect(result.empty).to.equal("EMPTY_SOURCE_SQUARE");
+  });
+
+  test("destination outside the board emits POSITION_OUT_OF_BOUNDS", function () {
+    expect(result.outOfBounds).to.equal("POSITION_OUT_OF_BOUNDS");
+  });
+
+  test("staying in place emits NULL_MOVE", function () {
+    expect(result.nullMove).to.equal("NULL_MOVE");
+  });
+
+  test("missing destination emits INVALID_GAME_PAYLOAD", function () {
+    expect(result.badPayload).to.equal("INVALID_GAME_PAYLOAD");
+  });
+
+  test("rejected moves leave the game untouched", function () {
+    expect(result.after).to.deep.equal(result.before);
+  });
+}

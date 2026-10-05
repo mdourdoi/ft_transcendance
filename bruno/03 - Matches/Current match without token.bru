@@ -1,0 +1,17 @@
+meta {
+  name: Current match without token
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/matches/current
+  body: none
+  auth: none
+}
+
+tests {
+  test("returns 401", function () {
+    expect(res.getStatus()).to.equal(401);
+  });
+}

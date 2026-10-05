@@ -11,6 +11,6 @@ export { Spread, TOTAL_CARDS } from './spread.js';
 
 export type { CardColor, Move as CardMove, CardProps } from './card.js';
 export type { EntityKind, EntityProps } from './entity.js';
-export type { GameStartOptions, Victory } from './game.js';
+export type { GameSnapshot, GameStartOptions, Victory } from './game.js';
 export type { PlayProps } from './play.js';
 export type { PositionProps } from './position.js';

@@ -1,3 +1,8 @@
 meta {
   name: ft_transcendance
 }
+
+script:pre-request {
+  bru.setVar("baseUrl", bru.getVar("baseUrl") || "http://localhost:3000");
+  bru.setVar("password", bru.getEnvVar("password") || "Password1!");
+}
