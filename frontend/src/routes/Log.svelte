@@ -8,6 +8,9 @@
 	import bloque from '../../assets/Icone/hide.png';
 	import user from '../../assets/Icone/user.png';
 	import debloque from '../../assets/Icone/not_hide.png';
+	import { navigate } from '$lib/router';
+	import { token } from '$lib/auth';
+	import {profilManager} from '../utils/profil.svelte';
 
 	let currentStep = 'login';
 	let ithide = 'hide';
@@ -16,8 +19,11 @@
 	let password = '';
 	let username = '';
 	let error = '';
-	let token = '';
 	let loading = false;
+
+	function home() {
+		navigate(`/home`, { useAnimation: true });
+	}
 
 	async function addUser() {
 		if (!email.trim() || !password.trim() || !username.trim()) {
@@ -35,14 +41,14 @@
 				body: JSON.stringify({ email: email, username: username, password: password })
 			});
 			const data = await res.json();
-			if (!res.ok) throw new Error(data.message);
-			console.log(data);
-			email = '';
-			password = '';
-			username = '';
+			if (!res.ok) {
+				const errorCode = Array.isArray(data.message) ? data.message[0]: data.message ?? 'UNKNOWN_ERROR';
+				error = errorCode;
+				return ;
+			}
+			selectMode('login');
 		} catch (err) {
-			error = err instanceof Error ? err.message : String(err);
-			console.log(err);
+			error = 'NETWORK_ERROR';
 		}
 	}
 
@@ -58,20 +64,24 @@
 				body: JSON.stringify({ email: email, password: password })
 			});
 			const data = await res.json();
-			if (!res.ok) throw new Error(data.message);
-			//console.log(data.accessToken);
-			token = data.accessToken;
-			console.log(token);
+			if (!res.ok) {
+				const errorCode = Array.isArray(data.message) ? data.message[0]: data.message ?? 'UNKNOWN_ERROR';
+				error = errorCode;
+				if (error === 'TWOFA_CODE_REQUIRED') selectMode('2fa');
+				return ;
+			}
 			password = '';
 			email = '';
+			token.set(data.accessToken);
+			home();
 		} catch (err) {
-			error = err instanceof Error ? err.message : String(err);
-			if (error === 'TWOFA_CODE_REQUIRED') selectMode('2fa');
+			error = 'NETWORK_ERROR';
 		}
 	}
 
 	async function connectTwoFa() {
-		if (!password.trim() || !email.trim() || !twofa.trim()) {
+		const cleanCode = twofa.trim();
+		if (!password.trim() || !email.trim() || !cleanCode) {
 			error = 'EMPTY_FIELDS';
 			return;
 		}
@@ -79,34 +89,71 @@
 			const res = await fetch('/api/auth/login', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ email: email, password: password, code: twofa })
+				body: JSON.stringify({ 
+					email: email.trim(), 
+					password: password.trim(), 
+					code: cleanCode 
+				})
 			});
 			const data = await res.json();
-			if (!res.ok) throw new Error(data.message);
-			console.log(data);
+			if (!res.ok) {
+				const errorCode = Array.isArray(data.message) ? data.message[0] : data.message ?? 'UNKNOWN_ERROR';
+				error = errorCode;
+				return;
+			}
 			password = '';
 			email = '';
 			twofa = '';
+			token.set(data.accessToken);
+			profilManager.able_two_fa();
+			home();
 		} catch (err) {
-			error = err instanceof Error ? err.message : String(err);
+			error = 'NETWORK_ERROR';
 		}
 	}
 
 	function translateError(code: string): string {
-		const messages: Record<string, string> = {
-			INVALID_CREDENTIALS: 'Email ou mot de passe incorrect',
-			INVALID_USERNAME: "Le nom d'utilisateur doit faire 3 à 24 caractères, lettres et chiffres uniquement",
-			INVALID_EMAIL: 'Adresse email invalide',
-			INVALID_TWOFA_CODE: 'Code 2FA incorrect',
-			USERNAME_OR_EMAIL_ALREADY_TAKEN: "Ce nom d'utilisateur ou cet email est déjà pris",
-			WEAK_PASSWORD:
-				'Le mot de passe doit contenir 8 caractères min., majuscule, minuscule, chiffre et symbole',
-			EMPTY_MESSAGE: 'Le message ne peut pas être vide',
-			EMPTY_FIELDS: 'Veuillez remplir tous les champs'
-		};
-		return messages[code] ?? code;
-	}
+	const messages: Record<string, string> = {
+		// Front uniquement
+		EMPTY_FIELDS: 'Veuillez remplir tous les champs',
+		NETWORK_ERROR: 'Impossible de joindre le serveur, réessayez plus tard',
+		UNKNOWN_ERROR: 'Une erreur est survenue',
 
+		// Auth / session
+		INVALID_CREDENTIALS: 'Identifiants incorrects',
+		INVALID_TOKEN: 'Session expirée, veuillez vous reconnecter',
+		USERNAME_OR_EMAIL_ALREADY_TAKEN: "Ce nom d'utilisateur ou cet email est déjà pris",
+		WEAK_PASSWORD:
+			'Le mot de passe doit contenir 8 caractères min., majuscule, minuscule, chiffre et symbole',
+		INVALID_USERNAME:
+			"Le nom d'utilisateur doit faire 3 à 24 caractères, lettres et chiffres uniquement",
+		INVALID_EMAIL: 'Adresse email invalide',
+
+		// Profil
+		NO_DATA_UPDATED: 'Aucune modification à enregistrer',
+		PASSWORD_UNCHANGED: "Le nouveau mot de passe doit être différent de l'ancien",
+		INVALID_FILE_TYPE: "L'image doit être au format PNG ou JPEG (2 Mo max)",
+		MISSING_FILE: 'Aucun fichier sélectionné',
+
+		// 2FA
+		TWOFA_CODE_REQUIRED: 'Un code 2FA est requis',
+		INVALID_TWOFA_CODE: 'Code 2FA incorrect',
+		TWOFA_ALREADY_ENABLED: 'La 2FA est déjà activée',
+		TWOFA_NOT_ENABLED: "La 2FA n'est pas activée",
+		TWOFA_NOT_INITIALIZED: "Lancez d'abord la configuration de la 2FA",
+
+		// Amis
+		IMPOSSIBLE_REQUEST: "Cette action n'est pas possible",
+		USER_NOT_FOUND: 'Utilisateur introuvable',
+
+		// Chat
+		FORBIDDEN_CONVERSATION: "Vous n'avez pas accès à cette conversation",
+		EMPTY_MESSAGE: 'Le message ne peut pas être vide',
+		INVALID_MESSAGE: 'Message invalide (1024 caractères max)',
+		INVALID_CONVERSATION_ID: 'Conversation invalide'
+	};
+	return messages[code] ?? messages.UNKNOWN_ERROR;
+}
 	function selectMode(mode: string) {
 		currentStep = mode;
 		error = '';
@@ -395,18 +442,6 @@
 		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
 			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
 			<input
-				type="email"
-				placeholder="Email"
-				bind:value={email}
-				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
-			/>
-		</div>
-		<div>
-			<img src={logomail} alt="logo" class="absolute top-[170px] left-[110px]" />
-		</div>
-		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
-			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
-			<input
 				type="text"
 				placeholder="code"
 				bind:value={twofa}
@@ -414,7 +449,19 @@
 			/>
 		</div>
 		<div>
-			<img src={logopassword} alt="logo" class="absolute top-[235px] left-[110px]" />
+			<img src={logopassword} alt="logo" class="absolute top-[170px] left-[110px]" />
+		</div>
+		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
+			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
+			<input
+				type="email"
+				placeholder="Email"
+				bind:value={email}
+				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
+			/>
+		</div>
+		<div>
+			<img src={logomail} alt="logo" class="absolute top-[235px] left-[110px]" />
 		</div>
 		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
 			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
