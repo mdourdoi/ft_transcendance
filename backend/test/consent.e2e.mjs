@@ -192,8 +192,8 @@ try {
 section('1. Inscription sans acceptTerms → refusée');
 
 const base = {
-  email: `c${RUN}_a@test.local`,
-  username: `c${RUN}_a`,
+  email: `c${RUN}a@test.local`,
+  username: `c${RUN}a`,
   password: PASSWORD,
 };
 
@@ -289,7 +289,7 @@ section("4. consentedAt apparaît dans l'export");
 
 if (userId) {
   const login = await call(null, 'POST', '/auth/login', {
-    username: base.username,
+    email: base.email,
     password: PASSWORD,
   });
   const user = { name: 'consent_user', token: login.body?.accessToken };
@@ -348,8 +348,8 @@ await test('Réinscription avec le même email mais sans acceptTerms', {
 section('6. Deuxième utilisateur — vérification indépendante');
 
 const base2 = {
-  email: `c${RUN}_b@test.local`,
-  username: `c${RUN}_b`,
+  email: `c${RUN}b@test.local`,
+  username: `c${RUN}b`,
   password: PASSWORD,
 };
 
