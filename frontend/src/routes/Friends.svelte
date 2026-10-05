@@ -15,7 +15,7 @@
     import * as NativeSelect from "$lib/components/ui/native-select";
     import * as Sheet from "$lib/components/ui/sheet";
     import { cn } from "$lib/utils";
-    import { friendManager } from '../utils/freind.svelte';
+    import { friendManager } from '../utils/friend.svelte';
     import { token } from '$lib/auth';
     import { logout, authFetch } from '$lib/auth';
     import { onlineFriends, sendMessage, onNewMessage, type ChatMessage } from '$lib/socket';
@@ -61,7 +61,6 @@ let hasMore = $state(false);
 let text = $state("");
 let sendError = $state<string | null>(null);
 
-const API = 'http://localhost:3000';
 
 $effect(() => {
     const id = selectedId;
@@ -71,7 +70,7 @@ $effect(() => {
     sendError = null;
     if (id === null) return;
 
-    authFetch(`${API}/conversations/${id}/messages?take=20`)
+    authFetch(`/api/conversations/${id}/messages?take=20`)
         .then((res) => res.json())
         .then((page) => {
             if (id !== selectedId) return;
@@ -93,7 +92,7 @@ $effect(() =>
 async function loadMore() {
     const id = selectedId;
     if (id === null || !hasMore || !nextCursor) return;
-    const res = await authFetch(`${API}/conversations/${id}/messages?take=20&cursor=${nextCursor}`);
+    const res = await authFetch(`/api/conversations/${id}/messages?take=20&cursor=${nextCursor}`);
     const page = await res.json();
     if (id !== selectedId) return;
     messages = [...page.items, ...messages];
@@ -154,7 +153,7 @@ async function submit(e: SubmitEvent) {
                     {@const status = $onlineFriends[f.user.id] ? statusStyle.Online : null}
                     <Button variant="ghost" class="h-auto justify-start gap-3 px-2 py-1.5 hover:bg-accent/70">
                         <Avatar.Root class="size-10">
-                            <Avatar.Image src={`http://localhost:3000/avatars/${f.user.avatarUrl ?? 'default.png'}`} alt={f.user.username} />
+                            <Avatar.Image src={`/api/avatars/${f.user.avatarUrl ?? 'default.png'}`} alt={f.user.username} />
                             <Avatar.Fallback>{f.user.username.slice(0, 2)}</Avatar.Fallback>
                             {#if status}
                                 <Avatar.Badge class={status.dot} />
@@ -211,7 +210,7 @@ async function submit(e: SubmitEvent) {
                         <div class="flex items-center gap-2 min-w-0">
                             <Avatar.Root class="size-8">
                                 <Avatar.Image 
-                                    src={req.user.avatarUrl ? `http://localhost:3000/avatars/${req.user.avatarUrl}` : "../assets/home/avatar/test-offline.png"} 
+                                    src={req.user.avatarUrl ? `/api/avatars/${req.user.avatarUrl}` : "../assets/home/avatar/test-offline.png"} 
                                     alt={req.user.username} 
                                 />
                                 <Avatar.Fallback>{req.user.username.slice(0, 2).toUpperCase()}</Avatar.Fallback>
@@ -315,7 +314,7 @@ async function submit(e: SubmitEvent) {
                     <p class="text-sm text-muted-foreground">Sélectionne un ami pour ouvrir sa conversation.</p>
                 {/if}
             {:else if popup === "add"}
-                <form class="flex flex-col gap-2" onsubmit={friendManager.add_freind}>
+                <form class="flex flex-col gap-2" onsubmit={friendManager.add_friend}>
                     <Label for="contact_login">Pseudo du contact</Label>
                     <Input id="contact_login" maxlength={40} autocomplete="off" bind:value={friendManager.to_add}/>
                     <Button type="submit" class="self-end">Ajouter</Button>

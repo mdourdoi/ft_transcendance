@@ -25,7 +25,7 @@ export class ProfilManager {
 
     async get_user() {
         try {
-            const res = await authFetch('http://localhost:3000/users/me');
+            const res = await authFetch('/api/users/me');
             const data = await res.json();
             if (!res.ok) {
                 const errorCode = Array.isArray(data.message) ? data.message[0] : data.message;
@@ -51,7 +51,7 @@ export class ProfilManager {
             return;
         }
         try {
-            const res = await authFetch('http://localhost:3000/users/me', {
+            const res = await authFetch('/api/users/me', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username: this.newusername.trim() }),
@@ -77,7 +77,7 @@ export class ProfilManager {
             return;
         }
         try {
-            const res = await authFetch('http://localhost:3000/users/me/password', {
+            const res = await authFetch('/api/users/me/password', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -103,7 +103,7 @@ export class ProfilManager {
     async active_two_fa() {
         this.two_fa = '';
         try {
-            const res = await authFetch('http://localhost:3000/twofa/setup', {
+            const res = await authFetch('/api/twofa/setup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -127,7 +127,7 @@ export class ProfilManager {
         event.preventDefault();
         this.two_fa = '';
         try {
-            const res = await authFetch('http://localhost:3000/twofa/verify', {
+            const res = await authFetch('/api/twofa/verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code: this.qr_code.trim() })
@@ -151,7 +151,7 @@ export class ProfilManager {
         if (event) event.preventDefault();
         this.two_fa = '';
         try {
-            const res = await authFetch('http://localhost:3000/twofa/delete', {
+            const res = await authFetch('/api/twofa/delete', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code: this.qr_code.trim() })

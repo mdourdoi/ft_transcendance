@@ -12,7 +12,7 @@ export class FriendManager {
 	async get_user()
 		{
 			try{
-				const res = await authFetch('http://localhost:3000/users/me');
+				const res = await authFetch('/api/users/me');
 				const data = await res.json();
 				if (!res.ok) throw new Error(data.message);
 				this.username = data.username;
@@ -35,7 +35,7 @@ export class FriendManager {
 		async get_friends()
 		{
 			try{
-				const res = await authFetch('http://localhost:3000/friendships');
+				const res = await authFetch('/api/friendships');
 				const data = await res.json();
 				if (!res.ok) throw new Error(data.message);
 				this.friends = data;
@@ -47,7 +47,7 @@ export class FriendManager {
 
 		async friendships_requests(){
 			try {
-				const res = await authFetch('http://localhost:3000/friendships/requests');
+				const res = await authFetch('/api/friendships/requests');
 				const data = await res.json();
 				if (!res.ok) throw new Error(data.message);
 				this.friend_requests = data;
@@ -57,12 +57,12 @@ export class FriendManager {
 			}
 		}
 
-		add_freind = async (event: SubmitEvent) => {
+		add_friend = async (event: SubmitEvent) => {
 			event.preventDefault();
 			//const targetId = Number(this.to_add.trim());
 			//if (!Number.isInteger(targetId)) return;
 			try {
-				const res = await authFetch('http://localhost:3000/friendships/send', {
+				const res = await authFetch('/api/friendships/send', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ username: this.to_add })
@@ -81,7 +81,7 @@ export class FriendManager {
 
 		async accept_request(friend_id: number) {
 			try {
-				const res = await authFetch('http://localhost:3000/friendships/accept', {
+				const res = await authFetch('/api/friendships/accept', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ targetId: friend_id })
@@ -100,7 +100,7 @@ export class FriendManager {
 
 		async deny_request(friend_id: number) {
 			try {
-				const res = await authFetch('http://localhost:3000/friendships/deny', {
+				const res = await authFetch('/api/friendships/deny', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ targetId: friend_id })

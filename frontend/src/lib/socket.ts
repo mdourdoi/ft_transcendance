@@ -19,7 +19,7 @@ token.subscribe((value) => {
 
 function connectSocket() {
     if (socket) return socket;
-    socket = io('http://localhost:3000', {auth: (cb) => cb({ token: get(token) })});
+    socket = io({auth: (cb) => cb({ token: get(token) })});
     socket.on('connect', () => {
         console.log('connecté', socket?.id);
         socket?.emit('getOnlineFriends', (friends) => {
@@ -75,12 +75,3 @@ function disconnectSocket() {
     onlineFriends.set({})
     socket = null;
 }
-
-token.subscribe((value) => {
-  if (value) {
-    disconnectSocket();
-    connectSocket();
-  } else {
-    disconnectSocket();
-  }
-});
