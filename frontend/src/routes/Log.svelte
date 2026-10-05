@@ -29,7 +29,7 @@
 		return;
 	}
 		try {
-			const res = await fetch('http://localhost:3000/auth/register', {
+			const res = await fetch('/api/auth/register', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ email: email, username: username, password: password })
@@ -52,7 +52,7 @@
 			return;
 		}
 		try {
-			const res = await fetch('http://localhost:3000/auth/login', {
+			const res = await fetch('/api/auth/login', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ email: email, password: password })
@@ -76,7 +76,7 @@
 			return;
 		}
 		try {
-			const res = await fetch('http://localhost:3000/auth/login', {
+			const res = await fetch('/api/auth/login', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ email: email, password: password, code: twofa })
