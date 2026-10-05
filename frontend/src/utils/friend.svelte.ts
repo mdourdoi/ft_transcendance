@@ -58,8 +58,6 @@ export class FriendManager {
 
 		add_friend = async (event: SubmitEvent) => {
 			event.preventDefault();
-			//const targetId = Number(this.to_add.trim());
-			//if (!Number.isInteger(targetId)) return;
 			try {
 				const res = await authFetch('/api/friendships/send', {
 					method: 'POST',
