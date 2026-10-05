@@ -315,6 +315,7 @@ async function makeUser(name) {
     email: `${username}@test.local`,
     username,
     password: PASSWORD,
+    acceptTerms: true,
   });
   if (reg.status !== 201)
     throw new Error(`register ${name} → ${reg.status} ${fmt(reg.body)}`);

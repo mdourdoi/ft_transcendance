@@ -14,16 +14,5 @@
     <Card.Content>
       <Button class="w-full" onclick={() => navigate("/game", { useAnimation: true })}>{$t("HOME.PLAY")}</Button>
     </Card.Content>
-    <Card.Footer class="flex-wrap justify-center gap-1">
-      <Button variant="link" size="xs" onclick={() => navigate("/settings/privacy", { useAnimation: true })}>
-        {$t("PRIVACY.TITLE")}
-      </Button>
-      <Button variant="link" size="xs" onclick={() => navigate("/privacy-policy", { useAnimation: true })}>
-        {$t("POLICY.TITLE")}
-      </Button>
-      <Button variant="link" size="xs" onclick={() => navigate("/terms", { useAnimation: true })}>
-        {$t("TERMS.TITLE")}
-      </Button>
-    </Card.Footer>
   </Card.Root>
 </main>
