@@ -119,7 +119,7 @@ export class FriendManager {
 
 export const friendManager = new FriendManager();
 
-import { token } from '$lib/auth'; // ajoute token à ton import existant
+import { token } from '$lib/auth';
 
 token.subscribe((value) => {
     if (!value) {

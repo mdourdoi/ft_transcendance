@@ -114,12 +114,10 @@
 
 	function translateError(code: string): string {
 	const messages: Record<string, string> = {
-		// Front uniquement
 		EMPTY_FIELDS: 'Veuillez remplir tous les champs',
 		NETWORK_ERROR: 'Impossible de joindre le serveur, réessayez plus tard',
 		UNKNOWN_ERROR: 'Une erreur est survenue',
 
-		// Auth / session
 		INVALID_CREDENTIALS: 'Identifiants incorrects',
 		INVALID_TOKEN: 'Session expirée, veuillez vous reconnecter',
 		USERNAME_OR_EMAIL_ALREADY_TAKEN: "Ce nom d'utilisateur ou cet email est déjà pris",
@@ -129,24 +127,20 @@
 			"Le nom d'utilisateur doit faire 3 à 24 caractères, lettres et chiffres uniquement",
 		INVALID_EMAIL: 'Adresse email invalide',
 
-		// Profil
 		NO_DATA_UPDATED: 'Aucune modification à enregistrer',
 		PASSWORD_UNCHANGED: "Le nouveau mot de passe doit être différent de l'ancien",
 		INVALID_FILE_TYPE: "L'image doit être au format PNG ou JPEG (2 Mo max)",
 		MISSING_FILE: 'Aucun fichier sélectionné',
 
-		// 2FA
 		TWOFA_CODE_REQUIRED: 'Un code 2FA est requis',
 		INVALID_TWOFA_CODE: 'Code 2FA incorrect',
 		TWOFA_ALREADY_ENABLED: 'La 2FA est déjà activée',
 		TWOFA_NOT_ENABLED: "La 2FA n'est pas activée",
 		TWOFA_NOT_INITIALIZED: "Lancez d'abord la configuration de la 2FA",
 
-		// Amis
 		IMPOSSIBLE_REQUEST: "Cette action n'est pas possible",
 		USER_NOT_FOUND: 'Utilisateur introuvable',
 
-		// Chat
 		FORBIDDEN_CONVERSATION: "Vous n'avez pas accès à cette conversation",
 		EMPTY_MESSAGE: 'Le message ne peut pas être vide',
 		INVALID_MESSAGE: 'Message invalide (1024 caractères max)',

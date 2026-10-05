@@ -236,7 +236,6 @@
 						</section>
 						<div class="flex flex-col gap-4">
 						{#if profilManager.qr_image !== '' && !profilManager.is_2fa_enabled}
-							<!-- Cas 1 : QR Code généré mais pas encore validé -->
 							<section class="flex flex-col gap-3 rounded-lg border border-border bg-muted/30 p-4" aria-labelledby="security-heading">
 								<h3 id="security-heading" class="font-display text-lg">Double authentification · 2FA</h3>
 								<p class="text-sm text-muted-foreground">Scannez ce QR code avec votre application d'authentification :</p>
@@ -254,7 +253,6 @@
 							</section>
 
 						{:else if !profilManager.is_2fa_enabled}
-							<!-- Cas 2 : 2FA inactive, afficher le bouton pour Activer -->
 							<section class="flex flex-col gap-2 rounded-lg border border-border bg-muted/30 p-4" aria-labelledby="security-heading">
 								<h3 id="security-heading" class="font-display text-lg">Double authentification · 2FA</h3>
 								<p class="text-sm text-muted-foreground">Protégez votre compte avec la 2FA.</p>
@@ -265,7 +263,6 @@
 							</section>
 
 						{:else}
-							<!-- Cas 3 : 2FA active, afficher l'état activé et le bouton Désactiver -->
 							<section class="flex flex-col gap-2 rounded-lg border border-border bg-muted/30 p-4" aria-labelledby="security-heading">
 								<h3 id="security-heading" class="font-display text-lg">Double authentification · 2FA</h3>
 								<p class="text-sm text-emerald-600 font-medium">✓ La double authentification est activée sur votre compte.</p>

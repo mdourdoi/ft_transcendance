@@ -63,7 +63,6 @@ let sendError = $state<string | null>(null);
 
 const API = 'http://localhost:3000';
 
-// Historique : se relance quand on change d'ami
 $effect(() => {
     const id = selectedId;
     messages = [];
@@ -75,7 +74,7 @@ $effect(() => {
     authFetch(`${API}/conversations/${id}/messages?take=20`)
         .then((res) => res.json())
         .then((page) => {
-            if (id !== selectedId) return; // réponse en retard : on ignore
+            if (id !== selectedId) return;
             messages = page.items;
             nextCursor = page.nextCursor;
             hasMore = page.hasMore;
@@ -83,29 +82,25 @@ $effect(() => {
         .catch((e) => console.log('historique', e));
 });
 
-// Réception en direct
 $effect(() =>
     onNewMessage((msg) => {
-        console.log('REÇU', msg);
         if (msg.conversationId !== undefined && msg.conversationId !== selectedId) return;
-        if (messages.some((m) => m.id === msg.id)) return; // déduplication
+        if (messages.some((m) => m.id === msg.id)) return;
         messages = [...messages, msg];
     })
 );
 
-// Messages plus anciens
 async function loadMore() {
     const id = selectedId;
     if (id === null || !hasMore || !nextCursor) return;
     const res = await authFetch(`${API}/conversations/${id}/messages?take=20&cursor=${nextCursor}`);
     const page = await res.json();
     if (id !== selectedId) return;
-    messages = [...page.items, ...messages]; // les anciens vont devant
+    messages = [...page.items, ...messages];
     nextCursor = page.nextCursor;
     hasMore = page.hasMore;
 }
 
-// Envoi
 async function submit(e: SubmitEvent) {
     e.preventDefault();
     if (selectedId === null || !text.trim()) return;
@@ -225,7 +220,6 @@ async function submit(e: SubmitEvent) {
                         </div>
                         
                         <div class="flex items-center gap-1">
-                            <!-- Accepter : POST /friendships/accept { targetId: req.user.id } -->
                             <Button 
                                 variant="ghost" 
                                 size="icon" 
@@ -235,8 +229,6 @@ async function submit(e: SubmitEvent) {
                             >
                                 <Check class="size-4" />
                             </Button>
-
-                            <!-- Refuser : POST /friendships/deny { targetId: req.user.id } -->
                             <Button 
                                 variant="ghost" 
                                 size="icon" 
