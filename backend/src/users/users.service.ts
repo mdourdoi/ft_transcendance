@@ -279,6 +279,7 @@ export class UsersService {
         avatarUrl: row.avatarUrl,
         createdAt: row.createdAt,
         emailVerifiedAt: row.emailVerifiedAt,
+        consentedAt: row.consentedAt,
         twoFactorEnabled: row.twoFactorEnabled,
         twoFactorMethod: row.twoFactorMethod,
         rating: row.rating,

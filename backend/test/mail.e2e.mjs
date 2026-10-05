@@ -316,6 +316,7 @@ async function makeUser(name) {
     email,
     username,
     password: PASSWORD,
+    acceptTerms: true,
   });
   if (reg.status !== 201)
     throw new Error(`register ${name} → ${reg.status} ${fmt(reg.body)}`);

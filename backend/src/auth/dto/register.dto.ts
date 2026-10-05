@@ -1,4 +1,6 @@
 import {
+  Equals,
+  IsBoolean,
   IsEmail,
   IsString,
   IsStrongPassword,
@@ -24,4 +26,7 @@ export class RegisterDto {
     { message: ErrorCode.WEAK_PASSWORD },
   )
   password: string;
+  @IsBoolean({ message: ErrorCode.CONSENT_REQUIRED })
+  @Equals(true, { message: ErrorCode.CONSENT_REQUIRED })
+  acceptTerms: boolean;
 }
