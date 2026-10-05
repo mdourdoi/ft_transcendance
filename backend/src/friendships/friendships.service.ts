@@ -20,12 +20,14 @@ import { FriendRequestDto } from './dto/friend-request.dto.js';
 import { FriendshipDto } from './dto/friendship.dto.js';
 import { RemoveFriendDto } from './dto/remove-friend.dto.js';
 import { UnblockUserDto } from './dto/unblock-user.dto.js';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class FriendshipsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly messagesService: MessagesService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   public async getFriendships(
@@ -79,36 +81,52 @@ export class FriendshipsService {
   }
 
   public async sendRequest(userId: number, dto: FriendRequestDto) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        username: dto.username,
+      },
+      select: { id: true },
+    });
+    if (!user) throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+
+    const targetId = user.id;
     if (
-      userId === dto.targetId ||
-      !(await this.mustBe_(userId, dto.targetId, [
+      userId === targetId ||
+      !(await this.mustBe_(userId, targetId, [
         'not_blocked_by',
         'not_friend_with',
       ]))
     )
       throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
-    const user = await this.prisma.user.findUnique({
-      where: {
-        id: dto.targetId,
-      },
-    });
-    if (!user) throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
-
-    const currentFriendship = await this.getFriendship_(userId, dto.targetId);
+    const currentFriendship = await this.getFriendship_(userId, targetId);
     if (!currentFriendship) {
       await this.prisma.friendship.create({
         data: {
           senderId: userId,
-          receiverId: dto.targetId,
+          receiverId: targetId,
           status: FriendshipStatus.PENDING,
         },
       });
+      const expeditor = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true, username: true, avatarUrl: true },
+      });
+      if (expeditor) {
+        this.eventEmitter.emit('friendship.requested', {
+          targetId,
+          from: {
+            id: expeditor.id,
+            username: expeditor.username,
+            avatarUrl: expeditor.avatarUrl ?? DEFAULT_AVATAR_FILENAME,
+          },
+        });
+      }
       return;
     }
 
-    if (await this.mustBe_(dto.targetId, userId, ['requested']))
-      return await this.startFriendship_(userId, dto.targetId);
+    if (await this.mustBe_(targetId, userId, ['requested']))
+      return await this.startFriendship_(userId, targetId);
 
     throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
   }
@@ -187,6 +205,10 @@ export class FriendshipsService {
       throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
     await this.deleteFriendship_(userId, dto.targetId);
+  }
+
+  public areFriends(userId: number, targetId: number): Promise<boolean> {
+    return this.mustBe_(userId, targetId, ['friend_with']);
   }
 
   private async startFriendship_(A: number, B: number) {

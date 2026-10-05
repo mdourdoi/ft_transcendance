@@ -40,8 +40,8 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    const row = await this.prisma.user.findUnique({
-      where: { username: dto.username },
+    const row = await this.prisma.user.findFirst({
+      where: { email: { equals: dto.email.trim(), mode: 'insensitive' } },
     });
     let corresponding = false;
 

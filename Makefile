@@ -1,6 +1,6 @@
 COMPOSE = docker compose
 
-.PHONY: all up down build logs clean re ps migrate studio lint
+.PHONY: all up down build logs clean re ps migrate studio lint test bruno
 
 all: up
 
@@ -25,6 +25,16 @@ studio:
 lint:
 	$(COMPOSE) build backend
 	$(COMPOSE) run --rm --no-deps -T --entrypoint npm backend run lint:check
+
+test:
+	$(COMPOSE) build backend
+	$(COMPOSE) run --rm --no-deps -T --entrypoint npm backend test
+
+bruno:
+	docker run --rm --network host -v "$(CURDIR)/bruno":/collection:ro node:22-alpine sh -c '\
+		cp -r /collection /tmp/bruno && cd /tmp/bruno && \
+		npm ci --silent && npm i -g --silent @usebruno/cli && \
+		bru run --sandbox developer'
 
 ps:
 	$(COMPOSE) ps
