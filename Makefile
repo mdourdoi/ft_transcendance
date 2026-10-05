@@ -20,7 +20,7 @@ migrate:
 	$(COMPOSE) exec backend npx prisma db push
 
 studio:
-	$(COMPOSE) exec backend npx prisma studio
+	$(COMPOSE) exec backend npx prisma studio --hostname 0.0.0.0
 
 lint:
 	$(COMPOSE) build backend
