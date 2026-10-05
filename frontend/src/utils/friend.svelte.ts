@@ -51,7 +51,6 @@ export class FriendManager {
 				const data = await res.json();
 				if (!res.ok) throw new Error(data.message);
 				this.friend_requests = data;
-				//console.log($state.snapshot(this.friend_requests));
 			} catch (err) {
 				this.error = err instanceof Error ? err.message : String(err);
 			}

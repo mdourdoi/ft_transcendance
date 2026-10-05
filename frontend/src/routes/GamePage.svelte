@@ -16,13 +16,13 @@
 <div class="relative min-h-screen flex flex-col items-center justify-center p-6">
   <!-- <div class="absolute top-6 left-1/2 -translate-x-1/2 ml-260"> -->
     <!-- <ButtonGroup.Root> -->
-      <!-- <Button variant="secondary" size="sm" onclick={() => console.log("MessageSquare")}><MessageSquare /></Button> -->
+      <!-- <Button variant="secondary" size="sm"><MessageSquare /></Button> -->
       <!-- <ButtonGroup.Separator /> -->
-      <!-- <Button variant="secondary" size="sm" onclick={() => console.log("Notification")}><Notification /></Button> -->
+      <!-- <Button variant="secondary" size="sm"><Notification /></Button> -->
       <!-- <ButtonGroup.Separator /> -->
-      <!-- <Button variant="secondary" size="sm" onclick={() => console.log("Settings")}><SettingsIcone /></Button> -->
+      <!-- <Button variant="secondary" size="sm"><SettingsIcone /></Button> -->
       <!-- <ButtonGroup.Separator /> -->
-      <!-- <Button variant="secondary" size="sm" onclick={() => console.log("Quit")}><Quit /></Button> -->
+      <!-- <Button variant="secondary" size="sm"><Quit /></Button> -->
     <!-- </ButtonGroup.Root> -->
   <!-- </div> -->
   <h1 class ="mb-15">game</h1>

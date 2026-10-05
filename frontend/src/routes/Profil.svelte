@@ -12,6 +12,7 @@
 	import * as Tabs from "$lib/components/ui/tabs";
 	import { InkQuote, PageShell, SideNav, Stamp } from "$lib/components/onitama";
 	import { cn } from "$lib/utils";
+	import { t } from "$lib/i18n";
 	import { onMount } from "svelte";
 	import {profilManager} from '../utils/profil.svelte';
 
@@ -60,14 +61,7 @@
 
 
 	function translateError(code: string): string {
-		const messages: Record<string, string> = {
-			SAME_USERNAME: 'le nouveau username est le meme que le old',
-			NOTE_SAME_PASSWORD: 'veuiller confirmer avec le meme mots de passe',
-			INVALID_CREDENTIALS: 'veuiller metre le bon mots de passe',
-			PASSWORD_UNCHANGED: 'vous avez pas changer de mots de passe',
-			USERNAME_OR_EMAIL_ALREADY_TAKEN: 'username ou email deja pris'
-		};
-		return messages[code] ?? code;
+		return $t(`ERRORS.${code}`, { default: code });
 	}
 </script>
 

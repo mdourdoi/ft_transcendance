@@ -21,23 +21,17 @@ function connectSocket() {
     if (socket) return socket;
     socket = io({auth: (cb) => cb({ token: get(token) })});
     socket.on('connect', () => {
-        console.log('connecté', socket?.id);
         socket?.emit('getOnlineFriends', (friends) => {
-            console.log(friends);
             const res = Object.fromEntries(friends.map((f) => [f.userId, f.onlineStatus]));
             onlineFriends.set(res);
         });
     });
     socket.on('presence', ({userId, onlineStatus}) =>{
-        console.log('presence', userId, onlineStatus);
         onlineFriends.update((o) => ({...o, [userId]: onlineStatus}));
     });
     socket.on('newMessage', (msg: ChatMessage) => {
         messageHandlers.forEach((handler) => handler(msg));
     });
-    socket.on('connect_error', (e) => console.log('erreur', e.message));
-    socket.on('disconnect', (reason) => console.log('déconnecté', reason));
-    socket.onAny((event, ...args) => console.log('EVENT', event, args));
     return socket;
 }
 

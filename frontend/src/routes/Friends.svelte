@@ -78,7 +78,7 @@ $effect(() => {
             nextCursor = page.nextCursor;
             hasMore = page.hasMore;
         })
-        .catch((e) => console.log('historique', e));
+        .catch(() => {});
 });
 
 $effect(() =>
