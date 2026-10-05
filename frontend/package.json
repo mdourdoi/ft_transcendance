@@ -45,7 +45,8 @@
   },
   "dependencies": {
     "embla-carousel-autoplay": "^8.6.0",
-    "motion": "^13.4.2"
+    "motion": "^13.4.2",
+    "socket.io-client": "^4.8.4"
   },
   "overrides": {
     "svelte-i18n": {

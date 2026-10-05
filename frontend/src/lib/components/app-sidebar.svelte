@@ -14,7 +14,7 @@
    icon: HouseIcon,
   },
   {
-   title: "Freinds",
+   title: "Friends",
    url: "#",
    icon: Users,
   },
