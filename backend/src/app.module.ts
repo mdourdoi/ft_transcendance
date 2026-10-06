@@ -24,7 +24,7 @@ import { UsersModule } from './users/users.module.js';
     EventEmitterModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: AVATAR_UPLOAD_DIR,
-      serveRoot: '/avatars',
+      serveRoot: '/api/avatars',
     }),
     PrismaModule,
     MailModule,

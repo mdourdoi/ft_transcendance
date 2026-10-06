@@ -1,4 +1,5 @@
-import { Card, CardProps } from "./card";
+import { Card } from "./card";
+import type {CardProps} from "./card";
 import { GameError } from "./errors";
 
 const BASE_CARDS: readonly CardProps[] = [
