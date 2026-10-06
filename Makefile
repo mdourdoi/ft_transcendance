@@ -20,7 +20,7 @@ migrate:
 	$(COMPOSE) exec backend npx prisma db push
 
 studio:
-	$(COMPOSE) exec backend npx prisma studio --hostname 0.0.0.0
+	$(COMPOSE) exec backend sh -c 'node -e "const net=require(\"net\");net.createServer((c)=>{const u=net.connect(5555,\"127.0.0.1\");c.pipe(u).pipe(c);c.on(\"error\",()=>u.destroy());u.on(\"error\",()=>c.destroy());}).listen(5555,process.argv[1])" "$$(hostname -i)" & trap "kill $$!" EXIT INT TERM; npx prisma studio --port 5555 --browser none'
 
 lint:
 	$(COMPOSE) build backend
