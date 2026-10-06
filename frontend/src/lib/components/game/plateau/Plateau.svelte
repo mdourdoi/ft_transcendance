@@ -10,6 +10,7 @@
 		selected = null,
 		destinations = [],
 		disabled = false,
+		flipped = false,
 		assetBase = '../assets/game',
 		oncell = () => {}}: {
 		width?:string;
@@ -19,6 +20,7 @@
 		selected?:Position|null;
 		destinations?:Position[];
 		disabled?:boolean;
+		flipped?:boolean;
 		assetBase?: string;
 		oncell?:(p:Position)=>void
 	}=$props();
@@ -28,13 +30,13 @@
 <div class="relative grid aspect-square w-full overflow-hidden border-2 border-[#3c2919] bg-[length:100%_100%] bg-no-repeat shadow-inner" style:background-image={`url("../assets/games/ui/board-surface.svg")`} style:grid-template-columns={`repeat(${size},minmax(0,1fr))`} style:grid-template-rows={`repeat(${size},minmax(0,1fr))`} style:width style:height aria-label="Plateau Onitama">
  	{#each Array(size) as _,i (i)}
 		{#each Array(size) as _,j (j)}
-  			{@const pos = Position.create({row:i, col:j})}
+  			{@const pos = Position.create(flipped ? {row:size - 1 - i, col:size - 1 - j} : {row:i, col:j})}
   			{@const entity = map.entityAt(pos)}
   			<Cell {assetBase} {entity} {disabled}
 				selected = {selected?.equals(pos) ?? false}
 				valid = {destinations.some(p => p.equals(pos))}
-				temple = {j === 2 && (i === 0 || i === 4)}
-				label = {`${'ABCDE'[j]}${5 - i}`}
+				temple = {pos.col === 2 && (pos.row === 0 || pos.row === 4)}
+				label = {`${'ABCDE'[pos.col]}${5 - pos.row}`}
 				onclick = {() => oncell(pos)}/>
  		{/each}
 	{/each}
