@@ -9,6 +9,14 @@ enum MatchStatus {
   CANCELLED
 }
 
+enum MatchEndReason {
+  WAY_OF_STONE
+  WAY_OF_STREAM
+  RESIGNATION
+  DISCONNECTION
+  TIMEOUT
+}
+
 model Match {
   id Int @id @default(autoincrement())
 
@@ -18,6 +26,8 @@ model Match {
   playerOneId Int
   playerTwoId Int
   winnerId    Int?
+  endReason   MatchEndReason?
+  ratingDelta Int?
 
   createdAt  DateTime  @default(now())
   finishedAt DateTime?
@@ -28,4 +38,5 @@ model Match {
 
   @@index([playerOneId])
   @@index([playerTwoId])
+  @@index([status, createdAt])
 }

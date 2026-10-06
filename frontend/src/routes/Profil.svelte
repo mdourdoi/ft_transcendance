@@ -12,13 +12,20 @@
 	import * as Tabs from "$lib/components/ui/tabs";
 	import { InkQuote, PageShell, SideNav, Stamp } from "$lib/components/onitama";
 	import { cn } from "$lib/utils";
+	import { t } from "$lib/i18n";
+	import { onMount } from "svelte";
+	import {profilManager} from '../utils/profil.svelte';
 
 	type Section = "overview" | "achievements" | "customization" | "setting";
 	type Achievement = { title: string; description: string; image: string; unlocked?: boolean; progress?: number };
 
+	onMount(() => {
+        profilManager.get_user();
+    });
+
 	let {
 		onCustomize = () => {},
-		player = { name: "Kenshii", title: "Disciple du vent", quote: "Le calme est ma force.", level: 42, xp: 6500, xpTarget: 10000, avatar: "../assets/home/avatar/avatar-kenshii.png" },
+		player = { name: profilManager.username, title: "Disciple du vent", quote: "Le calme est ma force.", level: 42, xp: 6500, xpTarget: 10000, avatar: "../assets/home/avatar/avatar-kenshii.png" },
 	}: {
 		onCustomize?: (section: "avatar" | "frame" | "title" | "name" | "all") => void;
 		player?: { name: string; title: string; quote: string; level: number; xp: number; xpTarget: number; avatar: string };
@@ -50,6 +57,12 @@
 	const showAchievements = $derived(profileSection === "overview" || profileSection === "achievements");
 	const showCustomization = $derived(profileSection === "overview" || profileSection === "customization");
 	const showSettings = $derived(profileSection === "overview" || profileSection === "setting");
+
+
+
+	function translateError(code: string): string {
+		return $t(`ERRORS.${code}`, { default: code });
+	}
 </script>
 
 <Tabs.Root bind:value={profileSection} orientation="vertical" class="h-full">
@@ -73,7 +86,7 @@
 					</div>
 					<Button variant="outline" size="sm" onclick={() => onCustomize("avatar")}>Changer l’avatar</Button>
 				</div>
-
+				
 				<div class="flex min-w-0 flex-col gap-1">
 					<h2 class="flex items-center gap-1 font-display text-3xl font-bold">
 						{player.name}
@@ -182,41 +195,84 @@
 					<Card.Content class="grid grid-cols-2 gap-4">
 						<section class="flex flex-col gap-4 rounded-lg border border-border bg-muted/30 p-4" aria-labelledby="account-heading">
 							<h3 id="account-heading" class="font-display text-lg">Compte</h3>
-							<form class="flex flex-col gap-2">
+							<form class="flex flex-col gap-2" onsubmit={(e) => profilManager.change_username(e)}>
 								<fieldset class="flex flex-col gap-2">
 									<legend class="mb-2 text-sm font-semibold">Pseudo</legend>
 									<Label for="profile-username">Nom d’utilisateur</Label>
-									<Input id="profile-username" autocomplete="username" minlength={3} maxlength={24} pattern="[a-zA-Z0-9]+" required class="bg-card" />
+									<Input id="profile-username" autocomplete="username" minlength={3} maxlength={24} pattern="[a-zA-Z0-9]+" required class="bg-card" bind:value={profilManager.newusername}/>
 									<Button type="submit" variant="secondary" class="self-start">Enregistrer le pseudo</Button>
+									{#if profilManager.error_username}
+										<p role="alert" class="text-sm text-destructive">
+											{translateError(profilManager.error_username)}
+										</p>
+									{/if}
 								</fieldset>
 							</form>
 							<Separator />
-							<form class="flex flex-col gap-2">
-								<fieldset class="flex flex-col gap-2">
+							<form class="flex flex-col gap-2"onsubmit={(e) => profilManager.change_password(e)}>
+								<fieldset class="flex flex-col gap-2" >
 									<legend class="mb-2 text-sm font-semibold">Mot de passe</legend>
 									<Label for="current-password">Mot de passe actuel</Label>
-									<Input id="current-password" type="password" autocomplete="current-password" required class="bg-card" />
+									<Input id="current-password" type="password" autocomplete="current-password" required class="bg-card" bind:value={profilManager.oldpassword} />
 									<Label for="new-password">Nouveau mot de passe</Label>
-									<Input id="new-password" type="password" autocomplete="new-password" minlength={12} maxlength={128} required aria-describedby="password-hint" class="bg-card" />
+									<Input id="new-password" type="password" autocomplete="new-password" minlength={12} maxlength={128} required aria-describedby="password-hint" class="bg-card" bind:value={profilManager.newpassword1}/>
 									<small id="password-hint" class="text-xs text-muted-foreground">12 à 128 caractères. Les règles du serveur restent applicables.</small>
 									<Label for="confirm-password">Confirmer le nouveau mot de passe</Label>
-									<Input id="confirm-password" type="password" autocomplete="new-password" minlength={12} maxlength={128} required class="bg-card" />
+									<Input id="confirm-password" type="password" autocomplete="new-password" minlength={12} maxlength={128} required class="bg-card" bind:value={profilManager.newpassword2}/>
 									<Button type="submit" variant="secondary" class="self-start">Changer le mot de passe</Button>
+									{#if profilManager.error_password}
+										<p role="alert" class="text-sm text-destructive">
+											{translateError(profilManager.error_password)}
+										</p>
+									{/if}
 								</fieldset>
 							</form>
 						</section>
 						<div class="flex flex-col gap-4">
+						{#if profilManager.qr_image !== '' && !profilManager.is_2fa_enabled}
+							<section class="flex flex-col gap-3 rounded-lg border border-border bg-muted/30 p-4" aria-labelledby="security-heading">
+								<h3 id="security-heading" class="font-display text-lg">Double authentification · 2FA</h3>
+								<p class="text-sm text-muted-foreground">Scannez ce QR code avec votre application d'authentification :</p>
+								<div class="flex justify-center p-2 bg-white rounded-md w-fit self-center">
+									<img src={profilManager.qr_image} alt="Code QR pour la double authentification" class="size-48" />
+								</div>
+								<form class="flex flex-col gap-2" onsubmit={(e) => profilManager.validat_two_fa(e)}>
+									<Label for="two-fa-code">Code 2FA</Label>
+									<Input id="two-fa-code" type="text" class="bg-card" bind:value={profilManager.qr_code}/>
+									<Button type="submit" variant="secondary" class="self-start mt-2">Valider</Button>
+									{#if profilManager.two_fa}
+										<p class="text-sm text-destructive">{translateError(profilManager.two_fa)}</p>
+									{/if}
+								</form>
+							</section>
+
+						{:else if !profilManager.is_2fa_enabled}
 							<section class="flex flex-col gap-2 rounded-lg border border-border bg-muted/30 p-4" aria-labelledby="security-heading">
 								<h3 id="security-heading" class="font-display text-lg">Double authentification · 2FA</h3>
-								<p class="text-sm text-muted-foreground">Ajoute un code temporaire généré par ton application d’authentification à la connexion.</p>
+								<p class="text-sm text-muted-foreground">Protégez votre compte avec la 2FA.</p>
+								<Button type="button" class="text-sm self-start" onclick={() => profilManager.active_two_fa()}>Activer</Button>
+								{#if profilManager.two_fa}
+									<p class="text-sm text-destructive">{translateError(profilManager.two_fa)}</p>
+								{/if}
 							</section>
-							<section class="flex flex-col gap-2 rounded-lg border border-border bg-muted/30 p-4" aria-labelledby="audio-heading">
-								<h3 id="audio-heading" class="font-display text-lg">Ambiance sonore</h3>
+
+						{:else}
+							<section class="flex flex-col gap-2 rounded-lg border border-border bg-muted/30 p-4" aria-labelledby="security-heading">
+								<h3 id="security-heading" class="font-display text-lg">Double authentification · 2FA</h3>
+								<p class="text-sm text-emerald-600 font-medium">✓ La double authentification est activée sur votre compte.</p>
+								<form class="flex flex-col gap-2" onsubmit={(e) => profilManager.delite_two_fa(e)}>
+									<Label for="two-fa-code-disable">Entrez votre code 2FA pour désactiver</Label>
+									<Input id="two-fa-code-disable" type="text" class="bg-card" bind:value={profilManager.qr_code}/>
+									<Button type="submit" variant="destructive" class="text-sm self-start mt-1">
+										Désactiver
+									</Button>
+								</form>
+								{#if profilManager.two_fa}
+									<p class="text-sm text-destructive">{translateError(profilManager.two_fa)}</p>
+								{/if}
 							</section>
-							<section class="flex flex-col gap-2 rounded-lg border border-border bg-muted/30 p-4" aria-labelledby="game-heading">
-								<h3 id="game-heading" class="font-display text-lg">Confort de jeu</h3>
-							</section>
-						</div>
+						{/if}
+					</div>
 					</Card.Content>
 					<Card.Footer class="flex items-center justify-between gap-3 border-t border-border">
 						<Button variant="outline">Réinitialiser les préférences audio et jeu</Button>

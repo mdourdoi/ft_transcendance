@@ -13,5 +13,33 @@
   },
   "LANGUAGE": {
     "LABEL": "Language"
+  },
+  "ERRORS": {
+    "EMPTY_FIELDS": "Please fill in all fields",
+    "NETWORK_ERROR": "Unable to reach the server, please try again later",
+    "UNKNOWN_ERROR": "An error occurred",
+    "INVALID_CREDENTIALS": "Invalid credentials",
+    "INVALID_TOKEN": "Session expired, please log in again",
+    "USERNAME_OR_EMAIL_ALREADY_TAKEN": "This username or email is already taken",
+    "WEAK_PASSWORD": "Password must be at least 8 characters with an uppercase letter, a lowercase letter, a digit and a symbol",
+    "INVALID_USERNAME": "Username must be 3 to 24 characters, letters and digits only",
+    "INVALID_EMAIL": "Invalid email address",
+    "NO_DATA_UPDATED": "No changes to save",
+    "PASSWORD_UNCHANGED": "The new password must be different from the old one",
+    "SAME_USERNAME": "The new username is the same as the old one",
+    "NOTE_SAME_PASSWORD": "The two passwords do not match",
+    "INVALID_FILE_TYPE": "The image must be a PNG or JPEG (2 MB max)",
+    "MISSING_FILE": "No file selected",
+    "TWOFA_CODE_REQUIRED": "A 2FA code is required",
+    "INVALID_TWOFA_CODE": "Incorrect 2FA code",
+    "TWOFA_ALREADY_ENABLED": "2FA is already enabled",
+    "TWOFA_NOT_ENABLED": "2FA is not enabled",
+    "TWOFA_NOT_INITIALIZED": "Start the 2FA setup first",
+    "IMPOSSIBLE_REQUEST": "This action is not possible",
+    "USER_NOT_FOUND": "User not found",
+    "FORBIDDEN_CONVERSATION": "You do not have access to this conversation",
+    "EMPTY_MESSAGE": "The message cannot be empty",
+    "INVALID_MESSAGE": "Invalid message (1024 characters max)",
+    "INVALID_CONVERSATION_ID": "Invalid conversation"
   }
 }

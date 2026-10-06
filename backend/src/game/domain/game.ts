@@ -1,4 +1,5 @@
 import { Card } from './card.js';
+import { card } from './deck.js';
 import { GameError } from './errors.js';
 import { GameMap } from './map.js';
 import { Play } from './play.js';
@@ -8,6 +9,16 @@ export type Victory = 'WAY_OF_STONE' | 'WAY_OF_STREAM';
 
 export interface GameStartOptions {
   firstPlayer?: number;
+}
+
+export interface GameSnapshot {
+  board: number[][];
+  hands: [string[], string[]];
+  neutral: string;
+  currentPlayer: number;
+  turn: number;
+  winner: number | null;
+  victory: Victory | null;
 }
 
 export class Game {
@@ -30,6 +41,42 @@ export class Game {
       );
     }
     return new Game(GameMap.initial(), spread, firstPlayer, 1, null, null);
+  }
+
+  static restore(snapshot: GameSnapshot): Game {
+    if (snapshot.currentPlayer !== 0 && snapshot.currentPlayer !== 1) {
+      throw new GameError(
+        'INVALID_PLAYER_INDEX',
+        `Invalid current player: ${snapshot.currentPlayer}`,
+      );
+    }
+    const spread = Spread.restore(
+      snapshot.hands.map((hand) => hand.map((name) => card(name))),
+      card(snapshot.neutral),
+    );
+    return new Game(
+      GameMap.fromMatrix(snapshot.board),
+      spread,
+      snapshot.currentPlayer,
+      snapshot.turn,
+      snapshot.winner,
+      snapshot.victory,
+    );
+  }
+
+  toSnapshot(): GameSnapshot {
+    return {
+      board: this._map.toMatrix(),
+      hands: [
+        this._spread.handOf(0).map((c) => c.name),
+        this._spread.handOf(1).map((c) => c.name),
+      ],
+      neutral: this._spread.neutral.name,
+      currentPlayer: this._currentPlayer,
+      turn: this._turn,
+      winner: this._winner,
+      victory: this._victory,
+    };
   }
 
   get map(): GameMap {

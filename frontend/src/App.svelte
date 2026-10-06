@@ -6,12 +6,25 @@
   import Log from "./routes/Log.svelte";
   import LocaleSwitcher from "$lib/components/LocaleSwitcher.svelte";
   import PageTransition from "$lib/components/PageTransition.svelte";
+  import { token } from "$lib/auth";
+  import { navigate } from "$lib/router";
+  import "$lib/socket";
+
+const publicPaths = ["/"];
+
+$effect(() => {
+  const connected = $token !== "";
+  const isPublic = publicPaths.includes($path);
+
+  if (!connected && !isPublic) navigate("/", { replace: true });
+  if (connected && $path === "/") navigate("/home", { replace: true });
+});
 
   const routes: Routes = {
-    "/": Home_main,
+    "/": Log,
     "/game": Game,
     "/game/:mode": Game,
-    "/login": Log,
+    "/home": Home_main,
   };
 
   const route = $derived(resolve(routes, $path));

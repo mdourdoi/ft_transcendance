@@ -81,28 +81,30 @@ export class FriendshipsService {
   }
 
   public async sendRequest(userId: number, dto: FriendRequestDto) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        username: dto.username,
+      },
+      select: { id: true },
+    });
+    if (!user) throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+
+    const targetId = user.id;
     if (
-      userId === dto.targetId ||
-      !(await this.mustBe_(userId, dto.targetId, [
+      userId === targetId ||
+      !(await this.mustBe_(userId, targetId, [
         'not_blocked_by',
         'not_friend_with',
       ]))
     )
       throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
-    const user = await this.prisma.user.findUnique({
-      where: {
-        id: dto.targetId,
-      },
-    });
-    if (!user) throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
-
-    const currentFriendship = await this.getFriendship_(userId, dto.targetId);
+    const currentFriendship = await this.getFriendship_(userId, targetId);
     if (!currentFriendship) {
       await this.prisma.friendship.create({
         data: {
           senderId: userId,
-          receiverId: dto.targetId,
+          receiverId: targetId,
           status: FriendshipStatus.PENDING,
         },
       });
@@ -112,7 +114,7 @@ export class FriendshipsService {
       });
       if (expeditor) {
         this.eventEmitter.emit('friendship.requested', {
-          targetId: dto.targetId,
+          targetId,
           from: {
             id: expeditor.id,
             username: expeditor.username,
@@ -123,8 +125,8 @@ export class FriendshipsService {
       return;
     }
 
-    if (await this.mustBe_(dto.targetId, userId, ['requested']))
-      return await this.startFriendship_(userId, dto.targetId);
+    if (await this.mustBe_(targetId, userId, ['requested']))
+      return await this.startFriendship_(userId, targetId);
 
     throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
   }
@@ -203,6 +205,10 @@ export class FriendshipsService {
       throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
     await this.deleteFriendship_(userId, dto.targetId);
+  }
+
+  public areFriends(userId: number, targetId: number): Promise<boolean> {
+    return this.mustBe_(userId, targetId, ['friend_with']);
   }
 
   private async startFriendship_(A: number, B: number) {
