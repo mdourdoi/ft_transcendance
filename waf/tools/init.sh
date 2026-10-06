@@ -11,7 +11,20 @@ if [ ! -f /etc/nginx/ssl/nginx.crt ] ; then
 		-addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
 fi
 
+mkdir -p /etc/nginx/modsec
+
+cat > /etc/nginx/modsec/main.conf << EOF
+Include /etc/nginx/modsecurity.conf
+SecAuditLogFormat JSON
+Include /etc/modsecurity/crs/crs-setup.conf
+Include /etc/modsecurity/crs/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
+Include /usr/share/modsecurity-crs/rules/*.conf
+Include /etc/modsecurity/crs/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
+EOF
+
 cat > /etc/nginx/nginx.conf <<EOF
+load_module modules/ngx_http_modsecurity_module.so;
+
 events {}
 
 http {
@@ -28,6 +41,8 @@ http {
 		ssl_certificate /etc/nginx/ssl/nginx.crt;
 		ssl_certificate_key /etc/nginx/ssl/nginx.key;
 		server_name _;
+		modsecurity on;
+		modsecurity_rules_file /etc/nginx/modsec/main.conf;
 
 		location /api/ {
 			proxy_pass http://backend:3000;

@@ -1,6 +1,6 @@
 FROM debian:bookworm
 
-RUN apt update && apt install -y nginx openssl && apt clean && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt install -y nginx openssl libnginx-mod-http-modsecurity modsecurity-crs && apt clean && rm -rf /var/lib/apt/lists/*
 
 COPY tools/init.sh /usr/local/bin/init.sh
 
