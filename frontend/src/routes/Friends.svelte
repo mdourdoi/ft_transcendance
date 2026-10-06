@@ -16,7 +16,6 @@
   import * as Sheet from "$lib/components/ui/sheet";
   import { cn } from "$lib/utils";
   import { friendManager } from "../utils/friend.svelte";
-  import { token } from "$lib/auth";
   import { logout, authFetch } from "$lib/auth";
   import {
     onlineFriends,
@@ -50,29 +49,6 @@
 
   let popup: "" | "message" | "add" = $state("");
   let showRequests = $state(false);
-
-  const Friends_Test: { login: string; status: Status; avatar: string }[] = [
-    {
-      login: "Test_Online",
-      status: "Online",
-      avatar: "../assets/home/avatar/test-inline.png",
-    },
-    {
-      login: "Test_InGame",
-      status: "InGame",
-      avatar: "../assets/home/avatar/test-afk.png",
-    },
-    {
-      login: "Test_Afk",
-      status: "Afk",
-      avatar: "../assets/home/avatar/test-offline.png",
-    },
-  ];
-
-  const Friends_Offline_Test = Array.from({ length: 9 }, () => ({
-    login: "Test_Offline",
-    avatar: "../assets/home/avatar/test-offline.png",
-  }));
 
   let selectedValue = $state("");
   const selectedId = $derived(selectedValue ? Number(selectedValue) : null);
@@ -232,23 +208,6 @@
             <Ellipsis class="text-muted-foreground" aria-label="Options" />
           </Button>
         {/each}
-
-        <!--<div class="flex items-center gap-2 px-1 pt-3 text-xs font-bold tracking-widest text-muted-foreground">
-                    <ChevronDown class="size-4" />
-                    HORS LIGNE ({Friends_Offline_Test.length})
-                </div>
-                {#each Friends_Offline_Test as friend, index (index)}
-                    <Button variant="ghost" class="h-auto justify-start gap-3 px-2 py-1.5 opacity-60 hover:bg-accent/70 hover:opacity-100">
-                        <Avatar.Root class="size-10 grayscale">
-                            <Avatar.Image src={friend.avatar} alt={friend.login} />
-                            <Avatar.Fallback>{friend.login.slice(0, 2)}</Avatar.Fallback>
-                        </Avatar.Root>
-                        <span class="flex min-w-0 flex-col items-start">
-                            <strong class="truncate text-sm">{friend.login}</strong>
-                            <span class="text-xs text-muted-foreground">Hors ligne</span>
-                        </span>
-                    </Button>
-                {/each}-->
       </div>
     </ScrollArea>
 
