@@ -33,6 +33,20 @@ export class GameMap {
     return new GameMap(grid.map((row) => [...row]));
   }
 
+  static fromMatrix(matrix: readonly (readonly number[])[]): GameMap {
+    return GameMap.create(
+      matrix.map((row) =>
+        row.map((value) => {
+          if (value === 0) return null;
+          const owner = value > 0 ? 0 : 1;
+          return Math.abs(value) === 2
+            ? Entity.master(owner)
+            : Entity.student(owner);
+        }),
+      ),
+    );
+  }
+
   static templeArch(playerIndex: number): Position {
     return Position.create({
       row: playerIndex === 0 ? 0 : MAP_SIZE - 1,

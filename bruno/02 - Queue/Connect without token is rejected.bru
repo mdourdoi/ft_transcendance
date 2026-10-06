@@ -16,7 +16,7 @@ auth:bearer {
 
 script:pre-request {
   const socket = require("./lib/socket.js");
-  const baseUrl = bru.getEnvVar("baseUrl");
+  const baseUrl = bru.getVar("baseUrl");
   const result = {};
   try {
     const client = socket.connect(baseUrl);

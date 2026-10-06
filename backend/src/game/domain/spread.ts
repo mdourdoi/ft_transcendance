@@ -23,6 +23,19 @@ export class Spread {
     return new Spread(hands, cards[4]);
   }
 
+  static restore(hands: readonly (readonly Card[])[], neutral: Card): Spread {
+    if (hands.length !== 2 || hands.some((hand) => hand.length !== 2)) {
+      throw new GameError(
+        'INVALID_CARD_COUNT',
+        'Each player must hold exactly 2 cards',
+      );
+    }
+    return new Spread(
+      hands.map((hand) => [...hand]),
+      neutral,
+    );
+  }
+
   private assertPlayer(playerIndex: number): void {
     if (playerIndex !== 0 && playerIndex !== 1) {
       throw new GameError(

@@ -1,7 +1,19 @@
 services:
+  waf:
+    build: ./waf
+    container_name: transcendance-waf
+    restart: unless-stopped
+    ports:
+      - "8443:443"
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - transcendance
+
   db:
     image: postgres:16-alpine
-    container_name: transcendence-db
+    container_name: transcendance-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -15,13 +27,11 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - transcendence
-    ports:
-      - "5432:5432"
+      - transcendance
 
   redis:
     image: redis:7-alpine
-    container_name: transcendence-redis
+    container_name: transcendance-redis
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -29,13 +39,13 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - transcendence
+      - transcendance
     volumes:
       - redis_data:/data
 
   backend:
     build: ./backend
-    container_name: transcendence-backend
+    container_name: transcendance-backend
     restart: unless-stopped
     depends_on:
       db:
@@ -52,6 +62,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       PORT: 3000
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173,http://127.0.0.1:5173}
       SMTP_HOST: ${SMTP_HOST}
       SMTP_PORT: ${SMTP_PORT}
       SMTP_USER: ${SMTP_USER}
@@ -59,23 +70,20 @@ services:
       MAIL_FROM: ${MAIL_FROM}
       APP_URL: ${APP_URL}
     ports:
-      - "3000:3000"
-      - "5555:5555"
+      - "127.0.0.1:5555:5555"
     networks:
-      - transcendence
+      - transcendance
     volumes:
       - avatars:/app/uploads/avatars
 
   frontend:
     build: ./frontend
-    container_name: transcendence-frontend
+    container_name: transcendance-frontend
     restart: unless-stopped
     depends_on:
       - backend
-    ports:
-      - "5173:5173"
     networks:
-      - transcendence
+      - transcendance
     volumes:
       - ./frontend/src:/app/src
       - ./frontend/index.html:/app/index.html
@@ -86,5 +94,5 @@ volumes:
   redis_data:
 
 networks:
-  transcendence:
+  transcendance:
     driver: bridge

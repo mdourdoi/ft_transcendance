@@ -7,6 +7,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
+    "test": "node --test \"dist/test/**/*.spec.js\"",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",
     "lint:check": "eslint \"src/**/*.ts\"",

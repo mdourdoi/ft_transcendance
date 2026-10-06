@@ -1,7 +1,7 @@
 const { io } = require('socket.io-client');
 
-function connect(baseUrl, token) {
-  return io(`${baseUrl}/queue`, {
+function connect(baseUrl, token, namespace = '/queue') {
+  return io(`${baseUrl}${namespace}`, {
     transports: ['websocket'],
     auth: token ? { token } : {},
     reconnection: false,
@@ -30,8 +30,8 @@ function receives(socket, event, timeoutMs) {
   );
 }
 
-async function connectAs(baseUrl, token) {
-  const socket = connect(baseUrl, token);
+async function connectAs(baseUrl, token, namespace) {
+  const socket = connect(baseUrl, token, namespace);
   await waitFor(socket, 'connect');
   return socket;
 }
