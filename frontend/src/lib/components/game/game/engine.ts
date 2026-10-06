@@ -2,7 +2,7 @@ import { GameMap, Position, drawGameCards } from './index';
 import type { Card } from './card';
 
 export type Player = 0 | 1;
-export interface Result { winner: Player; reason: 'capture' | 'temple' | 'abandon' | 'temps'; }
+export interface Result { winner: Player | null; reason: 'capture' | 'temple' | 'abandon' | 'temps' | 'deconnexion' | 'annulation'; }
 export interface GameState { map: GameMap; hands: [Card[], Card[]]; side: Card; turn: Player; history: string[]; result: Result | null; }
 export function createGame(cards: Card[] = drawGameCards()): GameState {
  
