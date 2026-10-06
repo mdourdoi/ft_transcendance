@@ -48,7 +48,7 @@
 				return ;
 			}
 			selectMode('login');
-		} catch (err) {
+		} catch {
 			error = 'NETWORK_ERROR';
 		}
 	}
@@ -75,7 +75,7 @@
 			email = '';
 			token.set(data.accessToken);
 			home();
-		} catch (err) {
+		} catch {
 			error = 'NETWORK_ERROR';
 		}
 	}
@@ -108,7 +108,7 @@
 			token.set(data.accessToken);
 			profilManager.able_two_fa();
 			home();
-		} catch (err) {
+		} catch {
 			error = 'NETWORK_ERROR';
 		}
 	}

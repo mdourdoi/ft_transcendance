@@ -1,5 +1,4 @@
 import { authFetch } from '$lib/auth';
-import { navigate } from "$lib/router";
 
 export class ProfilManager {
     username = $state<string>('');
