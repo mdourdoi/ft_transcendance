@@ -1,4 +1,10 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  ParseIntPipe,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { JwtGuard } from '../auth/jwt.guard.js';
 import { MatchesService } from './matches.service.js';
@@ -7,6 +13,14 @@ import { MatchesService } from './matches.service.js';
 @UseGuards(JwtGuard)
 export class MatchesController {
   constructor(private readonly matchesService: MatchesService) {}
+
+  @Get()
+  history(
+    @CurrentUser('sub') userId: number,
+    @Query('cursor', new ParseIntPipe({ optional: true })) cursor?: number,
+  ) {
+    return this.matchesService.findHistoryForUser(userId, cursor);
+  }
 
   @Get('current')
   async current(@CurrentUser('sub') userId: number) {

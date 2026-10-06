@@ -17,6 +17,8 @@ export interface GameSession {
   clocks: [number, number];
   turnStartedAt: number | null;
   game: GameSnapshot;
+  cards: string[];
+  moves: number[];
   winnerId: number | null;
   endReason: GameEndReason | null;
 }
