@@ -1,18 +1,382 @@
 {
-  "HOME": {
-    "SUBTITLE": "Onitama",
-    "PLAY": "Jouer"
+  "COMMON": {
+    "EYEBROW": "ONITAMA · LE DOJO",
+    "LOADING": "Chargement…",
+    "LOAD_MORE": "Charger plus",
+    "CLOSE": "Fermer",
+    "CANCEL": "Annuler",
+    "QUIT": "Quitter",
+    "BACK": "Retour",
+    "SETTINGS": "Paramètres",
+    "VICTORY": "Victoire",
+    "DEFEAT": "Défaite"
   },
-  "GAME": {
-    "TITLE": "Partie",
-    "BACK": "Retour"
+  "LANGUAGE": {
+    "LABEL": "Langue"
   },
   "NOTFOUND": {
     "MISSING": "introuvable.",
     "HOME": "Accueil"
   },
-  "LANGUAGE": {
-    "LABEL": "Langue"
+  "AUTH": {
+    "LOGIN_TITLE": "Connexion",
+    "REGISTER_TITLE": "Créer un compte",
+    "TWOFA_TITLE": "Validation 2FA",
+    "SUBTITLE": "Retrouvez votre chemin sur le tatami.",
+    "EMAIL": "Email",
+    "PASSWORD": "Mot de passe",
+    "USERNAME": "Nom d’utilisateur",
+    "CODE": "Code",
+    "LOGIN": "Se connecter",
+    "REGISTER": "Créer un compte",
+    "OR": "ou"
+  },
+  "NAV": {
+    "MAIN": "Navigation principale",
+    "HOME": "Accueil",
+    "HISTORY": "Historique",
+    "STATS": "Stats",
+    "PROFILE": "Profil"
+  },
+  "HOME": {
+    "PLAY": "Jouer",
+    "NEWS": "ACTUALITÉS",
+    "NEWS_PREVIOUS": "Actualité précédente",
+    "NEWS_NEXT": "Actualité suivante",
+    "NEWS_ITEM": "Actualité {index}",
+    "NEWS_ITEMS": {
+      "SEASON": {
+        "TITLE": "Nouvelle saison",
+        "TEXT": "De nouveaux défis vous attendent sur le chemin."
+      },
+      "TOURNAMENT": {
+        "TITLE": "Tournoi du temple",
+        "TEXT": "Affrontez les meilleurs disciples du dojo."
+      },
+      "CARDS": {
+        "TITLE": "Nouvelles cartes",
+        "TEXT": "Maîtrisez de nouveaux déplacements."
+      }
+    },
+    "MODES": {
+      "RANKED": "Parties classées",
+      "NORMAL": "Parties normales",
+      "TRAINING": "Défis"
+    },
+    "QUOTE": "Un petit pas déplace un grand destin."
+  },
+  "HISTORY": {
+    "TITLE": "Historique des parties",
+    "SUBTITLE": "Chaque partie laisse une trace.",
+    "FILTER_LABEL": "Filtrer les parties",
+    "FILTERS": {
+      "ALL": "Toutes",
+      "RANKED": "Classées",
+      "NORMAL": "Normales"
+    },
+    "MODES": {
+      "RANKED": "Classée",
+      "NORMAL": "Normale",
+      "TRAINING": "Entraînement"
+    },
+    "QUOTE": "Apprendre d’hier pour mieux jouer demain.",
+    "COLUMNS": {
+      "RESULT": "RÉSULTAT",
+      "MODE": "MODE",
+      "OPPONENT": "ADVERSAIRE",
+      "DURATION": "DURÉE",
+      "DATE": "DATE"
+    },
+    "OPTIONS": "Options de la partie contre {opponent}",
+    "EMPTY": "Aucune partie pour le moment.",
+    "DETAILS": {
+      "TITLE": "Détail de la partie",
+      "MODE": "Mode",
+      "DURATION": "Durée",
+      "END": "Fin de partie",
+      "XP": "XP gagnés",
+      "RATING": "Variation du classement",
+      "MOVES": "Nombre de coups",
+      "UNKNOWN": "Non renseigné"
+    },
+    "END_REASONS": {
+      "WAY_OF_STONE": "Voie de la pierre",
+      "WAY_OF_STREAM": "Voie du ruisseau",
+      "RESIGNATION": "Abandon",
+      "DISCONNECTION": "Déconnexion",
+      "TIMEOUT": "Temps écoulé",
+      "CANCELLED": "Annulée"
+    }
+  },
+  "STATS": {
+    "TITLE": "Statistiques globales",
+    "SUBTITLE": "Un chemin de discipline, une progression sans fin.",
+    "SUMMARY": {
+      "GAMES": "Parties jouées",
+      "WINS": "Victoires",
+      "LOSSES": "Défaites",
+      "WINRATE": "Taux de victoire"
+    },
+    "MODES": {
+      "RANKED": "Classées",
+      "NORMAL": "Normales",
+      "CHALLENGE": "Défis",
+      "EVENT": "Événements"
+    },
+    "BY_MODE": "Répartition par mode de jeu",
+    "RANK_PROGRESS": "Évolution du rang",
+    "LAST_6_MONTHS": "6 derniers mois",
+    "RANK": "Rang",
+    "RANKS": {
+      "NOVICE": "Novice",
+      "DISCIPLE": "Disciple",
+      "ADEPT": "Adepte",
+      "EXPERT": "Expert",
+      "MASTER": "Maître"
+    },
+    "PERFORMANCE": "Performance",
+    "PEAK": "Pic",
+    "MOST_PLAYED_CARDS": "Cartes les plus jouées",
+    "FREQUENT_OPPONENTS": "Adversaires fréquents",
+    "GAMES_COUNT": "{count} parties",
+    "HOURLY": "Performance par heure",
+    "QUOTE": "Chaque partie est une leçon."
+  },
+  "PROFILE": {
+    "TITLE": "Mon Profil",
+    "SUBTITLE": "Montre ton style et ta patience",
+    "SECTIONS_LABEL": "Rubriques du profil",
+    "SECTIONS": {
+      "OVERVIEW": "Vue d’ensemble",
+      "ACHIEVEMENTS": "Succès",
+      "CUSTOMIZATION": "Personnaliser",
+      "SETTINGS": "Paramètres"
+    },
+    "QUOTE": "La maîtrise de soi mène à la victoire.",
+    "IDENTITY": "Identité et niveau",
+    "AVATAR_ALT": "Avatar de {name}",
+    "CHANGE_PHOTO": "Changer la photo",
+    "CHANGE_AVATAR": "Changer l’avatar",
+    "EDIT_NAME": "Modifier le nom",
+    "EDIT_TITLE": "Modifier le titre",
+    "DEFAULT_TITLE": "Disciple du vent",
+    "DEFAULT_QUOTE": "Le calme est ma force.",
+    "LEVEL": "NIVEAU",
+    "LEVEL_PROGRESS": "Progression du niveau",
+    "NEXT_LEVEL": "Niveau suivant : {level}",
+    "ACHIEVEMENTS": {
+      "HEADING": "Succès de partie",
+      "UNLOCKED": "{count} / {total} débloqués",
+      "SEE_ALL": "Voir tous",
+      "ITEMS": {
+        "FIRST_STEP": {
+          "TITLE": "Premier pas",
+          "DESCRIPTION": "Remporter une partie."
+        },
+        "TIGER_SPIRIT": {
+          "TITLE": "Esprit du tigre",
+          "DESCRIPTION": "Gagner 10 parties."
+        },
+        "TEMPLE_WAY": {
+          "TITLE": "Voie du temple",
+          "DESCRIPTION": "Gagner par le temple."
+        },
+        "PERFECT_STREAK": {
+          "TITLE": "Série parfaite",
+          "DESCRIPTION": "4 / 5 victoires consécutives."
+        },
+        "HUNDRED_WINS": {
+          "TITLE": "Cent victoires",
+          "DESCRIPTION": "73 / 100 victoires."
+        },
+        "DOJO_MASTER": {
+          "TITLE": "Maître du dojo",
+          "DESCRIPTION": "Atteindre le niveau 50."
+        }
+      }
+    },
+    "CUSTOMIZATION": {
+      "HEADING": "Personnalisation",
+      "AVATAR": "Avatar",
+      "AVATAR_HINT": "Modifiez votre avatar de profil.",
+      "FRAME": "Cadre",
+      "FRAME_HINT": "Choisissez un cadre pour votre avatar.",
+      "TITLE": "Titre",
+      "TITLE_HINT": "Affichez votre titre favori.",
+      "CUSTOMIZE": "Personnaliser",
+      "QUOTE": "L’apparence suit l’esprit."
+    },
+    "SETTINGS": {
+      "HEADING": "Paramètres",
+      "DESCRIPTION": "Ton compte, ton ambiance, ton jeu",
+      "SUMMARY": "Compte et sécurité, musique, bruitages et confort de jeu.",
+      "OPEN": "Ouvrir les paramètres",
+      "ACCOUNT": "Compte",
+      "NICKNAME": "Pseudo",
+      "USERNAME": "Nom d’utilisateur",
+      "SAVE_USERNAME": "Enregistrer le pseudo",
+      "PASSWORD": "Mot de passe",
+      "CURRENT_PASSWORD": "Mot de passe actuel",
+      "NEW_PASSWORD": "Nouveau mot de passe",
+      "PASSWORD_HINT": "12 à 128 caractères. Les règles du serveur restent applicables.",
+      "CONFIRM_PASSWORD": "Confirmer le nouveau mot de passe",
+      "CHANGE_PASSWORD": "Changer le mot de passe",
+      "TWOFA": {
+        "HEADING": "Double authentification · 2FA",
+        "SCAN": "Scannez ce QR code avec votre application d’authentification :",
+        "QR_ALT": "Code QR pour la double authentification",
+        "CODE": "Code 2FA",
+        "VALIDATE": "Valider",
+        "PROTECT": "Protégez votre compte avec la 2FA.",
+        "ENABLE": "Activer",
+        "ENABLED": "La double authentification est activée sur votre compte.",
+        "DISABLE_LABEL": "Entrez votre code 2FA pour désactiver",
+        "DISABLE": "Désactiver"
+      },
+      "RESET": "Réinitialiser les préférences audio et jeu",
+      "RESET_HINT": "Les réglages de compte et de sécurité sont conservés."
+    }
+  },
+  "FRIENDS": {
+    "STATUS": {
+      "ONLINE": "En ligne",
+      "IN_GAME": "En jeu",
+      "AWAY": "Absent",
+      "OFFLINE": "Hors ligne"
+    },
+    "SEARCH_PLACEHOLDER": "Rechercher un ami...",
+    "SEARCH": "Rechercher",
+    "HEADING": "AMIS ({count})",
+    "OPTIONS": "Options",
+    "REQUESTS": "DEMANDES",
+    "NO_REQUESTS": "Aucune demande en attente",
+    "ACCEPT": "Accepter",
+    "DENY": "Refuser",
+    "MESSAGES": "Messages",
+    "ADD_FRIEND": "Ajouter un ami",
+    "LOGOUT": "Déconnexion",
+    "ADD_CONTACT": "Ajouter un contact",
+    "MESSAGING": "Messagerie",
+    "CHOOSE_FRIEND": "Choisir un ami",
+    "CHOOSE_CONTACT": "Choisis un contact…",
+    "REFRESH": "Actualiser",
+    "MESSAGE_HISTORY": "Historique des messages",
+    "YOUR_MESSAGE": "Ton message",
+    "MESSAGE_PLACEHOLDER": "Écris ton message…",
+    "SEND": "Envoyer",
+    "SELECT_FRIEND": "Sélectionne un ami pour ouvrir sa conversation.",
+    "CONTACT_USERNAME": "Pseudo du contact",
+    "ADD": "Ajouter"
+  },
+  "GAME": {
+    "HEAD_TITLE": "Onitama · Partie locale",
+    "HEAD_DESCRIPTION": "Onitama : une partie locale à deux, dans un dojo à l’encre japonaise.",
+    "TITLES": {
+      "LOCAL": "PARTIE LOCALE",
+      "RANKED": "PARTIE CLASSÉE",
+      "NORMAL": "PARTIE NORMALE"
+    },
+    "TAGLINE": "Un esprit calme, un mouvement juste.",
+    "MENU_LABEL": "Menu de la partie",
+    "IN_PROGRESS": "Partie en cours",
+    "RULES": "Règles du jeu",
+    "PREVIOUS_MOVE": "Coup précédent",
+    "NEXT_MOVE": "Coup suivant",
+    "MOVE_COUNTER": "Coup {step}/{total}",
+    "BACK_TO_LIVE": "Revenir au direct",
+    "PLAYER": "Joueur {name}",
+    "NORTH": "Nord",
+    "SOUTH": "Sud",
+    "RED": "Rouge",
+    "BLACK": "Noir",
+    "CLOCK": "Temps de {name} : {time}",
+    "CARDS_IN_HAND": "Cartes en main",
+    "OPPONENT_TURN": "Tour de l’adversaire",
+    "YOUR_TURN": "À toi de jouer",
+    "BOARD": "Plateau de jeu",
+    "BOARD_LABEL": "Plateau Onitama",
+    "CARD": "Carte {name}",
+    "CARD_MOVES": "Déplacements orientés comme le plateau",
+    "EXCHANGE_LABEL": "Carte en échange",
+    "EXCHANGE_TITLE": "Carte du maître · Échange",
+    "SHOW_RESULT": "Voir le résultat",
+    "CHOOSE_DESTINATION": "Choisis une destination valide.",
+    "CHOOSE_CARD": "Choisis une carte, puis une de tes pièces.",
+    "VALID_MOVE": "Déplacement valide",
+    "CAPTURE": "Capture possible",
+    "OPPONENT_AWAY": "Adversaire déconnecté — forfait dans 30 s s’il ne revient pas.",
+    "CLOCK_STARTS": "Le chrono démarre au premier coup.",
+    "PASS": "Passer et échanger",
+    "RESIGN": "Abandonner",
+    "FOOTER": "Onitama — Un chemin de discipline, une victoire d’esprit",
+    "ME": "Moi",
+    "OPPONENT": "Adversaire",
+    "OUTCOME": {
+      "CANCELLED": "Partie annulée",
+      "WINNER": "{name} remporte la partie"
+    },
+    "VERDICT": {
+      "OVER": "Partie terminée",
+      "WIN": "Victoire !",
+      "LOSS": "Défaite"
+    },
+    "STATUS": {
+      "WAITING_OPPONENT": "En attente de l’adversaire…",
+      "SEARCHING": "Recherche d’un adversaire…",
+      "REVIEW": "Relecture · coup {step}/{total}",
+      "TURN": "À {name} de jouer"
+    },
+    "MODALS": {
+      "RULES": "Règles du dojo",
+      "RESIGN": "Abandonner la partie ?",
+      "EXIT": "Quitter le dojo ?"
+    },
+    "REASONS": {
+      "CAPTURE": "Le maître adverse a été capturé.",
+      "TEMPLE": "Le temple adverse a été atteint.",
+      "ABANDON": "Victoire par abandon.",
+      "TEMPS": "Le temps adverse est écoulé.",
+      "DECONNEXION": "Victoire par déconnexion de l’adversaire.",
+      "ANNULATION": "La partie a été annulée."
+    },
+    "RULES_LIST": {
+      "1": "Deux joueurs partagent cet écran. Sud joue les pièces noires, Nord les rouges.",
+      "2": "Sélectionne une carte puis une de tes pièces. Les points indiquent les destinations possibles.",
+      "3": "Les mini-grilles sont orientées comme le plateau : celles du Nord sont retournées. Le carré sombre représente ta pièce.",
+      "4": "Une pièce ennemie sur la destination est capturée. Tu ne peux pas prendre tes propres pièces.",
+      "5": "La carte jouée est échangée avec celle du centre, puis le tour change.",
+      "6": "Gagne en capturant le maître adverse ou en amenant ton maître dans le temple adverse.",
+      "7": "Si aucun coup n’est possible avec tes deux cartes, tu dois passer et échanger une carte."
+    },
+    "NEW_GAME": "Nouvelle partie",
+    "VIEW_BOARD": "Voir le plateau",
+    "SHOW_HINTS": "Afficher les destinations possibles",
+    "NEXT_DURATION": "Durée de la prochaine partie",
+    "DURATION_HINT": "La durée choisie s’appliquera à la prochaine partie. Les chronomètres continuent pendant l’ouverture des menus.",
+    "RESIGN_TEXT": "{name}, ton adversaire remportera la partie.",
+    "CONFIRM_RESIGN": "Confirmer l’abandon",
+    "NOT_SAVED": "La partie locale ne sera pas sauvegardée.",
+    "BACK_TO_LAUNCHER": "Retour au launcher",
+    "EXIT_PLAYING": "Si tu quittes en pleine partie, tu la perdras par forfait au bout de 30 secondes.",
+    "EXIT_IDLE": "Tu vas quitter le dojo."
+  },
+  "CARDS": {
+    "TIGER": "Tigre",
+    "DRAGON": "Dragon",
+    "FROG": "Grenouille",
+    "RABBIT": "Lapin",
+    "CRAB": "Crabe",
+    "ELEPHANT": "Éléphant",
+    "GOOSE": "Oie",
+    "ROOSTER": "Coq",
+    "MONKEY": "Singe",
+    "MANTIS": "Mante",
+    "HORSE": "Cheval",
+    "OX": "Buffle",
+    "CRANE": "Grue",
+    "BOAR": "Sanglier",
+    "EEL": "Anguille",
+    "COBRA": "Serpent"
   },
   "ERRORS": {
     "EMPTY_FIELDS": "Veuillez remplir tous les champs",
@@ -40,6 +404,18 @@
     "FORBIDDEN_CONVERSATION": "Vous n'avez pas accès à cette conversation",
     "EMPTY_MESSAGE": "Le message ne peut pas être vide",
     "INVALID_MESSAGE": "Message invalide (1024 caractères max)",
-    "INVALID_CONVERSATION_ID": "Conversation invalide"
+    "INVALID_CONVERSATION_ID": "Conversation invalide",
+    "NOT_CONNECTED": "Tu n’es pas connecté au serveur",
+    "NOT_YOUR_TURN": "Ce n’est pas ton tour.",
+    "GAME_NOT_STARTED": "La partie n’a pas encore commencé.",
+    "GAME_OVER": "La partie est terminée.",
+    "GAME_BUSY": "Le serveur est occupé, réessaie.",
+    "MATCH_NOT_FOUND": "Partie introuvable.",
+    "MATCH_NOT_ACTIVE": "Cette partie est terminée.",
+    "NOT_IN_MATCH": "Tu ne participes pas à cette partie.",
+    "ALREADY_IN_MATCH": "Tu as déjà une partie en cours.",
+    "FORBIDDEN_MOVE": "Déplacement interdit.",
+    "SELECT_CARD": "Sélectionne une carte.",
+    "MOVE_AVAILABLE": "Il reste un déplacement possible."
   }
 }

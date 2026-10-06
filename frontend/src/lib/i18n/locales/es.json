@@ -1,0 +1,421 @@
+{
+  "COMMON": {
+    "EYEBROW": "ONITAMA · EL DOJO",
+    "LOADING": "Cargando…",
+    "LOAD_MORE": "Cargar más",
+    "CLOSE": "Cerrar",
+    "CANCEL": "Cancelar",
+    "QUIT": "Salir",
+    "BACK": "Volver",
+    "SETTINGS": "Ajustes",
+    "VICTORY": "Victoria",
+    "DEFEAT": "Derrota"
+  },
+  "LANGUAGE": {
+    "LABEL": "Idioma"
+  },
+  "NOTFOUND": {
+    "MISSING": "no encontrado.",
+    "HOME": "Inicio"
+  },
+  "AUTH": {
+    "LOGIN_TITLE": "Iniciar sesión",
+    "REGISTER_TITLE": "Crear una cuenta",
+    "TWOFA_TITLE": "Verificación 2FA",
+    "SUBTITLE": "Reencuentra tu camino en el tatami.",
+    "EMAIL": "Correo electrónico",
+    "PASSWORD": "Contraseña",
+    "USERNAME": "Nombre de usuario",
+    "CODE": "Código",
+    "LOGIN": "Iniciar sesión",
+    "REGISTER": "Crear una cuenta",
+    "OR": "o"
+  },
+  "NAV": {
+    "MAIN": "Navegación principal",
+    "HOME": "Inicio",
+    "HISTORY": "Historial",
+    "STATS": "Estadísticas",
+    "PROFILE": "Perfil"
+  },
+  "HOME": {
+    "PLAY": "Jugar",
+    "NEWS": "NOTICIAS",
+    "NEWS_PREVIOUS": "Noticia anterior",
+    "NEWS_NEXT": "Noticia siguiente",
+    "NEWS_ITEM": "Noticia {index}",
+    "NEWS_ITEMS": {
+      "SEASON": {
+        "TITLE": "Nueva temporada",
+        "TEXT": "Nuevos desafíos te esperan en el camino."
+      },
+      "TOURNAMENT": {
+        "TITLE": "Torneo del templo",
+        "TEXT": "Enfréntate a los mejores discípulos del dojo."
+      },
+      "CARDS": {
+        "TITLE": "Nuevas cartas",
+        "TEXT": "Domina nuevos movimientos."
+      }
+    },
+    "MODES": {
+      "RANKED": "Partidas clasificatorias",
+      "NORMAL": "Partidas normales",
+      "TRAINING": "Desafíos"
+    },
+    "QUOTE": "Un pequeño paso mueve un gran destino."
+  },
+  "HISTORY": {
+    "TITLE": "Historial de partidas",
+    "SUBTITLE": "Cada partida deja una huella.",
+    "FILTER_LABEL": "Filtrar partidas",
+    "FILTERS": {
+      "ALL": "Todas",
+      "RANKED": "Clasificatorias",
+      "NORMAL": "Normales"
+    },
+    "MODES": {
+      "RANKED": "Clasificatoria",
+      "NORMAL": "Normal",
+      "TRAINING": "Entrenamiento"
+    },
+    "QUOTE": "Aprender de ayer para jugar mejor mañana.",
+    "COLUMNS": {
+      "RESULT": "RESULTADO",
+      "MODE": "MODO",
+      "OPPONENT": "RIVAL",
+      "DURATION": "DURACIÓN",
+      "DATE": "FECHA"
+    },
+    "OPTIONS": "Opciones de la partida contra {opponent}",
+    "EMPTY": "Ninguna partida por ahora.",
+    "DETAILS": {
+      "TITLE": "Detalle de la partida",
+      "MODE": "Modo",
+      "DURATION": "Duración",
+      "END": "Fin de la partida",
+      "XP": "XP ganados",
+      "RATING": "Variación de la clasificación",
+      "MOVES": "Número de jugadas",
+      "UNKNOWN": "Sin especificar"
+    },
+    "END_REASONS": {
+      "WAY_OF_STONE": "Camino de la piedra",
+      "WAY_OF_STREAM": "Camino del arroyo",
+      "RESIGNATION": "Abandono",
+      "DISCONNECTION": "Desconexión",
+      "TIMEOUT": "Tiempo agotado",
+      "CANCELLED": "Cancelada"
+    }
+  },
+  "STATS": {
+    "TITLE": "Estadísticas globales",
+    "SUBTITLE": "Un camino de disciplina, una progresión sin fin.",
+    "SUMMARY": {
+      "GAMES": "Partidas jugadas",
+      "WINS": "Victorias",
+      "LOSSES": "Derrotas",
+      "WINRATE": "Porcentaje de victorias"
+    },
+    "MODES": {
+      "RANKED": "Clasificatorias",
+      "NORMAL": "Normales",
+      "CHALLENGE": "Desafíos",
+      "EVENT": "Eventos"
+    },
+    "BY_MODE": "Reparto por modo de juego",
+    "RANK_PROGRESS": "Evolución del rango",
+    "LAST_6_MONTHS": "Últimos 6 meses",
+    "RANK": "Rango",
+    "RANKS": {
+      "NOVICE": "Novato",
+      "DISCIPLE": "Discípulo",
+      "ADEPT": "Adepto",
+      "EXPERT": "Experto",
+      "MASTER": "Maestro"
+    },
+    "PERFORMANCE": "Rendimiento",
+    "PEAK": "Pico",
+    "MOST_PLAYED_CARDS": "Cartas más jugadas",
+    "FREQUENT_OPPONENTS": "Rivales frecuentes",
+    "GAMES_COUNT": "{count} partidas",
+    "HOURLY": "Rendimiento por hora",
+    "QUOTE": "Cada partida es una lección."
+  },
+  "PROFILE": {
+    "TITLE": "Mi perfil",
+    "SUBTITLE": "Muestra tu estilo y tu paciencia",
+    "SECTIONS_LABEL": "Secciones del perfil",
+    "SECTIONS": {
+      "OVERVIEW": "Resumen",
+      "ACHIEVEMENTS": "Logros",
+      "CUSTOMIZATION": "Personalizar",
+      "SETTINGS": "Ajustes"
+    },
+    "QUOTE": "El dominio de uno mismo conduce a la victoria.",
+    "IDENTITY": "Identidad y nivel",
+    "AVATAR_ALT": "Avatar de {name}",
+    "CHANGE_PHOTO": "Cambiar la foto",
+    "CHANGE_AVATAR": "Cambiar el avatar",
+    "EDIT_NAME": "Editar el nombre",
+    "EDIT_TITLE": "Editar el título",
+    "DEFAULT_TITLE": "Discípulo del viento",
+    "DEFAULT_QUOTE": "La calma es mi fuerza.",
+    "LEVEL": "NIVEL",
+    "LEVEL_PROGRESS": "Progreso del nivel",
+    "NEXT_LEVEL": "Siguiente nivel: {level}",
+    "ACHIEVEMENTS": {
+      "HEADING": "Logros de partida",
+      "UNLOCKED": "{count} / {total} desbloqueados",
+      "SEE_ALL": "Ver todos",
+      "ITEMS": {
+        "FIRST_STEP": {
+          "TITLE": "Primer paso",
+          "DESCRIPTION": "Gana una partida."
+        },
+        "TIGER_SPIRIT": {
+          "TITLE": "Espíritu del tigre",
+          "DESCRIPTION": "Gana 10 partidas."
+        },
+        "TEMPLE_WAY": {
+          "TITLE": "Camino del templo",
+          "DESCRIPTION": "Gana por el templo."
+        },
+        "PERFECT_STREAK": {
+          "TITLE": "Racha perfecta",
+          "DESCRIPTION": "4 / 5 victorias consecutivas."
+        },
+        "HUNDRED_WINS": {
+          "TITLE": "Cien victorias",
+          "DESCRIPTION": "73 / 100 victorias."
+        },
+        "DOJO_MASTER": {
+          "TITLE": "Maestro del dojo",
+          "DESCRIPTION": "Alcanza el nivel 50."
+        }
+      }
+    },
+    "CUSTOMIZATION": {
+      "HEADING": "Personalización",
+      "AVATAR": "Avatar",
+      "AVATAR_HINT": "Cambia tu avatar de perfil.",
+      "FRAME": "Marco",
+      "FRAME_HINT": "Elige un marco para tu avatar.",
+      "TITLE": "Título",
+      "TITLE_HINT": "Muestra tu título favorito.",
+      "CUSTOMIZE": "Personalizar",
+      "QUOTE": "La apariencia sigue al espíritu."
+    },
+    "SETTINGS": {
+      "HEADING": "Ajustes",
+      "DESCRIPTION": "Tu cuenta, tu ambiente, tu juego",
+      "SUMMARY": "Cuenta y seguridad, música, efectos de sonido y comodidad de juego.",
+      "OPEN": "Abrir los ajustes",
+      "ACCOUNT": "Cuenta",
+      "NICKNAME": "Apodo",
+      "USERNAME": "Nombre de usuario",
+      "SAVE_USERNAME": "Guardar el apodo",
+      "PASSWORD": "Contraseña",
+      "CURRENT_PASSWORD": "Contraseña actual",
+      "NEW_PASSWORD": "Nueva contraseña",
+      "PASSWORD_HINT": "De 12 a 128 caracteres. Las reglas del servidor siguen aplicándose.",
+      "CONFIRM_PASSWORD": "Confirmar la nueva contraseña",
+      "CHANGE_PASSWORD": "Cambiar la contraseña",
+      "TWOFA": {
+        "HEADING": "Autenticación en dos pasos · 2FA",
+        "SCAN": "Escanea este código QR con tu aplicación de autenticación:",
+        "QR_ALT": "Código QR para la autenticación en dos pasos",
+        "CODE": "Código 2FA",
+        "VALIDATE": "Validar",
+        "PROTECT": "Protege tu cuenta con la 2FA.",
+        "ENABLE": "Activar",
+        "ENABLED": "La autenticación en dos pasos está activada en tu cuenta.",
+        "DISABLE_LABEL": "Introduce tu código 2FA para desactivarla",
+        "DISABLE": "Desactivar"
+      },
+      "RESET": "Restablecer las preferencias de audio y juego",
+      "RESET_HINT": "Los ajustes de cuenta y seguridad se conservan."
+    }
+  },
+  "FRIENDS": {
+    "STATUS": {
+      "ONLINE": "En línea",
+      "IN_GAME": "En partida",
+      "AWAY": "Ausente",
+      "OFFLINE": "Desconectado"
+    },
+    "SEARCH_PLACEHOLDER": "Buscar un amigo...",
+    "SEARCH": "Buscar",
+    "HEADING": "AMIGOS ({count})",
+    "OPTIONS": "Opciones",
+    "REQUESTS": "SOLICITUDES",
+    "NO_REQUESTS": "Ninguna solicitud pendiente",
+    "ACCEPT": "Aceptar",
+    "DENY": "Rechazar",
+    "MESSAGES": "Mensajes",
+    "ADD_FRIEND": "Añadir un amigo",
+    "LOGOUT": "Cerrar sesión",
+    "ADD_CONTACT": "Añadir un contacto",
+    "MESSAGING": "Mensajería",
+    "CHOOSE_FRIEND": "Elegir un amigo",
+    "CHOOSE_CONTACT": "Elige un contacto…",
+    "REFRESH": "Actualizar",
+    "MESSAGE_HISTORY": "Historial de mensajes",
+    "YOUR_MESSAGE": "Tu mensaje",
+    "MESSAGE_PLACEHOLDER": "Escribe tu mensaje…",
+    "SEND": "Enviar",
+    "SELECT_FRIEND": "Selecciona un amigo para abrir su conversación.",
+    "CONTACT_USERNAME": "Apodo del contacto",
+    "ADD": "Añadir"
+  },
+  "GAME": {
+    "HEAD_TITLE": "Onitama · Partida local",
+    "HEAD_DESCRIPTION": "Onitama: una partida local para dos, en un dojo de tinta japonesa.",
+    "TITLES": {
+      "LOCAL": "PARTIDA LOCAL",
+      "RANKED": "PARTIDA CLASIFICATORIA",
+      "NORMAL": "PARTIDA NORMAL"
+    },
+    "TAGLINE": "Una mente tranquila, un movimiento justo.",
+    "MENU_LABEL": "Menú de la partida",
+    "IN_PROGRESS": "Partida en curso",
+    "RULES": "Reglas del juego",
+    "PREVIOUS_MOVE": "Jugada anterior",
+    "NEXT_MOVE": "Jugada siguiente",
+    "MOVE_COUNTER": "Jugada {step}/{total}",
+    "BACK_TO_LIVE": "Volver al directo",
+    "PLAYER": "Jugador {name}",
+    "NORTH": "Norte",
+    "SOUTH": "Sur",
+    "RED": "Rojo",
+    "BLACK": "Negro",
+    "CLOCK": "Tiempo de {name}: {time}",
+    "CARDS_IN_HAND": "Cartas en mano",
+    "OPPONENT_TURN": "Turno del rival",
+    "YOUR_TURN": "Te toca jugar",
+    "BOARD": "Tablero de juego",
+    "BOARD_LABEL": "Tablero de Onitama",
+    "CARD": "Carta {name}",
+    "CARD_MOVES": "Movimientos orientados como el tablero",
+    "EXCHANGE_LABEL": "Carta de intercambio",
+    "EXCHANGE_TITLE": "Carta del maestro · Intercambio",
+    "SHOW_RESULT": "Ver el resultado",
+    "CHOOSE_DESTINATION": "Elige un destino válido.",
+    "CHOOSE_CARD": "Elige una carta y luego una de tus piezas.",
+    "VALID_MOVE": "Movimiento válido",
+    "CAPTURE": "Captura posible",
+    "OPPONENT_AWAY": "Rival desconectado — pierde en 30 s si no vuelve.",
+    "CLOCK_STARTS": "El reloj empieza con la primera jugada.",
+    "PASS": "Pasar e intercambiar",
+    "RESIGN": "Abandonar",
+    "FOOTER": "Onitama — Un camino de disciplina, una victoria de la mente",
+    "ME": "Yo",
+    "OPPONENT": "Rival",
+    "OUTCOME": {
+      "CANCELLED": "Partida cancelada",
+      "WINNER": "{name} gana la partida"
+    },
+    "VERDICT": {
+      "OVER": "Partida terminada",
+      "WIN": "¡Victoria!",
+      "LOSS": "Derrota"
+    },
+    "STATUS": {
+      "WAITING_OPPONENT": "Esperando al rival…",
+      "SEARCHING": "Buscando un rival…",
+      "REVIEW": "Repetición · jugada {step}/{total}",
+      "TURN": "Turno de {name}"
+    },
+    "MODALS": {
+      "RULES": "Reglas del dojo",
+      "RESIGN": "¿Abandonar la partida?",
+      "EXIT": "¿Salir del dojo?"
+    },
+    "REASONS": {
+      "CAPTURE": "El maestro rival ha sido capturado.",
+      "TEMPLE": "Se ha alcanzado el templo rival.",
+      "ABANDON": "Victoria por abandono.",
+      "TEMPS": "El tiempo del rival se ha agotado.",
+      "DECONNEXION": "Victoria por desconexión del rival.",
+      "ANNULATION": "La partida ha sido cancelada."
+    },
+    "RULES_LIST": {
+      "1": "Dos jugadores comparten esta pantalla. Sur juega con las piezas negras, Norte con las rojas.",
+      "2": "Selecciona una carta y luego una de tus piezas. Los puntos indican los destinos posibles.",
+      "3": "Las minicuadrículas están orientadas como el tablero: las del Norte están invertidas. El cuadrado oscuro representa tu pieza.",
+      "4": "Una pieza enemiga en el destino es capturada. No puedes capturar tus propias piezas.",
+      "5": "La carta jugada se intercambia con la del centro y luego cambia el turno.",
+      "6": "Gana capturando al maestro rival o llevando a tu maestro al templo rival.",
+      "7": "Si no hay ninguna jugada posible con tus dos cartas, debes pasar e intercambiar una carta."
+    },
+    "NEW_GAME": "Nueva partida",
+    "VIEW_BOARD": "Ver el tablero",
+    "SHOW_HINTS": "Mostrar los destinos posibles",
+    "NEXT_DURATION": "Duración de la próxima partida",
+    "DURATION_HINT": "La duración elegida se aplicará a la próxima partida. Los relojes siguen corriendo mientras los menús están abiertos.",
+    "RESIGN_TEXT": "{name}, tu rival ganará la partida.",
+    "CONFIRM_RESIGN": "Confirmar el abandono",
+    "NOT_SAVED": "La partida local no se guardará.",
+    "BACK_TO_LAUNCHER": "Volver al lanzador",
+    "EXIT_PLAYING": "Si sales en plena partida, la perderás por abandono al cabo de 30 segundos.",
+    "EXIT_IDLE": "Vas a salir del dojo."
+  },
+  "CARDS": {
+    "TIGER": "Tigre",
+    "DRAGON": "Dragón",
+    "FROG": "Rana",
+    "RABBIT": "Conejo",
+    "CRAB": "Cangrejo",
+    "ELEPHANT": "Elefante",
+    "GOOSE": "Ganso",
+    "ROOSTER": "Gallo",
+    "MONKEY": "Mono",
+    "MANTIS": "Mantis",
+    "HORSE": "Caballo",
+    "OX": "Buey",
+    "CRANE": "Grulla",
+    "BOAR": "Jabalí",
+    "EEL": "Anguila",
+    "COBRA": "Cobra"
+  },
+  "ERRORS": {
+    "EMPTY_FIELDS": "Por favor, rellena todos los campos",
+    "NETWORK_ERROR": "No se puede contactar con el servidor, inténtalo más tarde",
+    "UNKNOWN_ERROR": "Se ha producido un error",
+    "INVALID_CREDENTIALS": "Credenciales incorrectas",
+    "INVALID_TOKEN": "Sesión caducada, vuelve a iniciar sesión",
+    "USERNAME_OR_EMAIL_ALREADY_TAKEN": "Este nombre de usuario o correo ya está en uso",
+    "WEAK_PASSWORD": "La contraseña debe tener al menos 8 caracteres con una mayúscula, una minúscula, un dígito y un símbolo",
+    "INVALID_USERNAME": "El nombre de usuario debe tener de 3 a 24 caracteres, solo letras y dígitos",
+    "INVALID_EMAIL": "Dirección de correo no válida",
+    "NO_DATA_UPDATED": "No hay cambios que guardar",
+    "PASSWORD_UNCHANGED": "La nueva contraseña debe ser distinta de la anterior",
+    "SAME_USERNAME": "El nuevo nombre de usuario es igual al anterior",
+    "NOTE_SAME_PASSWORD": "Las dos contraseñas no coinciden",
+    "INVALID_FILE_TYPE": "La imagen debe ser PNG o JPEG (2 MB máx.)",
+    "MISSING_FILE": "Ningún archivo seleccionado",
+    "TWOFA_CODE_REQUIRED": "Se requiere un código 2FA",
+    "INVALID_TWOFA_CODE": "Código 2FA incorrecto",
+    "TWOFA_ALREADY_ENABLED": "La 2FA ya está activada",
+    "TWOFA_NOT_ENABLED": "La 2FA no está activada",
+    "TWOFA_NOT_INITIALIZED": "Inicia primero la configuración de la 2FA",
+    "IMPOSSIBLE_REQUEST": "Esta acción no es posible",
+    "USER_NOT_FOUND": "Usuario no encontrado",
+    "FORBIDDEN_CONVERSATION": "No tienes acceso a esta conversación",
+    "EMPTY_MESSAGE": "El mensaje no puede estar vacío",
+    "INVALID_MESSAGE": "Mensaje no válido (1024 caracteres máx.)",
+    "INVALID_CONVERSATION_ID": "Conversación no válida",
+    "NOT_CONNECTED": "No estás conectado al servidor",
+    "NOT_YOUR_TURN": "No es tu turno.",
+    "GAME_NOT_STARTED": "La partida aún no ha empezado.",
+    "GAME_OVER": "La partida ha terminado.",
+    "GAME_BUSY": "El servidor está ocupado, inténtalo de nuevo.",
+    "MATCH_NOT_FOUND": "Partida no encontrada.",
+    "MATCH_NOT_ACTIVE": "Esta partida ha terminado.",
+    "NOT_IN_MATCH": "No participas en esta partida.",
+    "ALREADY_IN_MATCH": "Ya tienes una partida en curso.",
+    "FORBIDDEN_MOVE": "Movimiento no permitido.",
+    "SELECT_CARD": "Selecciona una carta.",
+    "MOVE_AVAILABLE": "Todavía queda un movimiento posible."
+  }
+}
