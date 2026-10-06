@@ -7,10 +7,15 @@ import {
   QueueMode,
 } from '../generated/prisma/client.js';
 import { ErrorCode } from '../common/error-codes.js';
+import { DEFAULT_AVATAR_FILENAME } from '../constants.js';
+import { decodeReplay } from '../game/domain/index.js';
+import { MatchHistoryPageDto } from './dto/match-history.dto.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 const RATING_K_FACTOR = 32;
 const MIN_RATING = 0;
+const HISTORY_PAGE_SIZE = 25;
+const OPPONENT_SELECT = { id: true, username: true, avatarUrl: true };
 
 @Injectable()
 export class MatchesService {
@@ -36,6 +41,50 @@ export class MatchesService {
     });
   }
 
+  async findHistoryForUser(
+    userId: number,
+    cursor?: number,
+  ): Promise<MatchHistoryPageDto> {
+    const rows = await this.prisma.match.findMany({
+      where: {
+        status: MatchStatus.FINISHED,
+        OR: [{ playerOneId: userId }, { playerTwoId: userId }],
+      },
+      orderBy: [{ finishedAt: 'desc' }, { id: 'desc' }],
+      take: HISTORY_PAGE_SIZE + 1,
+      ...(cursor !== undefined && { cursor: { id: cursor }, skip: 1 }),
+      include: {
+        playerOne: { select: OPPONENT_SELECT },
+        playerTwo: { select: OPPONENT_SELECT },
+      },
+    });
+    const page = rows.slice(0, HISTORY_PAGE_SIZE);
+    const matches = page.map((match) => {
+      const playerIndex = match.playerOneId === userId ? 0 : 1;
+      const opponent = playerIndex === 0 ? match.playerTwo : match.playerOne;
+      return {
+        id: match.id,
+        mode: match.mode,
+        endReason: match.endReason,
+        ratingDelta: match.ratingDelta,
+        createdAt: match.createdAt,
+        finishedAt: match.finishedAt,
+        playerIndex,
+        won: match.winnerId === userId,
+        opponent: {
+          ...opponent,
+          avatarUrl: opponent.avatarUrl ?? DEFAULT_AVATAR_FILENAME,
+        },
+        replay: match.replay ? decodeReplay(match.replay) : null,
+      };
+    });
+    return {
+      matches,
+      nextCursor:
+        rows.length > HISTORY_PAGE_SIZE ? page[page.length - 1].id : null,
+    };
+  }
+
   findActiveCreatedBefore(date: Date): Promise<Match[]> {
     return this.prisma.match.findMany({
       where: { status: MatchStatus.ACTIVE, createdAt: { lt: date } },
@@ -46,6 +95,7 @@ export class MatchesService {
     matchId: number,
     winnerId: number,
     endReason: MatchEndReason,
+    replay?: Uint8Array<ArrayBuffer>,
   ): Promise<Match> {
     return this.prisma.$transaction(async (tx) => {
       const match = await tx.match.findUnique({ where: { id: matchId } });
@@ -68,6 +118,7 @@ export class MatchesService {
           status: MatchStatus.FINISHED,
           winnerId,
           endReason,
+          replay,
           finishedAt: new Date(),
         },
       });

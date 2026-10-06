@@ -9,6 +9,7 @@ import {
   JOIN_TIMEOUT_MS,
   PLAYER_CLOCK_MS,
 } from '../src/game/game.service.js';
+import { decodeReplay } from '../src/game/domain/index.js';
 import { GameSession } from '../src/game/types/game-session.interface.js';
 import { MatchesService } from '../src/matches/matches.service.js';
 import { FakeRedis } from './support/fake-redis.js';
@@ -20,16 +21,23 @@ const PLAYER_TWO = 2;
 class FakeMatches {
   finished: { matchId: number; winnerId: number; endReason: string }[] = [];
   cancelled: number[] = [];
+  replays: Uint8Array[] = [];
   failing = false;
 
   async findById(id: number) {
     return id === MATCH_ID ? match() : null;
   }
 
-  async finishMatch(matchId: number, winnerId: number, endReason: string) {
+  async finishMatch(
+    matchId: number,
+    winnerId: number,
+    endReason: string,
+    replay: Uint8Array,
+  ) {
     if (this.failing) {
       throw new Error('database down');
     }
+    this.replays.push(replay);
     this.finished.push({ matchId, winnerId, endReason });
   }
 
@@ -197,6 +205,24 @@ describe('GameService', () => {
       { matchId: MATCH_ID, winnerId: winner, endReason: 'TIMEOUT' },
     ]);
     assert.equal(redis.zscore('game:deadlines', String(MATCH_ID)), undefined);
+  });
+
+  it('records the opening cards and every move played', async () => {
+    const session = await startedGame();
+    const opening = session.game;
+    const first = service.toView(session).legalMoves[0];
+    const afterFirst = await playFirstMove(session);
+    const second = service.toView(afterFirst).legalMoves[0];
+    const afterSecond = await playFirstMove(afterFirst);
+
+    await service.resign(MATCH_ID, currentUser(afterSecond));
+
+    assert.equal(matches.replays[0].length, 5 + 2 * 2);
+    assert.deepEqual(decodeReplay(matches.replays[0]), {
+      hands: opening.hands,
+      neutral: opening.neutral,
+      moves: [first, second],
+    });
   });
 
   it('loses on time when moving after the clock ran out', async () => {

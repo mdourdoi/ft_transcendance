@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Ellipsis from '@lucide/svelte/icons/ellipsis';
 	import History_Details, { type Game } from './History_Details.svelte';
 	import { Button } from '$lib/components/ui/button';
@@ -8,36 +9,29 @@
 	import * as Table from '$lib/components/ui/table';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import { InkQuote, PageShell, SideNav } from '$lib/components/onitama';
+	import { historyManager } from '../utils/history.svelte';
 
 	const filters = [
 		{ value: 'all', label: 'Toutes' },
 		{ value: 'Ranked', label: 'Classées' },
 		{ value: 'Normal', label: 'Normales' },
-		{ value: 'Training', label: 'Entraînement' },
 	];
 
 	const modeInfo: Record<string, { label: string; icon: string }> = {
 		Ranked: { label: 'Classée', icon: '♛' },
 		Normal: { label: 'Normale', icon: '⚔' },
-		Training: { label: 'Training', icon: '▣' },
 	};
 
 	let historyFilter = $state('all');
 	let gameOption: Game | null = $state(null);
 
-	const History_Game_Test: Game[] = [
-		{ result: 'Victory', mode: 'Ranked', opponent: 'RaiNeko', duration: '12 min', date: 'Aujourd’hui 14:32' },
-		{ result: 'Defeat', mode: 'Normal', opponent: 'Tsuki', duration: '18 min', date: 'Aujourd’hui 12:14' },
-		{ result: 'Victory', mode: 'Training', opponent: 'Daiko', duration: '9 min', date: 'Hier 22:01' },
-		{ result: 'Victory', mode: 'Ranked', opponent: 'Mei', duration: '7 min', date: 'Hier 18:45' },
-		{ result: 'Defeat', mode: 'Training', opponent: 'Akemi', duration: '15 min', date: '12/04/2025' },
-		...Array.from({ length: 19 }, () => ({ result: 'Victory', mode: 'Ranked', opponent: 'Mei', duration: '7 min', date: 'Hier 18:45' })),
-		{ result: 'Defeat', mode: 'Normal', opponent: 'Tsuki', duration: '18 min', date: 'Aujourd’hui 12:14' },
-	].map((game, index) => ({ ...game, id: String(index), avatar: '../assets/home/avatar/daiko.png' }));
-
 	const games = $derived(
-		historyFilter === 'all' ? History_Game_Test : History_Game_Test.filter((game) => game.mode === historyFilter)
+		historyFilter === 'all' ? historyManager.games : historyManager.games.filter((game) => game.mode === historyFilter)
 	);
+
+	onMount(() => {
+		historyManager.load();
+	});
 </script>
 
 <Tabs.Root bind:value={historyFilter} orientation="vertical" class="h-full">
@@ -91,10 +85,22 @@
 								</Button>
 							</Table.Cell>
 						</Table.Row>
+					{:else}
+						<Table.Row class="hover:bg-transparent">
+							<Table.Cell colspan={6} class="py-8 text-center text-muted-foreground">
+								{historyManager.loading ? 'Chargement…' : (historyManager.error ?? 'Aucune partie pour le moment.')}
+							</Table.Cell>
+						</Table.Row>
 					{/each}
 				</Table.Body>
 			</Table.Root>
 		</Card.Root>
+
+		{#if historyManager.nextCursor !== null}
+			<Button variant="outline" class="shrink-0 self-center" disabled={historyManager.loading} onclick={() => historyManager.loadMore()}>
+				{historyManager.loading ? 'Chargement…' : 'Charger plus'}
+			</Button>
+		{/if}
 	</PageShell>
 </Tabs.Root>
 

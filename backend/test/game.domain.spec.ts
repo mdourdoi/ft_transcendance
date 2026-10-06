@@ -2,11 +2,59 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
   card,
+  decodeReplay,
   drawGameCards,
+  encodeReplay,
   Game,
   GameError,
+  getAllCards,
+  packMove,
   Spread,
+  unpackMove,
 } from '../src/game/domain/index.js';
+
+describe('Replay', () => {
+  it('packs every card and square pair into two bytes', () => {
+    for (const { name } of getAllCards()) {
+      for (let a = 0; a < 25; a++) {
+        for (let b = 0; b < 25; b++) {
+          if (a === b) {
+            continue;
+          }
+          const from = { row: Math.floor(a / 5), col: a % 5 };
+          const to = { row: Math.floor(b / 5), col: b % 5 };
+          const packed = packMove(name, from, to);
+
+          assert.ok(packed >= 0 && packed <= 0xffff);
+          assert.deepEqual(unpackMove(packed), { card: name, from, to });
+        }
+      }
+    }
+  });
+
+  it('round trips the opening cards, moves and passes', () => {
+    const cards = ['Tiger', 'Cobra', 'Eel', 'Boar', 'Crane'];
+    const from = { row: 4, col: 2 };
+    const to = { row: 2, col: 2 };
+    const bytes = encodeReplay(cards, [
+      packMove('Tiger', from, to),
+      packMove('Cobra'),
+    ]);
+
+    assert.equal(bytes.length, 9);
+    assert.deepEqual(decodeReplay(bytes), {
+      hands: [
+        ['Tiger', 'Cobra'],
+        ['Eel', 'Boar'],
+      ],
+      neutral: 'Crane',
+      moves: [
+        { card: 'Tiger', from, to },
+        { card: 'Cobra', from: null, to: null },
+      ],
+    });
+  });
+});
 
 describe('Game snapshot', () => {
   it('restores the same game it was taken from', () => {

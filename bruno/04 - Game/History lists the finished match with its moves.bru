@@ -1,0 +1,76 @@
+meta {
+  name: History lists the finished match with its moves
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{baseUrl}}/matches
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+script:pre-request {
+  const socket = require("./lib/socket.js");
+  const game = require("./lib/game.js");
+  const baseUrl = bru.getVar("baseUrl");
+  const result = {};
+  try {
+    const g = await game.startGame(
+      baseUrl,
+      bru.getVar("tokenA"),
+      bru.getVar("tokenB"),
+    );
+    const { current, waiting } = game.players(g, g.stateA, bru.getVar("idA"));
+    result.matchId = g.matchId;
+    result.before = g.stateA;
+    result.move = g.stateA.legalMoves[0];
+    await game.act(current, waiting, "game.move", {
+      matchId: g.matchId,
+      ...result.move,
+    });
+    const over = socket.waitFor(g.clientA, "game.over");
+    g.clientB.emit("game.resign", { matchId: g.matchId });
+    await over;
+    socket.closeAll(g.clientA, g.clientB);
+  } catch (error) {
+    result.error = error.message;
+  }
+  bru.setVar("gameResult", JSON.stringify(result));
+}
+
+tests {
+  const result = JSON.parse(bru.getVar("gameResult"));
+
+  test("scenario ran without error", function () {
+    expect(result.error).to.be.undefined;
+  });
+
+  const [latest] = res.getBody().matches;
+
+  test("latest match is the one just played", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(latest.id).to.equal(result.matchId);
+    expect(latest.won).to.equal(true);
+    expect(res.getBody().matches.length).to.be.at.most(25);
+    expect(res.getBody()).to.have.property("nextCursor");
+    expect(latest.endReason).to.equal("RESIGNATION");
+  });
+
+  test("opponent is player B", function () {
+    expect(latest.opponent.id).to.equal(bru.getVar("idB"));
+    expect(latest.opponent.username).to.be.a("string");
+    expect(latest.opponent).to.not.have.property("email");
+  });
+
+  test("replay holds the opening cards and the move played", function () {
+    const names = (hand) => hand.map((card) => card.name);
+    expect(latest.replay.hands).to.deep.equal(result.before.hands.map(names));
+    expect(latest.replay.neutral).to.equal(result.before.neutral.name);
+    expect(latest.replay.moves).to.deep.equal([result.move]);
+  });
+}

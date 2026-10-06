@@ -1,0 +1,17 @@
+meta {
+  name: History without token
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/matches
+  body: none
+  auth: none
+}
+
+tests {
+  test("returns 401", function () {
+    expect(res.getStatus()).to.equal(401);
+  });
+}
