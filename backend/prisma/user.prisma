@@ -21,6 +21,8 @@ model User {
   matchesAsPlayerOne Match[] @relation("PlayerOne")
   matchesAsPlayerTwo Match[] @relation("PlayerTwo")
   matchesWon         Match[] @relation("Winner")
+
+  @@index([username])
 }
 
 model Conversation {
