@@ -19,27 +19,27 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import * as Dialog from '$lib/components/ui/dialog';
+	import { t, locale } from '$lib/i18n';
 
 	let { game, onclose }: { game: Game; onclose: () => void } = $props();
 
-	const modeLabels: Record<string, string> = { Ranked: 'Classées', Normal: 'Normales', Training: 'Entraînement' };
-	const resultLabels: Record<string, string> = { Victory: 'Victoire', Defeat: 'Défaite' };
+	const dateFormat = $derived(new Intl.DateTimeFormat($locale ?? undefined, { dateStyle: 'short', timeStyle: 'short' }));
 
 	const details = $derived([
-		{ label: 'Mode', value: modeLabels[game.mode] ?? game.mode },
-		{ label: 'Durée', value: game.duration },
-		{ label: 'Fin de partie', value: game.reason ?? 'Non renseigné' },
-		{ label: 'XP gagnés', value: game.xpEarned ?? '—' },
-		{ label: 'Variation du classement', value: game.ratingDelta == null ? '—' : `${game.ratingDelta > 0 ? '+' : ''}${game.ratingDelta}` },
-		{ label: 'Nombre de coups', value: game.movesCount ?? '—' },
+		{ label: $t('HISTORY.DETAILS.MODE'), value: $t(`HISTORY.MODES.${game.mode.toUpperCase()}`, { default: game.mode }) },
+		{ label: $t('HISTORY.DETAILS.DURATION'), value: game.duration },
+		{ label: $t('HISTORY.DETAILS.END'), value: game.reason ? $t(`HISTORY.END_REASONS.${game.reason}`, { default: game.reason }) : $t('HISTORY.DETAILS.UNKNOWN') },
+		{ label: $t('HISTORY.DETAILS.XP'), value: game.xpEarned ?? '—' },
+		{ label: $t('HISTORY.DETAILS.RATING'), value: game.ratingDelta == null ? '—' : `${game.ratingDelta > 0 ? '+' : ''}${game.ratingDelta}` },
+		{ label: $t('HISTORY.DETAILS.MOVES'), value: game.movesCount ?? '—' },
 	]);
 </script>
 
 <Dialog.Root open onOpenChange={(open) => { if (!open) onclose(); }}>
 	<Dialog.Content class="border-4 border-double border-border sm:max-w-xl">
 		<Dialog.Header class="border-b border-border pb-3">
-			<span class="text-[10px] tracking-[0.3em] text-muted-foreground">ONITAMA · LE DOJO</span>
-			<Dialog.Title class="font-display text-2xl">Détail de la partie</Dialog.Title>
+			<span class="text-[10px] tracking-[0.3em] text-muted-foreground">{$t('COMMON.EYEBROW')}</span>
+			<Dialog.Title class="font-display text-2xl">{$t('HISTORY.DETAILS.TITLE')}</Dialog.Title>
 		</Dialog.Header>
 
 		<div class="flex items-center gap-4">
@@ -49,10 +49,10 @@
 			</Avatar.Root>
 			<div class="min-w-0 flex-1">
 				<strong class="text-lg">{game.opponent}</strong>
-				<p class="text-xs text-muted-foreground">{game.date}</p>
+				<p class="text-xs text-muted-foreground">{dateFormat.format(new Date(game.date))}</p>
 			</div>
 			<Badge variant={game.result === 'Victory' ? 'default' : 'secondary'} class="text-sm">
-				{resultLabels[game.result] ?? game.result}
+				{$t(game.result === 'Victory' ? 'COMMON.VICTORY' : 'COMMON.DEFEAT')}
 			</Badge>
 		</div>
 

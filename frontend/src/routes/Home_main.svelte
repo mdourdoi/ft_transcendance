@@ -7,14 +7,15 @@
 	import Sakura from './SakuraPetals.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils';
+	import { t } from '$lib/i18n';
 
 	type Onglet = 'home' | 'historique' | 'stats' | 'profil';
 
 	const onglets: { id: Onglet; label: string; icon: string }[] = [
-		{ id: 'home', label: 'Accueil', icon: 'accueil' },
-		{ id: 'historique', label: 'Historique', icon: 'history' },
-		{ id: 'stats', label: 'Stats', icon: 'stats' },
-		{ id: 'profil', label: 'Profil', icon: 'profil' },
+		{ id: 'home', label: 'NAV.HOME', icon: 'accueil' },
+		{ id: 'historique', label: 'NAV.HISTORY', icon: 'history' },
+		{ id: 'stats', label: 'NAV.STATS', icon: 'stats' },
+		{ id: 'profil', label: 'NAV.PROFILE', icon: 'profil' },
 	];
 
 	let onglet: Onglet = $state('home');
@@ -39,7 +40,7 @@
 			>
 				<img class="h-full w-auto rounded-lg object-contain" src="../assets/home/logo/onitama.png" alt="Onitama" />
 			</Button>
-			<nav class="flex items-center justify-center gap-[2vw]" aria-label="Navigation principale">
+			<nav class="flex items-center justify-center gap-[2vw]" aria-label={$t('NAV.MAIN')}>
 				{#each onglets as item (item.id)}
 					{@const active = onglet === item.id}
 					<Button
@@ -56,7 +57,7 @@
 							src={`../assets/home/icone/${item.icon}${active ? '_active' : ''}.png`}
 							alt=""
 						/>
-						{item.label}
+						{$t(item.label)}
 					</Button>
 				{/each}
 			</nav>

@@ -24,14 +24,14 @@ export function canMove(s: GameState): boolean {
 function exchange(s:GameState, i:number): {hands:[Card[],Card[]]; side:Card} {
 	const hands:[Card[],Card[]]=[[...s.hands[0]],[...s.hands[1]]]; const side=hands[s.turn][i];
 	if(!side)
-		throw new Error('Sélectionne une carte.');
+		throw new Error('SELECT_CARD');
 	hands[s.turn][i]=s.side;
 	return {hands,side};
 }
 
 export function playMove(s:GameState, from:Position, to:Position, i:number):GameState {
 	if(!legalMoves(s,from,i).some(p=>p.equals(to)))
-		throw new Error('Déplacement interdit.');
+		throw new Error('FORBIDDEN_MOVE');
  	const piece=s.map.entityAt(from)!;
 	const captured=s.map.entityAt(to);
 	const grid=Array.from({length:5},(_,r)=>Array.from({length:5},(_,c)=>s.map.entityAt(Position.create({row:r,col:c}))));
@@ -42,6 +42,6 @@ export function playMove(s:GameState, from:Position, to:Position, i:number):Game
 
 export function passTurn(s:GameState,i:number):GameState {
 	if(s.result || canMove(s))
-		throw new Error('Il reste un déplacement possible.');
+		throw new Error('MOVE_AVAILABLE');
 	return {...s,...exchange(s,i),turn:(1-s.turn) as Player,history:[...s.history,`${s.turn===0?'Sud':'Nord'} · passe et échange ${s.hands[s.turn][i]?.name}`]};
 }
