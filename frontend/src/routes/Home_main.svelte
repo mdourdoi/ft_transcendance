@@ -12,10 +12,26 @@
 	type Onglet = 'home' | 'historique' | 'stats' | 'profil';
 
 	const onglets: { id: Onglet; label: string; icon: string }[] = [
-		{ id: 'home', label: 'NAV.HOME', icon: 'accueil' },
-		{ id: 'historique', label: 'NAV.HISTORY', icon: 'history' },
-		{ id: 'stats', label: 'NAV.STATS', icon: 'stats' },
-		{ id: 'profil', label: 'NAV.PROFILE', icon: 'profil' },
+		{
+			id: 'home',
+			label: 'NAV.HOME',
+			icon: 'M1.5 4c3.4 1.3 6.9 1.9 10.5 1.9S19.1 5.3 22.5 4l.6 2.6c-3.6 1.3-7.3 1.9-11.1 1.9S4.5 7.9.9 6.6zM6 8h2.2v12H6zM15.8 8H18v12h-2.2zM4 10.5h16v2H4zM11.1 8h1.8v3h-1.8z',
+		},
+		{
+			id: 'historique',
+			label: 'NAV.HISTORY',
+			icon: 'M4.5 3h15a1.5 1.5 0 0 1 0 3h-15a1.5 1.5 0 0 1 0-3zM6 7h12v10H6zM8.5 9.5v1.5h7V9.5zM8.5 13v1.5h5V13zM4.5 18h15a1.5 1.5 0 0 1 0 3h-15a1.5 1.5 0 0 1 0-3z',
+		},
+		{
+			id: 'stats',
+			label: 'NAV.STATS',
+			icon: 'M5 12h2a1 1 0 0 1 1 1v7H4v-7a1 1 0 0 1 1-1zM11 4h2a1 1 0 0 1 1 1v15h-4V5a1 1 0 0 1 1-1zM17 8h2a1 1 0 0 1 1 1v11h-4V9a1 1 0 0 1 1-1z',
+		},
+		{
+			id: 'profil',
+			label: 'NAV.PROFILE',
+			icon: 'M12 3.5a4 4 0 1 1 0 8a4 4 0 0 1 0-8zM4 19.5c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z',
+		},
 	];
 
 	let onglet: Onglet = $state('home');
@@ -31,7 +47,7 @@
 		alt=""
 	/>
 	<div class="relative grid h-full grid-cols-[minmax(0,1fr)_var(--friends-width)] grid-rows-[var(--topbar-height)_minmax(0,1fr)]">
-		<header class="grid grid-cols-[22vw_minmax(0,1fr)] items-center">
+		<header class="grid grid-cols-[22vw_minmax(0,1fr)_22vw] items-center">
 			<Button
 				variant="ghost"
 				class="ml-[4vw] h-[11vh] w-auto p-0 hover:bg-transparent"
@@ -52,11 +68,9 @@
 						)}
 						onclick={() => (onglet = item.id)}
 					>
-						<img
-							class="pointer-events-none h-[4.5vh] w-auto object-contain"
-							src={`../assets/home/icone/${item.icon}${active ? '_active' : ''}.png`}
-							alt=""
-						/>
+						<svg class="size-[4.5vh]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+							<path d={item.icon} />
+						</svg>
 						{$t(item.label)}
 					</Button>
 				{/each}
