@@ -6,6 +6,7 @@ import {
   Prisma,
   QueueMode,
 } from '../generated/prisma/client.js';
+import { BOT_PLAYER_ID, BOT_USERNAME } from '../bots/bots.constants.js';
 import { ErrorCode } from '../common/error-codes.js';
 import { DEFAULT_AVATAR_FILENAME } from '../constants.js';
 import { decodeReplay } from '../game/domain/index.js';
@@ -21,7 +22,11 @@ const OPPONENT_SELECT = { id: true, username: true, avatarUrl: true };
 export class MatchesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  createMatch(mode: QueueMode, playerOneId: number, playerTwoId: number) {
+  createMatch(
+    mode: QueueMode,
+    playerOneId: number,
+    playerTwoId: number | null,
+  ) {
     return this.prisma.match.create({
       data: { mode, playerOneId, playerTwoId },
     });
@@ -61,7 +66,13 @@ export class MatchesService {
     const page = rows.slice(0, HISTORY_PAGE_SIZE);
     const matches = page.map((match) => {
       const playerIndex = match.playerOneId === userId ? 0 : 1;
-      const opponent = playerIndex === 0 ? match.playerTwo : match.playerOne;
+      const opponent = (playerIndex === 0
+        ? match.playerTwo
+        : match.playerOne) ?? {
+        id: BOT_PLAYER_ID,
+        username: BOT_USERNAME,
+        avatarUrl: null,
+      };
       return {
         id: match.id,
         mode: match.mode,
@@ -93,7 +104,7 @@ export class MatchesService {
 
   finishMatch(
     matchId: number,
-    winnerId: number,
+    winnerId: number | null,
     endReason: MatchEndReason,
     replay?: Uint8Array<ArrayBuffer>,
   ): Promise<Match> {
@@ -127,8 +138,16 @@ export class MatchesService {
       }
 
       const ratingDelta =
-        match.mode === QueueMode.RANKED
-          ? await this.applyRatingChange(tx, match, winnerId)
+        match.mode === QueueMode.RANKED &&
+        winnerId !== null &&
+        match.playerTwoId !== null
+          ? await this.applyRatingChange(
+              tx,
+              winnerId,
+              winnerId === match.playerOneId
+                ? match.playerTwoId
+                : match.playerOneId,
+            )
           : null;
 
       return tx.match.update({
@@ -152,11 +171,9 @@ export class MatchesService {
 
   private async applyRatingChange(
     tx: Prisma.TransactionClient,
-    match: Match,
     winnerId: number,
+    loserId: number,
   ): Promise<number> {
-    const loserId =
-      winnerId === match.playerOneId ? match.playerTwoId : match.playerOneId;
     const winner = await tx.user.findUniqueOrThrow({ where: { id: winnerId } });
     const loser = await tx.user.findUniqueOrThrow({ where: { id: loserId } });
 

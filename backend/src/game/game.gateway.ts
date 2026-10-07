@@ -118,6 +118,7 @@ export class GameGateway
     } else {
       client.emit('game.state', this.gameService.toView(session));
     }
+    await this.answerAsBot(session);
   }
 
   @SubscribeMessage('game.move')
@@ -135,6 +136,7 @@ export class GameGateway
       dto.to,
     );
     this.broadcast(session, client);
+    await this.answerAsBot(session);
   }
 
   @SubscribeMessage('game.pass')
@@ -146,6 +148,7 @@ export class GameGateway
     const dto = await this.parse(PassTurnDto, raw);
     const session = await this.gameService.pass(dto.matchId, userId, dto.card);
     this.broadcast(session, client);
+    await this.answerAsBot(session);
   }
 
   @SubscribeMessage('game.resign')
@@ -201,6 +204,19 @@ export class GameGateway
         winnerId: session.winnerId,
         endReason: session.endReason,
       });
+    }
+  }
+
+  private async answerAsBot(session: GameSession): Promise<void> {
+    try {
+      const answer = await this.gameService.playBotTurn(session);
+      if (answer) {
+        this.broadcast(answer);
+      }
+    } catch (error) {
+      this.logger.error(
+        `bot could not play in match ${session.matchId}: ${(error as Error).message}`,
+      );
     }
   }
 
