@@ -1,4 +1,12 @@
 <script lang="ts" module>
+	export type ReplaySquare = { row: number; col: number };
+
+	export type ReplayData = {
+		hands: [string[], string[]];
+		neutral: string;
+		moves: { card: string; from: ReplaySquare | null; to: ReplaySquare | null }[];
+	};
+
 	export type Game = {
 		id: string;
 		result: string;
@@ -12,16 +20,19 @@
 		xpEarned?: number;
 		ratingDelta?: number;
 		movesCount?: number;
+		playerIndex?: number;
+		replay?: ReplayData | null;
 	};
 </script>
 
 <script lang="ts">
 	import { Badge } from '$lib/components/ui/badge';
+	import { Button } from '$lib/components/ui/button';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { t, locale } from '$lib/i18n';
 
-	let { game, onclose }: { game: Game; onclose: () => void } = $props();
+	let { game, onclose, onreplay }: { game: Game; onclose: () => void; onreplay: () => void } = $props();
 
 	const dateFormat = $derived(new Intl.DateTimeFormat($locale ?? undefined, { dateStyle: 'short', timeStyle: 'short' }));
 
@@ -64,5 +75,7 @@
 				</div>
 			{/each}
 		</dl>
+
+		<Button disabled={!game.replay?.moves.length} onclick={onreplay}>{$t('HISTORY.REPLAY.OPEN')}</Button>
 	</Dialog.Content>
 </Dialog.Root>

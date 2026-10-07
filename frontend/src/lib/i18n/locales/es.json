@@ -99,6 +99,21 @@
       "MOVES": "Número de jugadas",
       "UNKNOWN": "Sin especificar"
     },
+    "REPLAY": {
+      "TITLE": "Repetición de la partida",
+      "OPEN": "Ver la repetición",
+      "FIRST": "Inicio de la partida",
+      "LAST": "Final de la partida",
+      "PLAY": "Reproducir",
+      "PAUSE": "Pausa",
+      "START": "Posición inicial",
+      "MOVE": "{name} juega {card}",
+      "PASS": "{name} pasa y cambia {card}",
+      "ADVANTAGE": "Ventaja: {name}",
+      "BALANCED": "Posición igualada",
+      "METER": "Probabilidades de victoria",
+      "NO_ANALYSIS": "Análisis no disponible"
+    },
     "END_REASONS": {
       "WAY_OF_STONE": "Camino de la piedra",
       "WAY_OF_STREAM": "Camino del arroyo",

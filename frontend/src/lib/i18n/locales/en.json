@@ -99,6 +99,21 @@
       "MOVES": "Number of moves",
       "UNKNOWN": "Not specified"
     },
+    "REPLAY": {
+      "TITLE": "Game replay",
+      "OPEN": "Watch the replay",
+      "FIRST": "Start of the game",
+      "LAST": "End of the game",
+      "PLAY": "Play",
+      "PAUSE": "Pause",
+      "START": "Starting position",
+      "MOVE": "{name} plays {card}",
+      "PASS": "{name} passes and trades {card}",
+      "ADVANTAGE": "Advantage: {name}",
+      "BALANCED": "Even position",
+      "METER": "Winning chances",
+      "NO_ANALYSIS": "Analysis unavailable"
+    },
     "END_REASONS": {
       "WAY_OF_STONE": "Way of the Stone",
       "WAY_OF_STREAM": "Way of the Stream",

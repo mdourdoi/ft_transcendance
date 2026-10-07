@@ -1,5 +1,5 @@
 import { authFetch } from '$lib/auth';
-import type { Game } from '../routes/History_Details.svelte';
+import type { Game, ReplayData } from '../routes/History_Details.svelte';
 
 type ApiMatch = {
 	id: number;
@@ -10,7 +10,8 @@ type ApiMatch = {
 	finishedAt: string | null;
 	won: boolean;
 	opponent: { id: number; username: string; avatarUrl: string };
-	replay: { moves: unknown[] } | null;
+	playerIndex: number;
+	replay: ReplayData | null;
 };
 
 function duration(match: ApiMatch): string {
@@ -32,6 +33,8 @@ function toGame(match: ApiMatch): Game {
 		reason: match.endReason ?? undefined,
 		ratingDelta: match.ratingDelta == null ? undefined : match.won ? match.ratingDelta : -match.ratingDelta,
 		movesCount: match.replay?.moves.length,
+		playerIndex: match.playerIndex,
+		replay: match.replay,
 	};
 }
 
