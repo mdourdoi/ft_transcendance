@@ -1,6 +1,7 @@
 import { io, Socket } from 'socket.io-client';
 import { token } from "$lib/auth";
 import { get, writable } from 'svelte/store';
+import { friendManager } from "../utils/friend.svelte";
 
 
 let socket: Socket | null = null;
@@ -31,6 +32,9 @@ function connectSocket() {
     });
     socket.on('newMessage', (msg: ChatMessage) => {
         messageHandlers.forEach((handler) => handler(msg));
+    });
+    socket.on('friendRequest', () => {
+        friendManager.friendships_requests();
     });
     return socket;
 }
