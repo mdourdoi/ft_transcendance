@@ -27,6 +27,10 @@ export function chooseTurn(game: Game): Turn {
   return best;
 }
 
+export function assess(game: Game, depth: number): number {
+  return search(game, depth, -Infinity, Infinity);
+}
+
 function search(
   game: Game,
   depth: number,

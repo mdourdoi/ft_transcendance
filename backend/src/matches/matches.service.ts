@@ -1,4 +1,9 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   Match,
   MatchEndReason,
@@ -7,10 +12,14 @@ import {
   QueueMode,
 } from '../generated/prisma/client.js';
 import { BOT_PLAYER_ID, BOT_USERNAME } from '../bots/bots.constants.js';
+import { analyseReplay } from '../bots/calculator/analyse.js';
 import { ErrorCode } from '../common/error-codes.js';
 import { DEFAULT_AVATAR_FILENAME } from '../constants.js';
 import { decodeReplay } from '../game/domain/index.js';
-import { MatchHistoryPageDto } from './dto/match-history.dto.js';
+import {
+  MatchAnalysisDto,
+  MatchHistoryPageDto,
+} from './dto/match-history.dto.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 const RATING_K_FACTOR = 32;
@@ -93,6 +102,22 @@ export class MatchesService {
       matches,
       nextCursor:
         rows.length > HISTORY_PAGE_SIZE ? page[page.length - 1].id : null,
+    };
+  }
+
+  async findAnalysis(
+    matchId: number,
+    userId: number,
+  ): Promise<MatchAnalysisDto> {
+    const match = await this.findById(matchId);
+    if (!match) {
+      throw new NotFoundException(ErrorCode.MATCH_NOT_FOUND);
+    }
+    if (match.playerOneId !== userId && match.playerTwoId !== userId) {
+      throw new ForbiddenException(ErrorCode.NOT_IN_MATCH);
+    }
+    return {
+      advantages: match.replay ? analyseReplay(decodeReplay(match.replay)) : [],
     };
   }
 
