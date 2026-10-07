@@ -16,7 +16,7 @@
 	let confirmOpen = $state(false);
 
 	function failure(res: Response): Status {
-		return res.status === 430 ? "RATE" : "ERROR";
+		return res.status === 429 ? "RATE" : "ERROR";
 	}
 
 	async function exportData() {
