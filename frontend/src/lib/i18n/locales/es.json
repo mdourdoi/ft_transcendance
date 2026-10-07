@@ -144,11 +144,6 @@
   "PROFILE": {
     "TITLE": "Mi perfil",
     "SUBTITLE": "Muestra tu estilo y tu paciencia",
-    "SECTIONS_LABEL": "Secciones del perfil",
-    "SECTIONS": {
-      "OVERVIEW": "Resumen",
-      "SETTINGS": "Ajustes"
-    },
     "QUOTE": "El dominio de uno mismo conduce a la victoria.",
     "IDENTITY": "Identidad",
     "AVATAR_ALT": "Avatar de {name}",
@@ -161,8 +156,6 @@
     "SETTINGS": {
       "HEADING": "Ajustes",
       "DESCRIPTION": "Tu cuenta, tu ambiente, tu juego",
-      "SUMMARY": "Cuenta y seguridad, música, efectos de sonido y comodidad de juego.",
-      "OPEN": "Abrir los ajustes",
       "ACCOUNT": "Cuenta",
       "NICKNAME": "Apodo",
       "USERNAME": "Nombre de usuario",

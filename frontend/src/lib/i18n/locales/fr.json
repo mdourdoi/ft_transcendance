@@ -144,11 +144,6 @@
   "PROFILE": {
     "TITLE": "Mon Profil",
     "SUBTITLE": "Montre ton style et ta patience",
-    "SECTIONS_LABEL": "Rubriques du profil",
-    "SECTIONS": {
-      "OVERVIEW": "Vue d’ensemble",
-      "SETTINGS": "Paramètres"
-    },
     "QUOTE": "La maîtrise de soi mène à la victoire.",
     "IDENTITY": "Identité",
     "AVATAR_ALT": "Avatar de {name}",
@@ -161,8 +156,6 @@
     "SETTINGS": {
       "HEADING": "Paramètres",
       "DESCRIPTION": "Ton compte, ton ambiance, ton jeu",
-      "SUMMARY": "Compte et sécurité, musique, bruitages et confort de jeu.",
-      "OPEN": "Ouvrir les paramètres",
       "ACCOUNT": "Compte",
       "NICKNAME": "Pseudo",
       "USERNAME": "Nom d’utilisateur",

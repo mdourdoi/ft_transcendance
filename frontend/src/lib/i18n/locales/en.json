@@ -144,11 +144,6 @@
   "PROFILE": {
     "TITLE": "My Profile",
     "SUBTITLE": "Show your style and your patience",
-    "SECTIONS_LABEL": "Profile sections",
-    "SECTIONS": {
-      "OVERVIEW": "Overview",
-      "SETTINGS": "Settings"
-    },
     "QUOTE": "Self-mastery leads to victory.",
     "IDENTITY": "Identity",
     "AVATAR_ALT": "{name}’s avatar",
@@ -161,8 +156,6 @@
     "SETTINGS": {
       "HEADING": "Settings",
       "DESCRIPTION": "Your account, your mood, your game",
-      "SUMMARY": "Account and security, music, sound effects and gameplay comfort.",
-      "OPEN": "Open settings",
       "ACCOUNT": "Account",
       "NICKNAME": "Nickname",
       "USERNAME": "Username",
