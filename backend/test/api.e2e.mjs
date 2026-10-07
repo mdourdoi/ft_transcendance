@@ -931,7 +931,7 @@ await test('take=1000 est plafonné à 100', {
 });
 // Le ValidationPipe global (transform: true) convertit `take` via `+value` AVANT les pipes
 // du paramètre : 'abc' → NaN, que DefaultValuePipe remplace par 20 ; '' → 0, ramené à 1.
-// ParseIntPipe ne voit donc jamais la chaîne d'origine.
+// ParseIntPipe ne voit donc jamais la chaîne d’origine.
 await test('take=abc → silencieusement remplacé par 20 (pas de 400)', {
   as: alice,
   path: `/conversations/${convAB}/messages?take=abc`,
@@ -958,8 +958,8 @@ await test('Curseur inexistant → retombe sur la page 1', {
   ],
 });
 
-// Curseur venant d'une autre conversation : il faut une seconde conversation avec un message.
-await call(dave, 'POST', '/friendships/send', { targetId: bob.id });
+// Curseur venant d’une autre conversation : il faut une seconde conversation avec un message.
+await call(dave, 'POST', '/friendships/send', { username: bob.username });
 await call(bob, 'POST', '/friendships/accept', { targetId: dave.id });
 const bobFriends = await call(bob, 'GET', '/friendships');
 const convBD = entry(bobFriends.body, dave)?.conversationId;

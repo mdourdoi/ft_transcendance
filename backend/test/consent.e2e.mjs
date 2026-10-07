@@ -6,12 +6,12 @@
  * chaque exécution, donc relançable à volonté. Les comptes créés restent en base.
  *
  * Lancer (Node >= 22) :
- *   docker compose up -d --build db redis backend
+ *   docker compose up -d --build
  *   node backend/test/consent.e2e.mjs
  *
  * Variables :
- *   API_URL=http://localhost:3000        cible (défaut)
- *   DB_CONTAINER=transcendence-db
+ *   API_URL=https://localhost:8443/api   cible (défaut, à travers le waf)
+ *   DB_CONTAINER=transcendance-db
  *   VERBOSE=1                            affiche le corps de chaque réponse
  *
  * Légende de la sortie :
@@ -20,11 +20,17 @@
 
 import { spawnSync } from 'node:child_process';
 
-const API = process.env.API_URL ?? 'http://localhost:3000';
-const DB = process.env.DB_CONTAINER ?? 'transcendence-db';
+const API = process.env.API_URL ?? 'https://localhost:8443/api';
+const DB = process.env.DB_CONTAINER ?? 'transcendance-db';
 const VERBOSE = !!process.env.VERBOSE;
 const RUN = Date.now().toString(36);
 const PASSWORD = 'Passw0rd!';
+
+// Le waf sert un certificat auto-signé : on ne le vérifie pas en local.
+if (/^https:\/\/(localhost|127\.0\.0\.1)[:/]/.test(API)) {
+  process.removeAllListeners('warning');
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
 
 // ─── Affichage ────────────────────────────────────────────────────────────────
 
@@ -169,13 +175,13 @@ const userRow = (id, column) =>
 console.log(c.bold(`Tests e2e consentement RGPD → ${API}`));
 
 try {
-  await fetch(API);
+  await fetch(`${API}/`);
 } catch (e) {
   console.error(
     c.red(`\nAPI injoignable sur ${API} (${e.cause?.code ?? e.message}).`),
   );
   console.error(
-    'Lance la stack : docker compose up -d --build db redis backend',
+    'Lance la stack : docker compose up -d --build',
   );
   process.exit(2);
 }
