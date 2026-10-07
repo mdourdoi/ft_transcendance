@@ -20,6 +20,7 @@ import {
   requireSocketUser,
 } from '../common/socket-auth.js';
 import { MatchesService } from '../matches/matches.service.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 import { UsersService } from '../users/users.service.js';
 import { JoinQueueDto } from './dto/join-queue.dto.js';
 import { MatchmakingService } from './matchmaking.service.js';
@@ -44,6 +45,7 @@ export class QueueGateway
 
   constructor(
     private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
     private readonly usersService: UsersService,
     private readonly matchesService: MatchesService,
     private readonly queueService: QueueService,
@@ -62,7 +64,12 @@ export class QueueGateway
 
   async handleConnection(client: Socket) {
     try {
-      authenticateSocket(this.jwtService, client);
+      const userId = await authenticateSocket(
+        this.jwtService,
+        this.prisma,
+        client,
+      );
+      await client.join(`user:${userId}`);
     } catch {
       client.disconnect(true);
     }
