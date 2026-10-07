@@ -3,7 +3,7 @@ import type { Game } from '../routes/History_Details.svelte';
 
 type ApiMatch = {
 	id: number;
-	mode: 'RANKED' | 'UNRANKED';
+	mode: 'RANKED' | 'UNRANKED' | 'BOT';
 	endReason: string | null;
 	ratingDelta: number | null;
 	createdAt: string;
@@ -23,7 +23,7 @@ function toGame(match: ApiMatch): Game {
 	return {
 		id: String(match.id),
 		result: match.won ? 'Victory' : 'Defeat',
-		mode: match.mode === 'RANKED' ? 'Ranked' : 'Normal',
+		mode: match.mode === 'RANKED' ? 'Ranked' : match.mode === 'BOT' ? 'Training' : 'Normal',
 		opponent: match.opponent.username,
 		opponentId: String(match.opponent.id),
 		avatar: `/api/avatars/${match.opponent.avatarUrl}`,

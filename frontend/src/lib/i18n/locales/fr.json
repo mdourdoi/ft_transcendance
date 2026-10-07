@@ -274,7 +274,8 @@
     "TITLES": {
       "LOCAL": "PARTIE LOCALE",
       "RANKED": "PARTIE CLASSÉE",
-      "NORMAL": "PARTIE NORMALE"
+      "NORMAL": "PARTIE NORMALE",
+      "TRAINING": "ENTRAÎNEMENT"
     },
     "TAGLINE": "Un esprit calme, un mouvement juste.",
     "MENU_LABEL": "Menu de la partie",

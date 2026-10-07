@@ -274,7 +274,8 @@
     "TITLES": {
       "LOCAL": "PARTIDA LOCAL",
       "RANKED": "PARTIDA CLASIFICATORIA",
-      "NORMAL": "PARTIDA NORMAL"
+      "NORMAL": "PARTIDA NORMAL",
+      "TRAINING": "ENTRENAMIENTO"
     },
     "TAGLINE": "Una mente tranquila, un movimiento justo.",
     "MENU_LABEL": "Menú de la partida",

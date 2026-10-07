@@ -274,7 +274,8 @@
     "TITLES": {
       "LOCAL": "LOCAL GAME",
       "RANKED": "RANKED GAME",
-      "NORMAL": "NORMAL GAME"
+      "NORMAL": "NORMAL GAME",
+      "TRAINING": "TRAINING"
     },
     "TAGLINE": "A calm mind, a right move.",
     "MENU_LABEL": "Game menu",
