@@ -10,3 +10,4 @@ to generate keys for 2FA and JWT: `openssl rand -hex 32`
 
 - [Online Onitama](https://onitama.app/#/)
 - [Rules Onitama](http://jeuxstrategie1.free.fr/jeu_onitama/regle.pdf)
+- [Alpha-Beta](https://www.geeksforgeeks.org/artificial-intelligence/alpha-beta-pruning-in-adversarial-search-algorithms/)
