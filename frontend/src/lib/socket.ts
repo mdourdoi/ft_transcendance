@@ -32,6 +32,9 @@ function connectSocket() {
     socket.on('newMessage', (msg: ChatMessage) => {
         messageHandlers.forEach((handler) => handler(msg));
     });
+    socket.on('friendRequest', () => {
+        friendRequestHandlers.forEach((handler) => handler());
+    });
     return socket;
 }
 
@@ -62,6 +65,13 @@ const messageHandlers = new Set<(m: ChatMessage) => void>();
 export function onNewMessage(handler: (m: ChatMessage) => void) {
     messageHandlers.add(handler);
     return () => messageHandlers.delete(handler);
+}
+
+const friendRequestHandlers = new Set<() => void>();
+
+export function onFriendRequest(handler: () => void) {
+    friendRequestHandlers.add(handler);
+    return () => friendRequestHandlers.delete(handler);
 }
 
 function disconnectSocket() {

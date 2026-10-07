@@ -13,6 +13,7 @@
 	import { InkQuote, PageShell, SideNav, Stamp } from "$lib/components/onitama";
 	import { cn } from "$lib/utils";
 	import { t } from "$lib/i18n";
+	import { navigate } from "$lib/router";
 	import { onMount } from "svelte";
 	import {profilManager} from '../utils/profil.svelte';
 
@@ -195,6 +196,23 @@
 					<Card.Content class="grid grid-cols-2 gap-4">
 						<section class="flex flex-col gap-4 rounded-lg border border-border bg-muted/30 p-4" aria-labelledby="account-heading">
 							<h3 id="account-heading" class="font-display text-lg">Compte</h3>
+							<div class="flex flex-col gap-2">
+								<span class="text-sm font-semibold">{$t("EMAIL_VERIFY.LABEL")}</span>
+								<p class="text-sm text-muted-foreground">{profilManager.email}</p>
+								{#if profilManager.email_verified}
+									<p class="text-sm font-medium text-emerald-600">✓ {$t("EMAIL_VERIFY.VERIFIED")}</p>
+								{:else}
+									<p class="text-sm text-muted-foreground">{$t("EMAIL_VERIFY.HINT")}</p>
+									<Button variant="secondary" class="self-start" onclick={() => profilManager.request_email_verification()}>{$t("EMAIL_VERIFY.SEND")}</Button>
+									{#if profilManager.email_status}
+										<p role="status" class="text-sm font-medium text-emerald-600">{$t(`EMAIL_VERIFY.${profilManager.email_status}`)}</p>
+									{/if}
+									{#if profilManager.error_email}
+										<p role="alert" class="text-sm text-destructive">{translateError(profilManager.error_email)}</p>
+									{/if}
+								{/if}
+							</div>
+							<Separator />
 							<form class="flex flex-col gap-2" onsubmit={(e) => profilManager.change_username(e)}>
 								<fieldset class="flex flex-col gap-2">
 									<legend class="mb-2 text-sm font-semibold">Pseudo</legend>
@@ -227,6 +245,8 @@
 									{/if}
 								</fieldset>
 							</form>
+							<Separator />
+							<Button variant="outline" class="self-start" onclick={() => navigate("/privacy", { useAnimation: true })}>{$t("PRIVACY.TITLE")}</Button>
 						</section>
 						<div class="flex flex-col gap-4">
 						{#if profilManager.qr_image !== '' && !profilManager.is_2fa_enabled}

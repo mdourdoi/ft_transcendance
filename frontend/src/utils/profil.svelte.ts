@@ -14,6 +14,9 @@ export class ProfilManager {
     qr_image = $state('');
     qr_code = $state('');
     is_2fa_enabled = $state(false);
+    email_verified = $state(false);
+    email_status = $state('');
+    error_email = $state('');
 
     able_two_fa() {
         this.is_2fa_enabled = true;
@@ -34,12 +37,31 @@ export class ProfilManager {
             }
             this.username = data.username;
             this.email = data.email;
+            this.email_verified = Boolean(data.emailVerifiedAt);
             const is2fa = data.isTwoFactorEnabled ?? data.isTwoFactorAuthEnabled ?? data.twoFactorEnabled;
             if (typeof is2fa !== 'undefined') {
                 this.is_2fa_enabled = Boolean(is2fa);
             }
         } catch (err) {
             this.error_username = err instanceof Error ? err.message : String(err);
+        }
+    }
+
+    async request_email_verification() {
+        this.error_email = '';
+        this.email_status = '';
+        try {
+            const res = await authFetch('/api/users/me/verify-email', { method: 'POST' });
+            if (res.ok) {
+                this.email_status = 'SENT';
+                return;
+            }
+            const data = await res.json();
+            const errorCode = Array.isArray(data.message) ? data.message[0] : data.message;
+            if (errorCode === 'EMAIL_ALREADY_VERIFIED') this.email_verified = true;
+            else this.error_email = errorCode;
+        } catch {
+            this.error_email = 'NETWORK_ERROR';
         }
     }
 

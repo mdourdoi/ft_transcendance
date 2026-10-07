@@ -15,6 +15,7 @@
   import * as NativeSelect from "$lib/components/ui/native-select";
   import * as Sheet from "$lib/components/ui/sheet";
   import { cn } from "$lib/utils";
+  import { t } from "$lib/i18n";
   import { friendManager } from "../utils/friend.svelte";
   import { token } from "$lib/auth";
   import { logout, authFetch } from "$lib/auth";
@@ -271,6 +272,13 @@
 
       {#if showRequests}
         <div class="flex flex-col gap-1 pl-2 pt-1">
+          {#if friendManager.error}
+            <p role="alert" class="text-xs text-destructive">
+              {$t(`ERRORS.${friendManager.error}`, {
+                default: $t("ERRORS.UNKNOWN_ERROR"),
+              })}
+            </p>
+          {/if}
           {#if friendManager.friend_requests.length === 0}
             <p class="py-2 text-center text-xs text-muted-foreground">
               Aucune demande en attente
@@ -477,6 +485,13 @@
             bind:value={friendManager.to_add}
           />
           <Button type="submit" class="self-end">Ajouter</Button>
+          {#if friendManager.error}
+            <p role="alert" class="text-sm text-destructive">
+              {$t(`ERRORS.${friendManager.error}`, {
+                default: $t("ERRORS.UNKNOWN_ERROR"),
+              })}
+            </p>
+          {/if}
         </form>
       {/if}
     </div>

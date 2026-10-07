@@ -1,5 +1,11 @@
 import { authFetch } from '$lib/auth';
 
+// Validation errors without an explicit code come back as English sentences.
+function toErrorCode(err: unknown): string {
+	const message = err instanceof Error ? err.message : err;
+	return typeof message === 'string' && /^[A-Z0-9_]+$/.test(message) ? message : 'UNKNOWN_ERROR';
+}
+
 export class FriendManager {
 	
 	friends = $state<any[]>([]);
@@ -18,7 +24,7 @@ export class FriendManager {
 				this.username = data.username;
 				this.email = data.email;
 			} catch (err) {
-				this.error = err instanceof Error ? err.message : String(err);
+				this.error = toErrorCode(err);
 			}
 
 		}
@@ -40,9 +46,13 @@ export class FriendManager {
 				if (!res.ok) throw new Error(data.message);
 				this.friends = data;
 			} catch (err) {
-				this.error = err instanceof Error ? err.message : String(err);
+				this.error = toErrorCode(err);
 			}
 
+		}
+
+		async refresh() {
+			await Promise.all([this.get_friends(), this.friendships_requests()]);
 		}
 
 		async friendships_requests(){
@@ -52,12 +62,13 @@ export class FriendManager {
 				if (!res.ok) throw new Error(data.message);
 				this.friend_requests = data;
 			} catch (err) {
-				this.error = err instanceof Error ? err.message : String(err);
+				this.error = toErrorCode(err);
 			}
 		}
 
 		add_friend = async (event: SubmitEvent) => {
 			event.preventDefault();
+			this.error = null;
 			try {
 				const res = await authFetch('/api/friendships/send', {
 					method: 'POST',
@@ -72,11 +83,12 @@ export class FriendManager {
 				await this.get_friends();
 				await this.friendships_requests();
 			} catch (err) {
-				this.error = err instanceof Error ? err.message : String(err);
+				this.error = toErrorCode(err);
 			}
 		}
 
 		async accept_request(friend_id: number) {
+			this.error = null;
 			try {
 				const res = await authFetch('/api/friendships/accept', {
 					method: 'POST',
@@ -90,12 +102,13 @@ export class FriendManager {
 				await this.get_friends();
 				await this.friendships_requests();
 			} catch (err) {
-				this.error = err instanceof Error ? err.message : String(err);
-				await this.friendships_requests();
+				this.error = toErrorCode(err);
+				await this.refresh();
 			}
 		}
 
 		async deny_request(friend_id: number) {
+			this.error = null;
 			try {
 				const res = await authFetch('/api/friendships/deny', {
 					method: 'POST',
@@ -108,22 +121,36 @@ export class FriendManager {
 				}
 				await this.friendships_requests();
 			} catch (err) {
-				this.error = err instanceof Error ? err.message : String(err);
-				await this.friendships_requests();
+				this.error = toErrorCode(err);
+				await this.refresh();
 			}
 		}
 }
 
 export const friendManager = new FriendManager();
 
+import { get } from 'svelte/store';
 import { token } from '$lib/auth';
+import { onFriendRequest } from '$lib/socket';
+
+// Only incoming requests are pushed over the socket; other changes are picked up by polling.
+const REFRESH_INTERVAL_MS = 30_000;
+let refreshTimer: ReturnType<typeof setInterval> | null = null;
 
 token.subscribe((value) => {
+    if (refreshTimer) clearInterval(refreshTimer);
+    refreshTimer = null;
     if (!value) {
         friendManager.reset();
     } else {
         friendManager.get_user();
-        friendManager.get_friends();
-        friendManager.friendships_requests();
+        friendManager.refresh();
+        refreshTimer = setInterval(() => friendManager.refresh(), REFRESH_INTERVAL_MS);
     }
+});
+
+onFriendRequest(() => friendManager.friendships_requests());
+
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && get(token)) friendManager.refresh();
 });
