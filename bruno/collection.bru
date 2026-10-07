@@ -3,6 +3,6 @@ meta {
 }
 
 script:pre-request {
-  bru.setVar("baseUrl", bru.getVar("baseUrl") || "http://localhost:3000");
+  bru.setVar("baseUrl", bru.getVar("baseUrl") || "https://localhost:8443/api");
   bru.setVar("password", bru.getEnvVar("password") || "Password1!");
 }

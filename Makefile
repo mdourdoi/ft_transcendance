@@ -34,7 +34,7 @@ bruno:
 	docker run --rm --network host -v "$(CURDIR)/bruno":/collection:ro node:22-alpine sh -c '\
 		cp -r /collection /tmp/bruno && cd /tmp/bruno && \
 		npm ci --silent && npm i -g --silent @usebruno/cli && \
-		bru run --sandbox developer'
+		bru run --sandbox developer --insecure'
 
 ps:
 	$(COMPOSE) ps
