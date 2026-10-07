@@ -93,18 +93,18 @@
 
 	<Collapsible.Root bind:open={settingsOpen} class="shrink-0">
 		<Card.Root class="bg-card/80 backdrop-blur-sm" aria-label={$t("PROFILE.SETTINGS.HEADING")}>
-			<Card.Header>
-				<Card.Title class="font-display text-lg">◒ {$t("PROFILE.SETTINGS.HEADING")}</Card.Title>
-				<Card.Description>{$t("PROFILE.SETTINGS.DESCRIPTION")}</Card.Description>
-				<Card.Action>
-					<Collapsible.Trigger>
-						{#snippet child({ props })}
-							<Button {...props} variant="ghost" size="icon-sm" aria-label={$t("PROFILE.SETTINGS.HEADING")} class="[&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180">
-								<ChevronDown />
-							</Button>
-						{/snippet}
-					</Collapsible.Trigger>
-				</Card.Action>
+			<Card.Header class="flex items-center gap-3">
+				<Collapsible.Trigger>
+					{#snippet child({ props })}
+						<Button {...props} variant="ghost" size="icon-sm" aria-label={$t("PROFILE.SETTINGS.HEADING")} class="[&>svg]:transition-transform data-[state=open]:[&>svg]:rotate-180">
+							<ChevronDown />
+						</Button>
+					{/snippet}
+				</Collapsible.Trigger>
+				<div class="flex flex-col gap-1">
+					<Card.Title class="font-display text-lg">◒ {$t("PROFILE.SETTINGS.HEADING")}</Card.Title>
+					<Card.Description>{$t("PROFILE.SETTINGS.DESCRIPTION")}</Card.Description>
+				</div>
 			</Card.Header>
 			<Collapsible.Content class="flex flex-col gap-(--card-spacing)">
 				<Card.Content class="grid grid-cols-2 gap-4">
