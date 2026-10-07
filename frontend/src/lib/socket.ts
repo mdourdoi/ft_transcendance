@@ -21,7 +21,7 @@ function connectSocket() {
     if (socket) return socket;
     socket = io({auth: (cb) => cb({ token: get(token) })});
     socket.on('connect', () => {
-        socket?.emit('getOnlineFriends', (friends) => {
+        socket?.emit('getOnlineFriends', (friends: { userId: number; onlineStatus: boolean }[]) => {
             const res = Object.fromEntries(friends.map((f) => [f.userId, f.onlineStatus]));
             onlineFriends.set(res);
         });

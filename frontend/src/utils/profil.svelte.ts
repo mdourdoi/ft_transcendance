@@ -1,4 +1,6 @@
 import { authFetch } from '$lib/auth';
+import { navigate } from "$lib/router";
+import { friendManager } from './friend.svelte';
 
 export class ProfilManager {
     username = $state<string>('');
@@ -9,6 +11,7 @@ export class ProfilManager {
     newpassword2 = $state('');
     error_username = $state('');
     error_password = $state('');
+    error_avatar = $state('');
     two_fa = $state('');
     qr_image = $state('');
     qr_code = $state('');
@@ -16,6 +19,7 @@ export class ProfilManager {
     email_verified = $state(false);
     email_status = $state('');
     error_email = $state('');
+    avatarUrl = $state<string | null>(null);
 
     able_two_fa() {
         this.is_2fa_enabled = true;
@@ -23,6 +27,34 @@ export class ProfilManager {
 
     denable_two_fa() {
         this.is_2fa_enabled = false;
+    }
+
+    async change_avatar(file: File) {
+        this.error_avatar = '';
+        try {
+            const body = new FormData();
+            body.append('file', file);
+            const res = await authFetch('/api/users/me/avatar', {
+                method: 'POST',
+                body,
+            });
+            if (res.status === 413) {
+                this.error_avatar = 'FILE_TOO_LARGE';
+                return;
+            }
+            if (!res.ok) {
+                const data = await res.json().catch(() => null);
+                const errorCode = Array.isArray(data?.message) ? data.message[0] : data?.message;
+                this.error_avatar = errorCode ?? 'UNKNOWN_ERROR';
+                return;
+            }
+            const data = await res.json();
+            this.avatarUrl = data.avatarUrl;
+            friendManager.get_user();
+        }
+        catch (err) {
+            this.error_avatar = 'NETWORK_ERROR';
+        }
     }
 
     async get_user() {
@@ -37,6 +69,7 @@ export class ProfilManager {
             this.username = data.username;
             this.email = data.email;
             this.email_verified = Boolean(data.emailVerifiedAt);
+            this.avatarUrl = data.avatarUrl;
             const is2fa = data.isTwoFactorEnabled ?? data.isTwoFactorAuthEnabled ?? data.twoFactorEnabled;
             if (typeof is2fa !== 'undefined') {
                 this.is_2fa_enabled = Boolean(is2fa);
