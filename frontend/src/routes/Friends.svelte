@@ -37,13 +37,7 @@
 
 
 
-  const sortedBlocked = $derived(
-    [...friendManager.blocked].sort(
-      (a, b) =>
-        Number(!!$onlineFriends[b.user.id]) -
-        Number(!!$onlineFriends[a.user.id]),
-    ),
-  );
+  const sortedBlocked = $derived([...friendManager.blocked]);
 
   type Status = "Online" | "InGame" | "Afk";
 
@@ -183,8 +177,8 @@
           class="size-[6vw] max-h-[11vh] max-w-[11vh] rounded-md after:rounded-full after:border-0"
         >
           <Avatar.Image
-            src={friendManager.avatar ? `/api/avatars/${friendManager.avatar}` : "/assets/home/avatar/avatar-kenshii.png"}
-            alt="0"
+            src={`/api/avatars/${friendManager.avatar}`}
+            alt={friendManager.username}
             class="rounded-full"
           />
           <Avatar.Fallback></Avatar.Fallback>
@@ -226,6 +220,16 @@
 
     <ScrollArea class="min-h-0 flex-1 pr-2">
       <div class="flex flex-col gap-3">
+        {#if friendManager.error}
+          <p
+            role="alert"
+            class="text-center text-sm font-semibold text-destructive"
+          >
+            {$t(`ERRORS.${friendManager.error}`, {
+              default: $t("ERRORS.UNKNOWN_ERROR"),
+            })}
+          </p>
+        {/if}
         <div class="flex flex-col gap-1">
           {@render textHeader(
             "DEMANDES",
@@ -247,9 +251,7 @@
                     <div class="flex min-w-0 items-center gap-2">
                       <Avatar.Root class="size-8">
                         <Avatar.Image
-                          src={req.user.avatarUrl
-                            ? `/api/avatars/${req.user.avatarUrl}`
-                            : "../assets/home/avatar/test-offline.png"}
+                          src={`/api/avatars/${req.user.avatarUrl}`}
                           alt={req.user.username}
                         />
                         <Avatar.Fallback
@@ -426,18 +428,18 @@
         <div class="flex flex-col gap-1">
           {@render textHeader(
             "INVITATIONS ENVOYÉES",
-            friendManager.sended.length,
+            friendManager.sent.length,
             showSent,
             () => (showSent = !showSent),
           )}
           {#if showSent}
             <div class="flex flex-col gap-1">
-              {#if friendManager.sended.length === 0}
+              {#if friendManager.sent.length === 0}
                 <p class="py-2 text-center text-xs text-muted-foreground">
                   Aucune invitation envoyée
                 </p>
               {:else}
-                {#each friendManager.sended as f (f.user.id)}
+                {#each friendManager.sent as f (f.user.id)}
                   <div
                     class="flex items-center gap-3 rounded-md px-2 py-1.5 hover:bg-accent/70"
                   >
@@ -528,7 +530,10 @@
 <Sheet.Root
   open={popup !== ""}
   onOpenChange={(open) => {
-    if (!open) popup = "";
+    if (!open) {
+      popup = "";
+      friendManager.error = "";
+    }
   }}
 >
   <Sheet.Content

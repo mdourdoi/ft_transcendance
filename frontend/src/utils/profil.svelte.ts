@@ -12,7 +12,6 @@ export class ProfilManager {
     error_username = $state('');
     error_password = $state('');
     error_avatar = $state('');
-    error = $state('');
     two_fa = $state('');
     qr_image = $state('');
     qr_code = $state('');

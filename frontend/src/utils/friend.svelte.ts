@@ -1,32 +1,29 @@
 import { authFetch } from '$lib/auth';
 
 export class FriendManager {
-	
 	friends = $state<any[]>([]);
-    friend_requests = $state<any[]>([]);
-    username = $state<string>('');
-    email = $state<string>('');
-    to_add = $state<string>('');
-    error = $state<string | null>(null);
+	friend_requests = $state<any[]>([]);
+	username = $state<string>('');
+	email = $state<string>('');
+	to_add = $state<string>('');
+	error = $state<string>('');
 	blocked = $state<any[]>([]);
-	sended = $state<any[]>([]);
+	sent = $state<any[]>([]);
 	avatar = $state('');
-	
-	async get_user()
-		{
-			this.error = '';
-			try{
-				const res = await authFetch('/api/users/me');
-				const data = await res.json();
-				if (!res.ok) throw new Error(data.message);
-				this.username = data.username;
-				this.email = data.email;
-				this.avatar = data.avatarUrl
-			} catch (err) {
-				this.error = err instanceof Error ? err.message : String(err);
-			}
 
+	async get_user() {
+		this.error = '';
+		try {
+			const res = await authFetch('/api/users/me');
+			const data = await res.json();
+			if (!res.ok) throw new Error(data.message);
+			this.username = data.username;
+			this.email = data.email;
+			this.avatar = data.avatarUrl;
+		} catch (err) {
+			this.error = err instanceof Error ? err.message : String(err);
 		}
+	}
 
 	reset() {
 		this.friends = [];
@@ -34,9 +31,9 @@ export class FriendManager {
 		this.username = '';
 		this.email = '';
 		this.to_add = '';
-		this.error = null;
-		this.blocked = '';
-		this.sended = '';
+		this.error = '';
+		this.blocked = [];
+		this.sent = [];
 		this.avatar = '';
 	}
 
@@ -80,17 +77,17 @@ export class FriendManager {
 			}
 		}
 
-		async friendships_requests_sended(){
+		async get_sent_requests() {
 			this.error = '';
 			try {
 				const res = await authFetch('/api/friendships/pending');
 				const data = await res.json();
 				if (!res.ok) {
-					const errorCode = Array.isArray(data.message) ? data.message[0]: data.message ?? 'UNKNOWN_ERROR';
+					const errorCode = Array.isArray(data.message) ? data.message[0] : data.message ?? 'UNKNOWN_ERROR';
 					this.error = errorCode;
-					return ;
+					return;
 				}
-				this.sended = data;
+				this.sent = data;
 			} catch (err) {
 				this.error = err instanceof Error ? err.message : String(err);
 			}
@@ -114,7 +111,7 @@ export class FriendManager {
 				this.to_add = '';
 				await this.get_friends();
 				await this.friendships_requests();
-				await this.friendships_requests_sended();
+				await this.get_sent_requests();
 			} catch (err) {
 				this.error = err instanceof Error ? err.message : String(err);
 			}
@@ -234,15 +231,14 @@ export class FriendManager {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ targetId: friend_id })
-				})
-			await this.friendships_requests_sended();
+				});
 				if (!res.ok) {
 					const data = await res.json();
-					const errorCode = Array.isArray(data.message) ? data.message[0]: data.message ?? 'UNKNOWN_ERROR';
+					const errorCode = Array.isArray(data.message) ? data.message[0] : data.message ?? 'UNKNOWN_ERROR';
 					this.error = errorCode;
-					return ;
+					return;
 				}
-				await this.friendships_requests_sended();
+				await this.get_sent_requests();
 			} catch (err) {
 				this.error = err instanceof Error ? err.message : String(err);
 			}

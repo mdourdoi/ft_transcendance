@@ -69,7 +69,7 @@
 
 	const avatarSrc = $derived(`/api/avatars/${profilManager.avatarUrl ?? "default.png"}`);
 
-	async function changeavatar() {
+	async function change_avatar() {
 		if (!file) return;
 		await profilManager.change_avatar(file);
 		files = undefined;
