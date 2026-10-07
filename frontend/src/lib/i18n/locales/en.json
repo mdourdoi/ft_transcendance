@@ -156,6 +156,7 @@
     "IDENTITY": "Identity and level",
     "AVATAR_ALT": "{name}’s avatar",
     "CHANGE_PHOTO": "Change photo",
+    "UPLOAD_AVATAR": "Confirm",
     "CHANGE_AVATAR": "Change avatar",
     "EDIT_NAME": "Edit name",
     "EDIT_TITLE": "Edit title",
@@ -421,27 +422,18 @@
     "ALREADY_IN_MATCH": "You already have a game in progress.",
     "FORBIDDEN_MOVE": "Illegal move.",
     "SELECT_CARD": "Select a card.",
-    "MOVE_AVAILABLE": "A move is still possible."
+    "MOVE_AVAILABLE": "A move is still possible.",
     "NOT_FRIENDS": "You are not friends with this user",
-    "ALREADY_IN_MATCH": "You or your opponent are already in a match",
     "GAME_INVITE_ALREADY_SENT": "An invitation has already been sent to this friend",
     "GAME_INVITE_NOT_FOUND": "Invitation not found or expired",
     "INVALID_QUEUE_MODE": "Invalid game mode",
     "INVALID_GAME_PAYLOAD": "Invalid game request",
-    "MATCH_NOT_FOUND": "Match not found",
-    "NOT_IN_MATCH": "You are not participating in this match",
-    "MATCH_NOT_ACTIVE": "This match is no longer active",
-    "GAME_NOT_STARTED": "The match has not started yet",
-    "GAME_OVER": "The match is over",
-    "NOT_YOUR_TURN": "It is not your turn",
     "CARD_NOT_IN_HAND": "This card is not in your hand",
     "ILLEGAL_MOVE": "Illegal move",
     "NOT_YOUR_ENTITY": "This piece does not belong to you",
     "EMPTY_SOURCE_SQUARE": "There is no piece on this square",
     "DESTINATION_OCCUPIED": "This square is already occupied by one of your pieces",
-    "POSITION_OUT_OF_BOUNDS": "This square is outside the board",
-    "MOVE_AVAILABLE": "You cannot pass: a move is available",
-    "GAME_BUSY": "The server is busy, please try again"
+    "POSITION_OUT_OF_BOUNDS": "This square is outside the board"
   }
 }
 

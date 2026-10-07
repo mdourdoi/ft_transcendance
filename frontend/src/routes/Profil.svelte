@@ -109,7 +109,7 @@
 						bind:files
 						/>
 					<Field.Description>PNG, JPEG ou WebP, 2 Mo max.</Field.Description>
-					<Button type="button" variant="secondary" class="self-start" disabled={!file} onclick={changeavatar}>valide</Button>
+					<Button type="button" variant="secondary" class="self-start" disabled={!file} onclick={change_avatar}>{$t("PROFILE.UPLOAD_AVATAR")}</Button>
 					{#if profilManager.error_avatar}
 						<p role="alert" class="text-sm text-destructive">{translateError(profilManager.error_avatar)}</p>
 					{/if}

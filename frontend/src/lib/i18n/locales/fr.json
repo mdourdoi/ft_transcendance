@@ -156,6 +156,7 @@
     "IDENTITY": "Identité et niveau",
     "AVATAR_ALT": "Avatar de {name}",
     "CHANGE_PHOTO": "Changer la photo",
+    "UPLOAD_AVATAR": "Valider",
     "CHANGE_AVATAR": "Changer l’avatar",
     "EDIT_NAME": "Modifier le nom",
     "EDIT_TITLE": "Modifier le titre",
@@ -421,26 +422,17 @@
     "ALREADY_IN_MATCH": "Tu as déjà une partie en cours.",
     "FORBIDDEN_MOVE": "Déplacement interdit.",
     "SELECT_CARD": "Sélectionne une carte.",
-    "MOVE_AVAILABLE": "Il reste un déplacement possible."
+    "MOVE_AVAILABLE": "Il reste un déplacement possible.",
     "NOT_FRIENDS": "Vous n'êtes pas amis avec cet utilisateur",
-    "ALREADY_IN_MATCH": "Vous ou votre adversaire êtes déjà en partie",
     "GAME_INVITE_ALREADY_SENT": "Une invitation a déjà été envoyée à cet ami",
     "GAME_INVITE_NOT_FOUND": "Invitation introuvable ou expirée",
     "INVALID_QUEUE_MODE": "Mode de jeu invalide",
     "INVALID_GAME_PAYLOAD": "Requête de jeu invalide",
-    "MATCH_NOT_FOUND": "Partie introuvable",
-    "NOT_IN_MATCH": "Vous ne participez pas à cette partie",
-    "MATCH_NOT_ACTIVE": "Cette partie n'est plus active",
-    "GAME_NOT_STARTED": "La partie n'a pas encore commencé",
-    "GAME_OVER": "La partie est terminée",
-    "NOT_YOUR_TURN": "Ce n'est pas votre tour",
     "CARD_NOT_IN_HAND": "Cette carte n'est pas dans votre main",
     "ILLEGAL_MOVE": "Coup interdit",
     "NOT_YOUR_ENTITY": "Cette pièce ne vous appartient pas",
     "EMPTY_SOURCE_SQUARE": "Il n'y a aucune pièce sur cette case",
     "DESTINATION_OCCUPIED": "Cette case est déjà occupée par l'une de vos pièces",
-    "POSITION_OUT_OF_BOUNDS": "Cette case est en dehors du plateau",
-    "MOVE_AVAILABLE": "Vous ne pouvez pas passer : un coup est possible",
-    "GAME_BUSY": "Le serveur est occupé, réessayez"
+    "POSITION_OUT_OF_BOUNDS": "Cette case est en dehors du plateau"
   }
 }

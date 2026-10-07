@@ -35,10 +35,6 @@
     ),
   );
 
-
-
-  const sortedBlocked = $derived([...friendManager.blocked]);
-
   type Status = "Online" | "InGame" | "Afk";
 
   const statusStyle: Record<
@@ -382,10 +378,7 @@
                   Aucun utilisateur bloqué
                 </p>
               {:else}
-                {#each sortedBlocked as f (f.user.id)}
-                  {@const status = $onlineFriends[f.user.id]
-                    ? statusStyle.Online
-                    : null}
+                {#each friendManager.blocked as f (f.user.id)}
                   <div
                     class="flex items-center gap-3 rounded-md px-2 py-1.5 hover:bg-accent/70"
                   >
@@ -395,17 +388,9 @@
                         alt={f.user.username}
                       />
                       <Avatar.Fallback>{f.user.username.slice(0, 2)}</Avatar.Fallback>
-                      {#if status}
-                        <Avatar.Badge class={status.dot} />
-                      {/if}
                     </Avatar.Root>
                     <span class="flex min-w-0 flex-1 flex-col items-start">
                       <strong class="truncate text-sm">{f.user.username}</strong>
-                      <span
-                        class={cn("text-xs", status?.text ?? "text-muted-foreground")}
-                      >
-                        {status?.label ?? "Hors ligne"}
-                      </span>
                     </span>
 
                     <DropdownMenu.Root>
@@ -621,12 +606,6 @@
         {/if}
       {:else if popup === "add"}
         <form class="flex flex-col gap-2" onsubmit={friendManager.add_friend}>
-
-        {#if friendManager.error}
-          <p class="absolute top-[470px] left-1/2 -translate-x-1/2 w-[400px] text-center text-red-600 text-base font-semibold z-50">
-            {$t(`ERRORS.${friendManager.error}`, { default: $t('ERRORS.UNKNOWN_ERROR') })}
-          </p>
-          {/if}
           <Label for="contact_login">Pseudo du contact</Label>
           <Input
             id="contact_login"
@@ -635,6 +614,11 @@
             bind:value={friendManager.to_add}
             onblur={() => friendManager.error = ''}
           />
+          {#if friendManager.error}
+            <p role="alert" class="text-sm font-semibold text-destructive">
+              {$t(`ERRORS.${friendManager.error}`, { default: $t("ERRORS.UNKNOWN_ERROR") })}
+            </p>
+          {/if}
           <Button type="submit" class="self-end">{$t("FRIENDS.ADD")}</Button>
         </form>
       {/if}
