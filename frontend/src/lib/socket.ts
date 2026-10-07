@@ -98,6 +98,13 @@ export function onNewMessage(handler: (m: ChatMessage) => void) {
     return () => messageHandlers.delete(handler);
 }
 
+const friendRequestHandlers = new Set<() => void>();
+
+export function onFriendRequest(handler: () => void) {
+    friendRequestHandlers.add(handler);
+    return () => friendRequestHandlers.delete(handler);
+}
+
 function disconnectSocket() {
     socket?.disconnect();
     onlineFriends.set({})

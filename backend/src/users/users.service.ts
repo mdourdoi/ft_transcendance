@@ -42,6 +42,7 @@ export class UsersService {
     return {
       id: row.id,
       email: row.email,
+      emailVerifiedAt: row.emailVerifiedAt,
       username: row.username,
       avatarUrl: row.avatarUrl,
       rating: row.rating,

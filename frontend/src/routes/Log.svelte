@@ -22,6 +22,8 @@
 	let username = $state('');
 	let error = $state('');
 	let loading = false;
+	let acceptTerms = false;
+	let notice = '';
 
 	const passwordType = $derived(hidden ? 'password' : 'text');
 
@@ -62,8 +64,28 @@
             return;
         }
 		if (!/^[a-zA-Z0-9]{3,24}$/.test(username)) {
-			error = 'INVALID_USERNAME';
+		error = 'INVALID_USERNAME';
+		return;
+	}
+		if (!acceptTerms) {
+			error = 'CONSENT_REQUIRED';
 			return;
+		}
+		try {
+			const res = await fetch('/api/auth/register', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ email: email, username: username, password: password, acceptTerms: true })
+			});
+			const data = await res.json();
+			if (!res.ok) {
+				const errorCode = Array.isArray(data.message) ? data.message[0]: data.message ?? 'UNKNOWN_ERROR';
+				error = errorCode;
+				return ;
+			}
+			selectMode('login');
+		} catch (err) {
+			error = 'NETWORK_ERROR';
 		}
 		if (await post('/api/auth/register', { email, username, password }))
 			selectMode('login');
@@ -74,11 +96,26 @@
 			error = 'EMPTY_FIELDS';
 			return;
 		}
-		const data = await post('/api/auth/login', { email, password });
-		if (data)
-			enter(data.accessToken);
-		else if (error === 'TWOFA_CODE_REQUIRED')
-			selectMode('2fa');
+		try {
+			const res = await fetch('/api/auth/login', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ email: email, password: password })
+			});
+			const data = await res.json();
+			if (!res.ok) {
+				const errorCode = Array.isArray(data.message) ? data.message[0]: data.message ?? 'UNKNOWN_ERROR';
+				error = errorCode;
+				if (error === 'TWOFA_CODE_REQUIRED' || error === 'MAIL_RATE_LIMITED') selectMode('2fa');
+				return ;
+			}
+			password = '';
+			email = '';
+			token.set(data.accessToken);
+			home();
+		} catch (err) {
+			error = 'NETWORK_ERROR';
+		}
 	}
 
 	async function connectTwoFa() {
@@ -94,15 +131,39 @@
 		enter(data.accessToken);
 	}
 
-	function selectMode(mode: Step) {
+	async function resendCode() {
+		if (loading) return;
+		loading = true;
+		error = '';
+		notice = '';
+		try {
+			const res = await fetch('/api/auth/login', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ email: email.trim(), password: password.trim() })
+			});
+			const data = await res.json();
+			const errorCode = Array.isArray(data.message) ? data.message[0] : data.message ?? 'UNKNOWN_ERROR';
+			if (errorCode === 'TWOFA_CODE_REQUIRED') notice = 'TWOFA.RESENT';
+			else error = errorCode;
+		} catch (err) {
+			error = 'NETWORK_ERROR';
+		} finally {
+			loading = false;
+		}
+	}
+
+	function selectMode(mode: string) {
 		currentStep = mode;
 		error = '';
+		notice = '';
 	}
 
 	async function handleSubmit() {
 		if (loading) return;
 		loading = true;
 		error = '';
+		notice = '';
 		try {
 			if (currentStep === 'signin') {
 				await addUser();
@@ -121,6 +182,10 @@
 	{#if error}
 	<p class="absolute top-[470px] left-1/2 -translate-x-1/2 w-[400px] text-center text-red-600 text-base font-semibold z-50">
 		{$t(`ERRORS.${error}`, { default: $t('ERRORS.UNKNOWN_ERROR') })}
+	</p>
+	{:else if notice}
+	<p class="absolute top-[470px] left-1/2 -translate-x-1/2 w-[400px] text-center text-black text-base font-semibold z-50">
+		{$t(notice)}
 	</p>
 	{/if}
 	<img
