@@ -14,10 +14,12 @@
   import * as Avatar from "$lib/components/ui/avatar";
   import * as NativeSelect from "$lib/components/ui/native-select";
   import * as Sheet from "$lib/components/ui/sheet";
+  import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
   import { cn } from "$lib/utils";
   import { friendManager } from "../utils/friend.svelte";
+  import {profilManager} from '../utils/profil.svelte';
   import { logout, authFetch } from "$lib/auth";
-  import { t } from "$lib/i18n";
+  import { t } from '$lib/i18n';
   import {
     onlineFriends,
     sendMessage,
@@ -49,7 +51,12 @@
   };
 
   let popup: "" | "message" | "add" = $state("");
+
+
+  let showFriends = $state(false);
   let showRequests = $state(false);
+  let showBlocked = $state(false);
+  let showSent = $state(false);
 
   let selectedValue = $state("");
   const selectedId = $derived(selectedValue ? Number(selectedValue) : null);
@@ -116,6 +123,41 @@
   }
 </script>
 
+{#snippet textHeader(
+  label: string,
+  count: number,
+  open: boolean,
+  toggle: () => void,
+)}
+  <button
+    type="button"
+    class="flex items-center gap-2 px-1 pt-1 text-left text-xs font-bold tracking-widest text-muted-foreground hover:text-foreground"
+    aria-expanded={open}
+    onclick={toggle}
+  >
+    <ChevronDown
+      class={cn("size-4 transition-transform duration-200", !open && "-rotate-90")}
+    />
+    {label} ({count})
+  </button>
+{/snippet}
+
+{#snippet optionsTrigger()}
+  <DropdownMenu.Trigger>
+    {#snippet child({ props })}
+      <Button
+        {...props}
+        variant="ghost"
+        size="icon"
+        class="size-8 shrink-0"
+        aria-label="Options"
+      >
+        <Ellipsis class="text-muted-foreground" />
+      </Button>
+    {/snippet}
+  </DropdownMenu.Trigger>
+{/snippet}
+
 <aside
   class="grid h-full grid-rows-[15.5vh_minmax(0,1fr)_auto] overflow-hidden px-[5px] pt-[5px]"
 >
@@ -128,14 +170,14 @@
     <div class="relative flex h-full items-center gap-[1vw] px-[1.3vw]">
       <div class="relative">
         <Avatar.Root
-          class="size-[6vw] max-h-[11vh] max-w-[11vh] rounded-md after:rounded-md after:border-0"
+          class="size-[6vw] max-h-[11vh] max-w-[11vh] rounded-md after:rounded-full after:border-0"
         >
           <Avatar.Image
-            src="../assets/home/avatar/avatar-kenshii.png"
-            alt="0"
-            class="rounded-md"
+            src={`/api/avatars/${friendManager.avatar}`}
+            alt={friendManager.username}
+            class="rounded-full"
           />
-          <Avatar.Fallback>KE</Avatar.Fallback>
+          <Avatar.Fallback></Avatar.Fallback>
         </Avatar.Root>
         <Badge
           variant="secondary"
@@ -173,118 +215,249 @@
     </div>
 
     <ScrollArea class="min-h-0 flex-1 pr-2">
-      <div class="flex flex-col gap-1">
-        <div
-          class="flex items-center gap-2 px-1 pt-1 text-xs font-bold tracking-widest text-muted-foreground"
-        >
-          <ChevronDown class="size-4" />
-          {$t("FRIENDS.HEADING", { values: { count: friendManager.friends.length } })}
-        </div>
-        {#each sortedFriends as f (f.user.id)}
-          {@const status = $onlineFriends[f.user.id]
-            ? statusStyle.Online
-            : null}
-          <Button
-            variant="ghost"
-            class="h-auto justify-start gap-3 px-2 py-1.5 hover:bg-accent/70"
+      <div class="flex flex-col gap-3">
+        {#if friendManager.error}
+          <p
+            role="alert"
+            class="text-center text-sm font-semibold text-destructive"
           >
-            <Avatar.Root class="size-10">
-              <Avatar.Image
-                src={`/api/avatars/${f.user.avatarUrl ?? "default.png"}`}
-                alt={f.user.username}
-              />
-              <Avatar.Fallback>{f.user.username.slice(0, 2)}</Avatar.Fallback>
-              {#if status}
-                <Avatar.Badge class={status.dot} />
-              {/if}
-            </Avatar.Root>
-            <span class="flex min-w-0 flex-1 flex-col items-start">
-              <strong class="truncate text-sm">{f.user.username}</strong>
-              <span
-                class={cn("text-xs", status?.text ?? "text-muted-foreground")}
-              >
-                {$t(status?.label ?? "FRIENDS.STATUS.OFFLINE")}
-              </span>
-            </span>
-            <Ellipsis class="text-muted-foreground" aria-label={$t("FRIENDS.OPTIONS")} />
-          </Button>
-        {/each}
-      </div>
-    </ScrollArea>
-
-    <!-- Section des Demandes d'amis -->
-    <div class="flex flex-col gap-1">
-      <Button
-        variant="outline"
-        class="justify-start gap-2 bg-card/60 font-bold tracking-widest"
-        onclick={() => (showRequests = !showRequests)}
-      >
-        <ChevronRight
-          class={cn(
-            "size-4 transition-transform duration-200",
-            showRequests && "rotate-90",
+            {$t(`ERRORS.${friendManager.error}`, {
+              default: $t("ERRORS.UNKNOWN_ERROR"),
+            })}
+          </p>
+        {/if}
+        <div class="flex flex-col gap-1">
+          {@render textHeader(
+            "DEMANDES",
+            friendManager.friend_requests.length,
+            showRequests,
+            () => (showRequests = !showRequests),
           )}
-        />
-        {$t("FRIENDS.REQUESTS")}
-        <Badge class="ml-auto">{friendManager.friend_requests.length}</Badge>
-      </Button>
+          {#if showRequests}
+            <div class="flex flex-col gap-1 pl-2 pt-1">
+              {#if friendManager.friend_requests.length === 0}
+                <p class="py-2 text-center text-xs text-muted-foreground">
+                  Aucune demande en attente
+                </p>
+              {:else}
+                {#each friendManager.friend_requests as req (req.user.id)}
+                  <div
+                    class="flex items-center justify-between rounded-md bg-card/40 p-2 hover:bg-accent/50"
+                  >
+                    <div class="flex min-w-0 items-center gap-2">
+                      <Avatar.Root class="size-8">
+                        <Avatar.Image
+                          src={`/api/avatars/${req.user.avatarUrl}`}
+                          alt={req.user.username}
+                        />
+                        <Avatar.Fallback
+                          >{req.user.username
+                            .slice(0, 2)
+                            .toUpperCase()}</Avatar.Fallback
+                        >
+                      </Avatar.Root>
+                      <span class="truncate text-sm font-medium"
+                        >{req.user.username}</span
+                      >
+                    </div>
 
-      {#if showRequests}
-        <div class="flex flex-col gap-1 pl-2 pt-1">
-          {#if friendManager.friend_requests.length === 0}
-            <p class="py-2 text-center text-xs text-muted-foreground">
-              {$t("FRIENDS.NO_REQUESTS")}
-            </p>
-          {:else}
-            {#each friendManager.friend_requests as req (req.user.id)}
-              <div
-                class="flex items-center justify-between rounded-md bg-card/40 p-2 hover:bg-accent/50"
-              >
-                <div class="flex items-center gap-2 min-w-0">
-                  <Avatar.Root class="size-8">
-                    <Avatar.Image
-                      src={req.user.avatarUrl
-                        ? `/api/avatars/${req.user.avatarUrl}`
-                        : "../assets/home/avatar/test-offline.png"}
-                      alt={req.user.username}
-                    />
-                    <Avatar.Fallback
-                      >{req.user.username
-                        .slice(0, 2)
-                        .toUpperCase()}</Avatar.Fallback
-                    >
-                  </Avatar.Root>
-                  <span class="truncate text-sm font-medium"
-                    >{req.user.username}</span
-                  >
-                </div>
-
-                <div class="flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    class="size-7 text-emerald-500 hover:bg-emerald-500/20 hover:text-emerald-400"
-                    title={$t("FRIENDS.ACCEPT")}
-                    onclick={() => friendManager.accept_request(req.user.id)}
-                  >
-                    <Check class="size-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    class="size-7 text-destructive hover:bg-destructive/20 hover:text-destructive"
-                    title={$t("FRIENDS.DENY")}
-                    onclick={() => friendManager.deny_request(req.user.id)}
-                  >
-                    <X class="size-4" />
-                  </Button>
-                </div>
-              </div>
-            {/each}
+                    <div class="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        class="size-7 bg-white font-extrabold text-emerald-500 hover:bg-emerald-500/20 hover:text-emerald-400"
+                        title="Accepter"
+                        onclick={() =>
+                          friendManager.accept_request(req.user.id)}
+                      >
+                        <Check class="size-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        class="size-7 bg-white font-extrabold text-destructive hover:bg-destructive/20 hover:text-destructive"
+                        title="Refuser"
+                        onclick={() => friendManager.deny_request(req.user.id)}
+                      >
+                        <X class="size-4" />
+                      </Button>
+                    </div>
+                  </div>
+                {/each}
+              {/if}
+            </div>
           {/if}
         </div>
-      {/if}
-    </div>
+
+        <div class="flex flex-col gap-1">
+          {@render textHeader(
+            "AMIS",
+            friendManager.friends.length,
+            showFriends,
+            () => (showFriends = !showFriends),
+          )}
+          {#if showFriends}
+            <div class="flex flex-col gap-1">
+              {#if friendManager.friends.length === 0}
+                <p class="py-2 text-center text-xs text-muted-foreground">
+                  Aucun ami pour le moment
+                </p>
+              {:else}
+                {#each sortedFriends as f (f.user.id)}
+                  {@const status = $onlineFriends[f.user.id]
+                    ? statusStyle.Online
+                    : null}
+                  <div
+                    class="group flex items-center gap-3 rounded-md px-2 py-1.5 hover:bg-accent/70"
+                  >
+                    <Avatar.Root class="size-10">
+                      <Avatar.Image
+                        src={`/api/avatars/${f.user.avatarUrl ?? "default.png"}`}
+                        alt={f.user.username}
+                      />
+                      <Avatar.Fallback>{f.user.username.slice(0, 2)}</Avatar.Fallback>
+                      {#if status}
+                        <Avatar.Badge class={status.dot} />
+                      {/if}
+                    </Avatar.Root>
+                    <span class="flex min-w-0 flex-1 flex-col items-start">
+                      <strong class="truncate text-sm">{f.user.username}</strong>
+                      <span
+                        class={cn("text-xs", status?.text ?? "text-muted-foreground")}
+                      >
+                        {status?.label ?? "Hors ligne"}
+                      </span>
+                    </span>
+
+                    <DropdownMenu.Root>
+                      {@render optionsTrigger()}
+                      <DropdownMenu.Content align="end">
+                        <DropdownMenu.Item
+                          onclick={() => {
+                            selectedValue = String(f.conversationId);
+                            popup = "message";
+                          }}
+                        >
+                          Envoyer un message
+                        </DropdownMenu.Item>
+
+                        <DropdownMenu.Separator />
+
+                        <DropdownMenu.Item
+                          class="text-destructive"
+                          onclick={() => friendManager.block_friend(f.user.id)}
+                        >
+                          Bloquer
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Item
+                          class="text-destructive"
+                          onclick={() => friendManager.remove_friend(f.user.id)}
+                        >
+                          Retirer des amis
+                        </DropdownMenu.Item>
+                      </DropdownMenu.Content>
+                    </DropdownMenu.Root>
+                  </div>
+                {/each}
+              {/if}
+            </div>
+          {/if}
+        </div>
+
+        <div class="flex flex-col gap-1">
+          {@render textHeader(
+            "BLOQUÉS",
+            friendManager.blocked.length,
+            showBlocked,
+            () => (showBlocked = !showBlocked),
+          )}
+          {#if showBlocked}
+            <div class="flex flex-col gap-1">
+              {#if friendManager.blocked.length === 0}
+                <p class="py-2 text-center text-xs text-muted-foreground">
+                  Aucun utilisateur bloqué
+                </p>
+              {:else}
+                {#each friendManager.blocked as f (f.user.id)}
+                  <div
+                    class="flex items-center gap-3 rounded-md px-2 py-1.5 hover:bg-accent/70"
+                  >
+                    <Avatar.Root class="size-10">
+                      <Avatar.Image
+                        src={`/api/avatars/${f.user.avatarUrl ?? "default.png"}`}
+                        alt={f.user.username}
+                      />
+                      <Avatar.Fallback>{f.user.username.slice(0, 2)}</Avatar.Fallback>
+                    </Avatar.Root>
+                    <span class="flex min-w-0 flex-1 flex-col items-start">
+                      <strong class="truncate text-sm">{f.user.username}</strong>
+                    </span>
+
+                    <DropdownMenu.Root>
+                      {@render optionsTrigger()}
+                      <DropdownMenu.Content align="end">
+                        <DropdownMenu.Item
+                          onclick={() => friendManager.unblock_friend(f.user.id)}
+                        >
+                          Débloquer
+                        </DropdownMenu.Item>
+                      </DropdownMenu.Content>
+                    </DropdownMenu.Root>
+                  </div>
+                {/each}
+              {/if}
+            </div>
+          {/if}
+        </div>
+
+        <div class="flex flex-col gap-1">
+          {@render textHeader(
+            "INVITATIONS ENVOYÉES",
+            friendManager.sent.length,
+            showSent,
+            () => (showSent = !showSent),
+          )}
+          {#if showSent}
+            <div class="flex flex-col gap-1">
+              {#if friendManager.sent.length === 0}
+                <p class="py-2 text-center text-xs text-muted-foreground">
+                  Aucune invitation envoyée
+                </p>
+              {:else}
+                {#each friendManager.sent as f (f.user.id)}
+                  <div
+                    class="flex items-center gap-3 rounded-md px-2 py-1.5 hover:bg-accent/70"
+                  >
+                    <Avatar.Root class="size-10">
+                      <Avatar.Image
+                        src={`/api/avatars/${f.user.avatarUrl ?? "default.png"}`}
+                        alt={f.user.username}
+                      />
+                      <Avatar.Fallback>{f.user.username.slice(0, 2)}</Avatar.Fallback>
+                    </Avatar.Root>
+                    <span class="flex min-w-0 flex-1 flex-col items-start">
+                      <strong class="truncate text-sm">{f.user.username}</strong>
+                    </span>
+
+                    <DropdownMenu.Root>
+                      {@render optionsTrigger()}
+                      <DropdownMenu.Content align="end">
+                        <DropdownMenu.Item
+                          class="text-destructive"
+                          onclick={() => friendManager.cancel_invitation(f.user.id)}
+                        >
+                          Annuler l'invitation
+                        </DropdownMenu.Item>
+                      </DropdownMenu.Content>
+                    </DropdownMenu.Root>
+                  </div>
+                {/each}
+              {/if}
+            </div>
+          {/if}
+        </div>
+      </div>
+    </ScrollArea>
   </section>
 
   <footer class="relative h-[77px]">
@@ -342,7 +515,10 @@
 <Sheet.Root
   open={popup !== ""}
   onOpenChange={(open) => {
-    if (!open) popup = "";
+    if (!open) {
+      popup = "";
+      friendManager.error = "";
+    }
   }}
 >
   <Sheet.Content
@@ -383,8 +559,9 @@
             <Button variant="outline" size="sm">{$t("FRIENDS.REFRESH")}</Button>
           </div>
           <div
-            class="flex min-h-40 max-h-80 flex-col gap-2 overflow-y-auto rounded-md border border-border bg-muted/40 p-3"
-            aria-label={$t("FRIENDS.MESSAGE_HISTORY")}
+
+            class="flex max-h-80 min-h-40 flex-col gap-2 overflow-y-auto rounded-md border border-border bg-muted/40 p-3"
+            aria-label="Historique des messages"
             aria-live="polite"
           >
             {#if hasMore}
@@ -429,13 +606,19 @@
         {/if}
       {:else if popup === "add"}
         <form class="flex flex-col gap-2" onsubmit={friendManager.add_friend}>
-          <Label for="contact_login">{$t("FRIENDS.CONTACT_USERNAME")}</Label>
+          <Label for="contact_login">Pseudo du contact</Label>
           <Input
             id="contact_login"
             maxlength={40}
             autocomplete="off"
             bind:value={friendManager.to_add}
+            onblur={() => friendManager.error = ''}
           />
+          {#if friendManager.error}
+            <p role="alert" class="text-sm font-semibold text-destructive">
+              {$t(`ERRORS.${friendManager.error}`, { default: $t("ERRORS.UNKNOWN_ERROR") })}
+            </p>
+          {/if}
           <Button type="submit" class="self-end">{$t("FRIENDS.ADD")}</Button>
         </form>
       {/if}

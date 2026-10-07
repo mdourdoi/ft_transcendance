@@ -1,6 +1,7 @@
 import { io, Socket } from 'socket.io-client';
 import { token } from "$lib/auth";
 import { get, writable } from 'svelte/store';
+import { friendManager } from "../utils/friend.svelte";
 
 
 let socket: Socket | null = null;
@@ -21,7 +22,7 @@ function connectSocket() {
     if (socket) return socket;
     socket = io({auth: (cb) => cb({ token: get(token) })});
     socket.on('connect', () => {
-        socket?.emit('getOnlineFriends', (friends) => {
+        socket?.emit('getOnlineFriends', (friends: { userId: number; onlineStatus: boolean }[]) => {
             const res = Object.fromEntries(friends.map((f) => [f.userId, f.onlineStatus]));
             onlineFriends.set(res);
         });
@@ -31,6 +32,9 @@ function connectSocket() {
     });
     socket.on('newMessage', (msg: ChatMessage) => {
         messageHandlers.forEach((handler) => handler(msg));
+    });
+    socket.on('friendRequest', () => {
+        friendManager.friendships_requests();
     });
     return socket;
 }

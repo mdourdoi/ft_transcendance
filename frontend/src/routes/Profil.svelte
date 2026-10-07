@@ -15,6 +15,7 @@
 	import { t, locale } from "$lib/i18n";
 	import { onMount } from "svelte";
 	import {profilManager} from '../utils/profil.svelte';
+	import * as Field from "$lib/components/ui/field";
 
 	type Section = "overview" | "achievements" | "customization" | "setting";
 	type Achievement = { key: string; image: string; unlocked?: boolean; progress?: number };
@@ -63,6 +64,16 @@
 	const showSettings = $derived(profileSection === "overview" || profileSection === "setting");
 
 
+	let files = $state<FileList | undefined>();
+	const file = $derived(files?.[0]);
+
+	const avatarSrc = $derived(`/api/avatars/${profilManager.avatarUrl ?? "default.png"}`);
+
+	async function change_avatar() {
+		if (!file) return;
+		await profilManager.change_avatar(file);
+		files = undefined;
+	}
 
 	function translateError(code: string): string {
 		return $t(`ERRORS.${code}`, { default: code });
@@ -81,24 +92,36 @@
 				<div class="flex flex-col items-center gap-2">
 					<div class="relative">
 						<Avatar.Root class="size-24 border-4 border-secondary shadow-[0_0_0_2px_var(--accent)]">
-							<Avatar.Image src={player.avatar} alt={$t("PROFILE.AVATAR_ALT", { values: { name: player.name } })} />
+
+							<Avatar.Image src={avatarSrc} alt={`Avatar de ${player.name}`} />
 							<Avatar.Fallback>{player.name.slice(0, 2)}</Avatar.Fallback>
 						</Avatar.Root>
 						<Button size="icon-sm" class="absolute right-0 bottom-0 rounded-full" aria-label={$t("PROFILE.CHANGE_PHOTO")} onclick={() => onCustomize("avatar")}>
 							<Camera />
 						</Button>
 					</div>
-					<Button variant="outline" size="sm" onclick={() => onCustomize("avatar")}>{$t("PROFILE.CHANGE_AVATAR")}</Button>
+					<Field.Field>
+					<Field.Label for="picture">Avatar</Field.Label>
+					<Input
+						id="picture"
+						type="file"
+						accept="image/png,image/jpeg,image/webp"
+						bind:files
+						/>
+					<Field.Description>PNG, JPEG ou WebP, 2 Mo max.</Field.Description>
+					<Button type="button" variant="secondary" class="self-start" disabled={!file} onclick={change_avatar}>{$t("PROFILE.UPLOAD_AVATAR")}</Button>
+					{#if profilManager.error_avatar}
+						<p role="alert" class="text-sm text-destructive">{translateError(profilManager.error_avatar)}</p>
+					{/if}
+					</Field.Field>
 				</div>
 				
 				<div class="flex min-w-0 flex-col gap-1">
 					<h2 class="flex items-center gap-1 font-display text-3xl font-bold">
 						{player.name}
-						<Button variant="ghost" size="icon-sm" aria-label={$t("PROFILE.EDIT_NAME")} onclick={() => onCustomize("name")}><Pencil /></Button>
 					</h2>
 					<span class="flex items-center gap-1 text-sm font-semibold">
 						{player.title}
-						<Button variant="ghost" size="icon-xs" aria-label={$t("PROFILE.EDIT_TITLE")} onclick={() => onCustomize("title")}><Pencil /></Button>
 					</span>
 					<Separator class="my-2 w-24 bg-primary" />
 					<q class="text-sm text-muted-foreground italic">{player.quote}</q>
@@ -165,8 +188,8 @@
 				</Card.Header>
 				<Card.Content class="grid grid-cols-4 gap-3">
 					<Button variant="outline" class="h-auto justify-start gap-3 bg-transparent p-3 whitespace-normal" onclick={() => onCustomize("avatar")}>
-						<img class="size-12 rounded-full object-cover" src={player.avatar} alt="" />
-						<span class="flex flex-col items-start text-left"><b>{$t("PROFILE.CUSTOMIZATION.AVATAR")}</b><small class="text-xs text-muted-foreground">{$t("PROFILE.CUSTOMIZATION.AVATAR_HINT")}</small></span>
+						<img class="size-12 rounded-full object-cover" src={avatarSrc} alt="" />
+						<span class="flex flex-col items-start text-left"><b>Avatar</b><small class="text-xs text-muted-foreground">Modifiez votre avatar de profil.</small></span>
 					</Button>
 					<Button variant="outline" class="h-auto justify-start gap-3 bg-transparent p-3 whitespace-normal" onclick={() => onCustomize("frame")}>
 						<span class="size-12 shrink-0 rounded-full border-4 border-double border-primary"></span>
