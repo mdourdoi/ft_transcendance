@@ -14,19 +14,6 @@ const END_REASONS: Record<GameEndReason, Result["reason"]> = {
     CANCELLED: "annulation",
 };
 
-export const SERVER_ERRORS: Record<string, string> = {
-    NOT_YOUR_TURN: "Ce n’est pas ton tour.",
-    GAME_NOT_STARTED: "La partie n’a pas encore commencé.",
-    GAME_OVER: "La partie est terminée.",
-    GAME_BUSY: "Le serveur est occupé, réessaie.",
-    MATCH_NOT_FOUND: "Partie introuvable.",
-    MATCH_NOT_ACTIVE: "Cette partie est terminée.",
-    NOT_IN_MATCH: "Tu ne participes pas à cette partie.",
-    ALREADY_IN_MATCH: "Tu as déjà une partie en cours.",
-    INVALID_TOKEN: "Session expirée, reconnecte-toi.",
-    NETWORK_ERROR: "Impossible de joindre le serveur.",
-};
-
 function toCard(view: CardView): Card {
     return Card.create({ name: view.name, moves: view.moves, color: view.color as CardColor });
 }

@@ -1,18 +1,382 @@
 {
-  "HOME": {
-    "SUBTITLE": "Onitama",
-    "PLAY": "Play"
+  "COMMON": {
+    "EYEBROW": "ONITAMA · THE DOJO",
+    "LOADING": "Loading…",
+    "LOAD_MORE": "Load more",
+    "CLOSE": "Close",
+    "CANCEL": "Cancel",
+    "QUIT": "Leave",
+    "BACK": "Back",
+    "SETTINGS": "Settings",
+    "VICTORY": "Victory",
+    "DEFEAT": "Defeat"
   },
-  "GAME": {
-    "TITLE": "Match",
-    "BACK": "Back"
+  "LANGUAGE": {
+    "LABEL": "Language"
   },
   "NOTFOUND": {
     "MISSING": "not found.",
     "HOME": "Home"
   },
-  "LANGUAGE": {
-    "LABEL": "Language"
+  "AUTH": {
+    "LOGIN_TITLE": "Log in",
+    "REGISTER_TITLE": "Create an account",
+    "TWOFA_TITLE": "2FA verification",
+    "SUBTITLE": "Find your way back to the tatami.",
+    "EMAIL": "Email",
+    "PASSWORD": "Password",
+    "USERNAME": "Username",
+    "CODE": "Code",
+    "LOGIN": "Log in",
+    "REGISTER": "Create an account",
+    "OR": "or"
+  },
+  "NAV": {
+    "MAIN": "Main navigation",
+    "HOME": "Home",
+    "HISTORY": "History",
+    "STATS": "Stats",
+    "PROFILE": "Profile"
+  },
+  "HOME": {
+    "PLAY": "Play",
+    "NEWS": "NEWS",
+    "NEWS_PREVIOUS": "Previous news",
+    "NEWS_NEXT": "Next news",
+    "NEWS_ITEM": "News {index}",
+    "NEWS_ITEMS": {
+      "SEASON": {
+        "TITLE": "New season",
+        "TEXT": "New challenges await you on the path."
+      },
+      "TOURNAMENT": {
+        "TITLE": "Temple tournament",
+        "TEXT": "Face the best disciples of the dojo."
+      },
+      "CARDS": {
+        "TITLE": "New cards",
+        "TEXT": "Master new moves."
+      }
+    },
+    "MODES": {
+      "RANKED": "Ranked games",
+      "NORMAL": "Normal games",
+      "TRAINING": "Training games"
+    },
+    "QUOTE": "A small step moves a great destiny."
+  },
+  "HISTORY": {
+    "TITLE": "Match history",
+    "SUBTITLE": "Every game leaves a trace.",
+    "FILTER_LABEL": "Filter games",
+    "FILTERS": {
+      "ALL": "All",
+      "RANKED": "Ranked",
+      "NORMAL": "Normal"
+    },
+    "MODES": {
+      "RANKED": "Ranked",
+      "NORMAL": "Normal",
+      "TRAINING": "Training"
+    },
+    "QUOTE": "Learn from yesterday to play better tomorrow.",
+    "COLUMNS": {
+      "RESULT": "RESULT",
+      "MODE": "MODE",
+      "OPPONENT": "OPPONENT",
+      "DURATION": "DURATION",
+      "DATE": "DATE"
+    },
+    "OPTIONS": "Options for the game against {opponent}",
+    "EMPTY": "No games yet.",
+    "DETAILS": {
+      "TITLE": "Game details",
+      "MODE": "Mode",
+      "DURATION": "Duration",
+      "END": "End of game",
+      "XP": "XP earned",
+      "RATING": "Rating change",
+      "MOVES": "Number of moves",
+      "UNKNOWN": "Not specified"
+    },
+    "END_REASONS": {
+      "WAY_OF_STONE": "Way of the Stone",
+      "WAY_OF_STREAM": "Way of the Stream",
+      "RESIGNATION": "Resignation",
+      "DISCONNECTION": "Disconnection",
+      "TIMEOUT": "Time out",
+      "CANCELLED": "Cancelled"
+    }
+  },
+  "STATS": {
+    "TITLE": "Overall statistics",
+    "SUBTITLE": "A path of discipline, an endless progression.",
+    "SUMMARY": {
+      "GAMES": "Games played",
+      "WINS": "Wins",
+      "LOSSES": "Losses",
+      "WINRATE": "Win rate"
+    },
+    "MODES": {
+      "RANKED": "Ranked",
+      "NORMAL": "Normal",
+      "CHALLENGE": "Challenges",
+      "EVENT": "Events"
+    },
+    "BY_MODE": "Breakdown by game mode",
+    "RANK_PROGRESS": "Rank progression",
+    "LAST_6_MONTHS": "Last 6 months",
+    "RANK": "Rank",
+    "RANKS": {
+      "NOVICE": "Novice",
+      "DISCIPLE": "Disciple",
+      "ADEPT": "Adept",
+      "EXPERT": "Expert",
+      "MASTER": "Master"
+    },
+    "PERFORMANCE": "Performance",
+    "PEAK": "Peak",
+    "MOST_PLAYED_CARDS": "Most played cards",
+    "FREQUENT_OPPONENTS": "Frequent opponents",
+    "GAMES_COUNT": "{count} games",
+    "HOURLY": "Performance by hour",
+    "QUOTE": "Every game is a lesson."
+  },
+  "PROFILE": {
+    "TITLE": "My Profile",
+    "SUBTITLE": "Show your style and your patience",
+    "SECTIONS_LABEL": "Profile sections",
+    "SECTIONS": {
+      "OVERVIEW": "Overview",
+      "ACHIEVEMENTS": "Achievements",
+      "CUSTOMIZATION": "Customize",
+      "SETTINGS": "Settings"
+    },
+    "QUOTE": "Self-mastery leads to victory.",
+    "IDENTITY": "Identity and level",
+    "AVATAR_ALT": "{name}’s avatar",
+    "CHANGE_PHOTO": "Change photo",
+    "CHANGE_AVATAR": "Change avatar",
+    "EDIT_NAME": "Edit name",
+    "EDIT_TITLE": "Edit title",
+    "DEFAULT_TITLE": "Disciple of the wind",
+    "DEFAULT_QUOTE": "Calm is my strength.",
+    "LEVEL": "LEVEL",
+    "LEVEL_PROGRESS": "Level progress",
+    "NEXT_LEVEL": "Next level: {level}",
+    "ACHIEVEMENTS": {
+      "HEADING": "Game achievements",
+      "UNLOCKED": "{count} / {total} unlocked",
+      "SEE_ALL": "See all",
+      "ITEMS": {
+        "FIRST_STEP": {
+          "TITLE": "First step",
+          "DESCRIPTION": "Win a game."
+        },
+        "TIGER_SPIRIT": {
+          "TITLE": "Spirit of the tiger",
+          "DESCRIPTION": "Win 10 games."
+        },
+        "TEMPLE_WAY": {
+          "TITLE": "Way of the temple",
+          "DESCRIPTION": "Win by the temple."
+        },
+        "PERFECT_STREAK": {
+          "TITLE": "Perfect streak",
+          "DESCRIPTION": "4 / 5 consecutive wins."
+        },
+        "HUNDRED_WINS": {
+          "TITLE": "A hundred wins",
+          "DESCRIPTION": "73 / 100 wins."
+        },
+        "DOJO_MASTER": {
+          "TITLE": "Master of the dojo",
+          "DESCRIPTION": "Reach level 50."
+        }
+      }
+    },
+    "CUSTOMIZATION": {
+      "HEADING": "Customization",
+      "AVATAR": "Avatar",
+      "AVATAR_HINT": "Change your profile avatar.",
+      "FRAME": "Frame",
+      "FRAME_HINT": "Choose a frame for your avatar.",
+      "TITLE": "Title",
+      "TITLE_HINT": "Display your favorite title.",
+      "CUSTOMIZE": "Customize",
+      "QUOTE": "Appearance follows the spirit."
+    },
+    "SETTINGS": {
+      "HEADING": "Settings",
+      "DESCRIPTION": "Your account, your mood, your game",
+      "SUMMARY": "Account and security, music, sound effects and gameplay comfort.",
+      "OPEN": "Open settings",
+      "ACCOUNT": "Account",
+      "NICKNAME": "Nickname",
+      "USERNAME": "Username",
+      "SAVE_USERNAME": "Save nickname",
+      "PASSWORD": "Password",
+      "CURRENT_PASSWORD": "Current password",
+      "NEW_PASSWORD": "New password",
+      "PASSWORD_HINT": "12 to 128 characters. Server rules still apply.",
+      "CONFIRM_PASSWORD": "Confirm the new password",
+      "CHANGE_PASSWORD": "Change password",
+      "TWOFA": {
+        "HEADING": "Two-factor authentication · 2FA",
+        "SCAN": "Scan this QR code with your authenticator app:",
+        "QR_ALT": "QR code for two-factor authentication",
+        "CODE": "2FA code",
+        "VALIDATE": "Confirm",
+        "PROTECT": "Protect your account with 2FA.",
+        "ENABLE": "Enable",
+        "ENABLED": "Two-factor authentication is enabled on your account.",
+        "DISABLE_LABEL": "Enter your 2FA code to disable it",
+        "DISABLE": "Disable"
+      },
+      "RESET": "Reset audio and game preferences",
+      "RESET_HINT": "Account and security settings are kept."
+    }
+  },
+  "FRIENDS": {
+    "STATUS": {
+      "ONLINE": "Online",
+      "IN_GAME": "In game",
+      "AWAY": "Away",
+      "OFFLINE": "Offline"
+    },
+    "SEARCH_PLACEHOLDER": "Search for a friend...",
+    "SEARCH": "Search",
+    "HEADING": "FRIENDS ({count})",
+    "OPTIONS": "Options",
+    "REQUESTS": "REQUESTS",
+    "NO_REQUESTS": "No pending requests",
+    "ACCEPT": "Accept",
+    "DENY": "Decline",
+    "MESSAGES": "Messages",
+    "ADD_FRIEND": "Add a friend",
+    "LOGOUT": "Log out",
+    "ADD_CONTACT": "Add a contact",
+    "MESSAGING": "Messaging",
+    "CHOOSE_FRIEND": "Choose a friend",
+    "CHOOSE_CONTACT": "Choose a contact…",
+    "REFRESH": "Refresh",
+    "MESSAGE_HISTORY": "Message history",
+    "YOUR_MESSAGE": "Your message",
+    "MESSAGE_PLACEHOLDER": "Write your message…",
+    "SEND": "Send",
+    "SELECT_FRIEND": "Select a friend to open the conversation.",
+    "CONTACT_USERNAME": "Contact’s username",
+    "ADD": "Add"
+  },
+  "GAME": {
+    "HEAD_TITLE": "Onitama · Local game",
+    "HEAD_DESCRIPTION": "Onitama: a local two-player game in a Japanese ink dojo.",
+    "TITLES": {
+      "LOCAL": "LOCAL GAME",
+      "RANKED": "RANKED GAME",
+      "NORMAL": "NORMAL GAME"
+    },
+    "TAGLINE": "A calm mind, a right move.",
+    "MENU_LABEL": "Game menu",
+    "IN_PROGRESS": "Game in progress",
+    "RULES": "Game rules",
+    "PREVIOUS_MOVE": "Previous move",
+    "NEXT_MOVE": "Next move",
+    "MOVE_COUNTER": "Move {step}/{total}",
+    "BACK_TO_LIVE": "Back to live",
+    "PLAYER": "Player {name}",
+    "NORTH": "North",
+    "SOUTH": "South",
+    "RED": "Red",
+    "BLACK": "Black",
+    "CLOCK": "{name}’s time: {time}",
+    "CARDS_IN_HAND": "Cards in hand",
+    "OPPONENT_TURN": "Opponent’s turn",
+    "YOUR_TURN": "Your turn",
+    "BOARD": "Game board",
+    "BOARD_LABEL": "Onitama board",
+    "CARD": "{name} card",
+    "CARD_MOVES": "Moves oriented like the board",
+    "EXCHANGE_LABEL": "Exchange card",
+    "EXCHANGE_TITLE": "Master’s card · Exchange",
+    "SHOW_RESULT": "View result",
+    "CHOOSE_DESTINATION": "Choose a valid destination.",
+    "CHOOSE_CARD": "Choose a card, then one of your pieces.",
+    "VALID_MOVE": "Valid move",
+    "CAPTURE": "Possible capture",
+    "OPPONENT_AWAY": "Opponent disconnected — forfeit in 30 s if they do not come back.",
+    "CLOCK_STARTS": "The clock starts on the first move.",
+    "PASS": "Pass and exchange",
+    "RESIGN": "Resign",
+    "FOOTER": "Onitama — A path of discipline, a victory of the mind",
+    "ME": "Me",
+    "OPPONENT": "Opponent",
+    "OUTCOME": {
+      "CANCELLED": "Game cancelled",
+      "WINNER": "{name} wins the game"
+    },
+    "VERDICT": {
+      "OVER": "Game over",
+      "WIN": "Victory!",
+      "LOSS": "Defeat"
+    },
+    "STATUS": {
+      "WAITING_OPPONENT": "Waiting for the opponent…",
+      "SEARCHING": "Looking for an opponent…",
+      "REVIEW": "Review · move {step}/{total}",
+      "TURN": "{name} to play"
+    },
+    "MODALS": {
+      "RULES": "Rules of the dojo",
+      "RESIGN": "Resign the game?",
+      "EXIT": "Leave the dojo?"
+    },
+    "REASONS": {
+      "CAPTURE": "The opposing master has been captured.",
+      "TEMPLE": "The opposing temple has been reached.",
+      "ABANDON": "Victory by resignation.",
+      "TEMPS": "The opponent’s time has run out.",
+      "DECONNEXION": "Victory by opponent disconnection.",
+      "ANNULATION": "The game has been cancelled."
+    },
+    "RULES_LIST": {
+      "1": "Two players share this screen. South plays the black pieces, North the red ones.",
+      "2": "Select a card, then one of your pieces. The dots show the possible destinations.",
+      "3": "The mini-grids are oriented like the board: North’s are flipped. The dark square is your piece.",
+      "4": "An enemy piece on the destination is captured. You cannot take your own pieces.",
+      "5": "The played card is swapped with the one in the center, then the turn changes.",
+      "6": "Win by capturing the opposing master or by bringing your master into the opposing temple.",
+      "7": "If no move is possible with your two cards, you must pass and exchange a card."
+    },
+    "NEW_GAME": "New game",
+    "VIEW_BOARD": "View the board",
+    "SHOW_HINTS": "Show possible destinations",
+    "NEXT_DURATION": "Duration of the next game",
+    "DURATION_HINT": "The chosen duration will apply to the next game. The clocks keep running while menus are open.",
+    "RESIGN_TEXT": "{name}, your opponent will win the game.",
+    "CONFIRM_RESIGN": "Confirm resignation",
+    "NOT_SAVED": "The local game will not be saved.",
+    "BACK_TO_LAUNCHER": "Back to the launcher",
+    "EXIT_PLAYING": "If you leave mid-game, you will forfeit it after 30 seconds.",
+    "EXIT_IDLE": "You are about to leave the dojo."
+  },
+  "CARDS": {
+    "TIGER": "Tiger",
+    "DRAGON": "Dragon",
+    "FROG": "Frog",
+    "RABBIT": "Rabbit",
+    "CRAB": "Crab",
+    "ELEPHANT": "Elephant",
+    "GOOSE": "Goose",
+    "ROOSTER": "Rooster",
+    "MONKEY": "Monkey",
+    "MANTIS": "Mantis",
+    "HORSE": "Horse",
+    "OX": "Ox",
+    "CRANE": "Crane",
+    "BOAR": "Boar",
+    "EEL": "Eel",
+    "COBRA": "Cobra"
   },
   "ERRORS": {
     "EMPTY_FIELDS": "Please fill in all fields",
@@ -40,6 +404,18 @@
     "FORBIDDEN_CONVERSATION": "You do not have access to this conversation",
     "EMPTY_MESSAGE": "The message cannot be empty",
     "INVALID_MESSAGE": "Invalid message (1024 characters max)",
-    "INVALID_CONVERSATION_ID": "Invalid conversation"
+    "INVALID_CONVERSATION_ID": "Invalid conversation",
+    "NOT_CONNECTED": "You are not connected to the server",
+    "NOT_YOUR_TURN": "It is not your turn.",
+    "GAME_NOT_STARTED": "The game has not started yet.",
+    "GAME_OVER": "The game is over.",
+    "GAME_BUSY": "The server is busy, try again.",
+    "MATCH_NOT_FOUND": "Game not found.",
+    "MATCH_NOT_ACTIVE": "This game is over.",
+    "NOT_IN_MATCH": "You are not part of this game.",
+    "ALREADY_IN_MATCH": "You already have a game in progress.",
+    "FORBIDDEN_MOVE": "Illegal move.",
+    "SELECT_CARD": "Select a card.",
+    "MOVE_AVAILABLE": "A move is still possible."
   }
 }

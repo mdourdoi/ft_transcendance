@@ -13,16 +13,6 @@ type ApiMatch = {
 	replay: { moves: unknown[] } | null;
 };
 
-const reasonLabels: Record<string, string> = {
-	WAY_OF_STONE: 'Voie de la pierre',
-	WAY_OF_STREAM: 'Voie du ruisseau',
-	RESIGNATION: 'Abandon',
-	DISCONNECTION: 'Déconnexion',
-	TIMEOUT: 'Temps écoulé',
-};
-
-const dateFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
-
 function duration(match: ApiMatch): string {
 	if (!match.finishedAt) return '—';
 	const minutes = Math.round((Date.parse(match.finishedAt) - Date.parse(match.createdAt)) / 60000);
@@ -38,8 +28,8 @@ function toGame(match: ApiMatch): Game {
 		opponentId: String(match.opponent.id),
 		avatar: `/api/avatars/${match.opponent.avatarUrl}`,
 		duration: duration(match),
-		date: dateFormat.format(new Date(match.finishedAt ?? match.createdAt)),
-		reason: match.endReason ? (reasonLabels[match.endReason] ?? match.endReason) : undefined,
+		date: match.finishedAt ?? match.createdAt,
+		reason: match.endReason ?? undefined,
 		ratingDelta: match.ratingDelta == null ? undefined : match.won ? match.ratingDelta : -match.ratingDelta,
 		movesCount: match.replay?.moves.length,
 	};

@@ -10,17 +10,16 @@
 	import * as Tabs from '$lib/components/ui/tabs';
 	import { InkQuote, PageShell, SideNav } from '$lib/components/onitama';
 	import { historyManager } from '../utils/history.svelte';
+	import { t, locale } from '$lib/i18n';
 
-	const filters = [
-		{ value: 'all', label: 'Toutes' },
-		{ value: 'Ranked', label: 'Classées' },
-		{ value: 'Normal', label: 'Normales' },
-	];
+	const filters = $derived([
+		{ value: 'all', label: $t('HISTORY.FILTERS.ALL') },
+		{ value: 'Ranked', label: $t('HISTORY.FILTERS.RANKED') },
+		{ value: 'Normal', label: $t('HISTORY.FILTERS.NORMAL') },
+	]);
 
-	const modeInfo: Record<string, { label: string; icon: string }> = {
-		Ranked: { label: 'Classée', icon: '♛' },
-		Normal: { label: 'Normale', icon: '⚔' },
-	};
+	const modeIcons: Record<string, string> = { Ranked: '♛', Normal: '⚔' };
+	const dateFormat = $derived(new Intl.DateTimeFormat($locale ?? undefined, { dateStyle: 'short', timeStyle: 'short' }));
 
 	let historyFilter = $state('all');
 	let gameOption: Game | null = $state(null);
@@ -35,33 +34,33 @@
 </script>
 
 <Tabs.Root bind:value={historyFilter} orientation="vertical" class="h-full">
-	<PageShell title="Historique des parties" subtitle="Chaque partie laisse une trace.">
+	<PageShell title={$t('HISTORY.TITLE')} subtitle={$t('HISTORY.SUBTITLE')}>
 		{#snippet sidebar()}
-			<SideNav label="Filtrer les parties" items={filters} />
-			<InkQuote class="mt-auto" quote="Apprendre d’hier pour mieux jouer demain." author="" stamp />
+			<SideNav label={$t('HISTORY.FILTER_LABEL')} items={filters} />
+			<InkQuote class="mt-auto" quote={$t('HISTORY.QUOTE')} author="" stamp />
 		{/snippet}
 
 		<Card.Root class="shrink-0 bg-card/80 py-0 backdrop-blur-sm">
 			<Table.Root>
 				<Table.Header class="bg-secondary [&_th]:text-secondary-foreground">
 					<Table.Row class="hover:bg-secondary">
-						<Table.Head class="pl-4 tracking-widest">RÉSULTAT</Table.Head>
-						<Table.Head class="tracking-widest">MODE</Table.Head>
-						<Table.Head class="tracking-widest">ADVERSAIRE</Table.Head>
-						<Table.Head class="tracking-widest">DURÉE</Table.Head>
-						<Table.Head class="tracking-widest">DATE</Table.Head>
+						<Table.Head class="pl-4 tracking-widest">{$t('HISTORY.COLUMNS.RESULT')}</Table.Head>
+						<Table.Head class="tracking-widest">{$t('HISTORY.COLUMNS.MODE')}</Table.Head>
+						<Table.Head class="tracking-widest">{$t('HISTORY.COLUMNS.OPPONENT')}</Table.Head>
+						<Table.Head class="tracking-widest">{$t('HISTORY.COLUMNS.DURATION')}</Table.Head>
+						<Table.Head class="tracking-widest">{$t('HISTORY.COLUMNS.DATE')}</Table.Head>
 						<Table.Head class="w-12"></Table.Head>
 					</Table.Row>
 				</Table.Header>
 				<Table.Body>
 					{#each games as game (game.id)}
-						{@const mode = modeInfo[game.mode] ?? { label: game.mode, icon: '' }}
+						{@const mode = { label: $t(`HISTORY.MODES.${game.mode.toUpperCase()}`, { default: game.mode }), icon: modeIcons[game.mode] ?? '' }}
 						<Table.Row class="hover:bg-accent/60">
 							<Table.Cell class="pl-4">
 								<div class="flex items-center gap-2">
 									<img class="size-6" src={`../assets/home/icone/${game.result === 'Victory' ? 'victoire' : 'defaite'}.png`} alt="" />
 									<Badge variant={game.result === 'Victory' ? 'default' : 'secondary'}>
-										{game.result === 'Victory' ? 'Victoire' : 'Défaite'}
+										{$t(game.result === 'Victory' ? 'COMMON.VICTORY' : 'COMMON.DEFEAT')}
 									</Badge>
 								</div>
 							</Table.Cell>
@@ -78,9 +77,9 @@
 								</span>
 							</Table.Cell>
 							<Table.Cell class="text-muted-foreground">{game.duration}</Table.Cell>
-							<Table.Cell class="text-muted-foreground">{game.date}</Table.Cell>
+							<Table.Cell class="text-muted-foreground">{dateFormat.format(new Date(game.date))}</Table.Cell>
 							<Table.Cell>
-								<Button variant="ghost" size="icon-sm" aria-label={`Options de la partie contre ${game.opponent}`} onclick={() => (gameOption = game)}>
+								<Button variant="ghost" size="icon-sm" aria-label={$t('HISTORY.OPTIONS', { values: { opponent: game.opponent } })} onclick={() => (gameOption = game)}>
 									<Ellipsis />
 								</Button>
 							</Table.Cell>
@@ -88,7 +87,7 @@
 					{:else}
 						<Table.Row class="hover:bg-transparent">
 							<Table.Cell colspan={6} class="py-8 text-center text-muted-foreground">
-								{historyManager.loading ? 'Chargement…' : (historyManager.error ?? 'Aucune partie pour le moment.')}
+								{historyManager.loading ? $t('COMMON.LOADING') : historyManager.error ? $t(`ERRORS.${historyManager.error}`, { default: historyManager.error }) : $t('HISTORY.EMPTY')}
 							</Table.Cell>
 						</Table.Row>
 					{/each}
@@ -98,7 +97,7 @@
 
 		{#if historyManager.nextCursor !== null}
 			<Button variant="outline" class="shrink-0 self-center" disabled={historyManager.loading} onclick={() => historyManager.loadMore()}>
-				{historyManager.loading ? 'Chargement…' : 'Charger plus'}
+				{historyManager.loading ? $t('COMMON.LOADING') : $t('COMMON.LOAD_MORE')}
 			</Button>
 		{/if}
 	</PageShell>
