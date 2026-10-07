@@ -1,8 +1,10 @@
 const { io } = require('socket.io-client');
 
 function connect(baseUrl, token, namespace = '/queue') {
-  return io(`${baseUrl}${namespace}`, {
+  const origin = baseUrl.replace(/\/api\/?$/, '');
+  return io(`${origin}${namespace}`, {
     transports: ['websocket'],
+    rejectUnauthorized: false,
     auth: token ? { token } : {},
     reconnection: false,
     forceNew: true,
