@@ -9,7 +9,6 @@
 		duration: string;
 		date: string;
 		reason?: string;
-		xpEarned?: number;
 		ratingDelta?: number;
 		movesCount?: number;
 	};
@@ -29,7 +28,6 @@
 		{ label: $t('HISTORY.DETAILS.MODE'), value: $t(`HISTORY.MODES.${game.mode.toUpperCase()}`, { default: game.mode }) },
 		{ label: $t('HISTORY.DETAILS.DURATION'), value: game.duration },
 		{ label: $t('HISTORY.DETAILS.END'), value: game.reason ? $t(`HISTORY.END_REASONS.${game.reason}`, { default: game.reason }) : $t('HISTORY.DETAILS.UNKNOWN') },
-		{ label: $t('HISTORY.DETAILS.XP'), value: game.xpEarned ?? '—' },
 		{ label: $t('HISTORY.DETAILS.RATING'), value: game.ratingDelta == null ? '—' : `${game.ratingDelta > 0 ? '+' : ''}${game.ratingDelta}` },
 		{ label: $t('HISTORY.DETAILS.MOVES'), value: game.movesCount ?? '—' },
 	]);

@@ -94,7 +94,6 @@
       "MODE": "Modo",
       "DURATION": "Duración",
       "END": "Fin de la partida",
-      "XP": "XP ganados",
       "RATING": "Variación de la clasificación",
       "MOVES": "Número de jugadas",
       "UNKNOWN": "Sin especificar"
@@ -148,65 +147,17 @@
     "SECTIONS_LABEL": "Secciones del perfil",
     "SECTIONS": {
       "OVERVIEW": "Resumen",
-      "ACHIEVEMENTS": "Logros",
-      "CUSTOMIZATION": "Personalizar",
       "SETTINGS": "Ajustes"
     },
     "QUOTE": "El dominio de uno mismo conduce a la victoria.",
-    "IDENTITY": "Identidad y nivel",
+    "IDENTITY": "Identidad",
     "AVATAR_ALT": "Avatar de {name}",
-    "CHANGE_PHOTO": "Cambiar la foto",
     "UPLOAD_AVATAR": "Validar",
     "CHANGE_AVATAR": "Cambiar el avatar",
     "EDIT_NAME": "Editar el nombre",
     "EDIT_TITLE": "Editar el título",
     "DEFAULT_TITLE": "Discípulo del viento",
     "DEFAULT_QUOTE": "La calma es mi fuerza.",
-    "LEVEL": "NIVEL",
-    "LEVEL_PROGRESS": "Progreso del nivel",
-    "NEXT_LEVEL": "Siguiente nivel: {level}",
-    "ACHIEVEMENTS": {
-      "HEADING": "Logros de partida",
-      "UNLOCKED": "{count} / {total} desbloqueados",
-      "SEE_ALL": "Ver todos",
-      "ITEMS": {
-        "FIRST_STEP": {
-          "TITLE": "Primer paso",
-          "DESCRIPTION": "Gana una partida."
-        },
-        "TIGER_SPIRIT": {
-          "TITLE": "Espíritu del tigre",
-          "DESCRIPTION": "Gana 10 partidas."
-        },
-        "TEMPLE_WAY": {
-          "TITLE": "Camino del templo",
-          "DESCRIPTION": "Gana por el templo."
-        },
-        "PERFECT_STREAK": {
-          "TITLE": "Racha perfecta",
-          "DESCRIPTION": "4 / 5 victorias consecutivas."
-        },
-        "HUNDRED_WINS": {
-          "TITLE": "Cien victorias",
-          "DESCRIPTION": "73 / 100 victorias."
-        },
-        "DOJO_MASTER": {
-          "TITLE": "Maestro del dojo",
-          "DESCRIPTION": "Alcanza el nivel 50."
-        }
-      }
-    },
-    "CUSTOMIZATION": {
-      "HEADING": "Personalización",
-      "AVATAR": "Avatar",
-      "AVATAR_HINT": "Cambia tu avatar de perfil.",
-      "FRAME": "Marco",
-      "FRAME_HINT": "Elige un marco para tu avatar.",
-      "TITLE": "Título",
-      "TITLE_HINT": "Muestra tu título favorito.",
-      "CUSTOMIZE": "Personalizar",
-      "QUOTE": "La apariencia sigue al espíritu."
-    },
     "SETTINGS": {
       "HEADING": "Ajustes",
       "DESCRIPTION": "Tu cuenta, tu ambiente, tu juego",

@@ -94,7 +94,6 @@
       "MODE": "Mode",
       "DURATION": "Duration",
       "END": "End of game",
-      "XP": "XP earned",
       "RATING": "Rating change",
       "MOVES": "Number of moves",
       "UNKNOWN": "Not specified"
@@ -148,65 +147,17 @@
     "SECTIONS_LABEL": "Profile sections",
     "SECTIONS": {
       "OVERVIEW": "Overview",
-      "ACHIEVEMENTS": "Achievements",
-      "CUSTOMIZATION": "Customize",
       "SETTINGS": "Settings"
     },
     "QUOTE": "Self-mastery leads to victory.",
-    "IDENTITY": "Identity and level",
+    "IDENTITY": "Identity",
     "AVATAR_ALT": "{name}’s avatar",
-    "CHANGE_PHOTO": "Change photo",
     "UPLOAD_AVATAR": "Confirm",
     "CHANGE_AVATAR": "Change avatar",
     "EDIT_NAME": "Edit name",
     "EDIT_TITLE": "Edit title",
     "DEFAULT_TITLE": "Disciple of the wind",
     "DEFAULT_QUOTE": "Calm is my strength.",
-    "LEVEL": "LEVEL",
-    "LEVEL_PROGRESS": "Level progress",
-    "NEXT_LEVEL": "Next level: {level}",
-    "ACHIEVEMENTS": {
-      "HEADING": "Game achievements",
-      "UNLOCKED": "{count} / {total} unlocked",
-      "SEE_ALL": "See all",
-      "ITEMS": {
-        "FIRST_STEP": {
-          "TITLE": "First step",
-          "DESCRIPTION": "Win a game."
-        },
-        "TIGER_SPIRIT": {
-          "TITLE": "Spirit of the tiger",
-          "DESCRIPTION": "Win 10 games."
-        },
-        "TEMPLE_WAY": {
-          "TITLE": "Way of the temple",
-          "DESCRIPTION": "Win by the temple."
-        },
-        "PERFECT_STREAK": {
-          "TITLE": "Perfect streak",
-          "DESCRIPTION": "4 / 5 consecutive wins."
-        },
-        "HUNDRED_WINS": {
-          "TITLE": "A hundred wins",
-          "DESCRIPTION": "73 / 100 wins."
-        },
-        "DOJO_MASTER": {
-          "TITLE": "Master of the dojo",
-          "DESCRIPTION": "Reach level 50."
-        }
-      }
-    },
-    "CUSTOMIZATION": {
-      "HEADING": "Customization",
-      "AVATAR": "Avatar",
-      "AVATAR_HINT": "Change your profile avatar.",
-      "FRAME": "Frame",
-      "FRAME_HINT": "Choose a frame for your avatar.",
-      "TITLE": "Title",
-      "TITLE_HINT": "Display your favorite title.",
-      "CUSTOMIZE": "Customize",
-      "QUOTE": "Appearance follows the spirit."
-    },
     "SETTINGS": {
       "HEADING": "Settings",
       "DESCRIPTION": "Your account, your mood, your game",

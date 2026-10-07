@@ -94,7 +94,6 @@
       "MODE": "Mode",
       "DURATION": "Durée",
       "END": "Fin de partie",
-      "XP": "XP gagnés",
       "RATING": "Variation du classement",
       "MOVES": "Nombre de coups",
       "UNKNOWN": "Non renseigné"
@@ -148,65 +147,17 @@
     "SECTIONS_LABEL": "Rubriques du profil",
     "SECTIONS": {
       "OVERVIEW": "Vue d’ensemble",
-      "ACHIEVEMENTS": "Succès",
-      "CUSTOMIZATION": "Personnaliser",
       "SETTINGS": "Paramètres"
     },
     "QUOTE": "La maîtrise de soi mène à la victoire.",
-    "IDENTITY": "Identité et niveau",
+    "IDENTITY": "Identité",
     "AVATAR_ALT": "Avatar de {name}",
-    "CHANGE_PHOTO": "Changer la photo",
     "UPLOAD_AVATAR": "Valider",
     "CHANGE_AVATAR": "Changer l’avatar",
     "EDIT_NAME": "Modifier le nom",
     "EDIT_TITLE": "Modifier le titre",
     "DEFAULT_TITLE": "Disciple du vent",
     "DEFAULT_QUOTE": "Le calme est ma force.",
-    "LEVEL": "NIVEAU",
-    "LEVEL_PROGRESS": "Progression du niveau",
-    "NEXT_LEVEL": "Niveau suivant : {level}",
-    "ACHIEVEMENTS": {
-      "HEADING": "Succès de partie",
-      "UNLOCKED": "{count} / {total} débloqués",
-      "SEE_ALL": "Voir tous",
-      "ITEMS": {
-        "FIRST_STEP": {
-          "TITLE": "Premier pas",
-          "DESCRIPTION": "Remporter une partie."
-        },
-        "TIGER_SPIRIT": {
-          "TITLE": "Esprit du tigre",
-          "DESCRIPTION": "Gagner 10 parties."
-        },
-        "TEMPLE_WAY": {
-          "TITLE": "Voie du temple",
-          "DESCRIPTION": "Gagner par le temple."
-        },
-        "PERFECT_STREAK": {
-          "TITLE": "Série parfaite",
-          "DESCRIPTION": "4 / 5 victoires consécutives."
-        },
-        "HUNDRED_WINS": {
-          "TITLE": "Cent victoires",
-          "DESCRIPTION": "73 / 100 victoires."
-        },
-        "DOJO_MASTER": {
-          "TITLE": "Maître du dojo",
-          "DESCRIPTION": "Atteindre le niveau 50."
-        }
-      }
-    },
-    "CUSTOMIZATION": {
-      "HEADING": "Personnalisation",
-      "AVATAR": "Avatar",
-      "AVATAR_HINT": "Modifiez votre avatar de profil.",
-      "FRAME": "Cadre",
-      "FRAME_HINT": "Choisissez un cadre pour votre avatar.",
-      "TITLE": "Titre",
-      "TITLE_HINT": "Affichez votre titre favori.",
-      "CUSTOMIZE": "Personnaliser",
-      "QUOTE": "L’apparence suit l’esprit."
-    },
     "SETTINGS": {
       "HEADING": "Paramètres",
       "DESCRIPTION": "Ton compte, ton ambiance, ton jeu",

@@ -1,66 +1,41 @@
 <script lang="ts">
-	import Camera from "@lucide/svelte/icons/camera";
 	import Pencil from "@lucide/svelte/icons/pencil";
-	import Lock from "@lucide/svelte/icons/lock";
 	import { Button } from "$lib/components/ui/button";
 	import { Input } from "$lib/components/ui/input";
 	import { Label } from "$lib/components/ui/label";
-	import { Progress } from "$lib/components/ui/progress";
 	import { Separator } from "$lib/components/ui/separator";
 	import * as Avatar from "$lib/components/ui/avatar";
 	import * as Card from "$lib/components/ui/card";
 	import * as Tabs from "$lib/components/ui/tabs";
-	import { InkQuote, PageShell, SideNav, Stamp } from "$lib/components/onitama";
-	import { cn } from "$lib/utils";
-	import { t, locale } from "$lib/i18n";
+	import { InkQuote, PageShell, SideNav } from "$lib/components/onitama";
+	import { t } from "$lib/i18n";
 	import { onMount } from "svelte";
 	import {profilManager} from '../utils/profil.svelte';
 	import * as Field from "$lib/components/ui/field";
 
-	type Section = "overview" | "achievements" | "customization" | "setting";
-	type Achievement = { key: string; image: string; unlocked?: boolean; progress?: number };
+	type Section = "overview" | "setting";
 
 	onMount(() => {
         profilManager.get_user();
     });
 
 	let {
-		onCustomize = () => {},
 		player: playerProp,
 	}: {
-		onCustomize?: (section: "avatar" | "frame" | "title" | "name" | "all") => void;
-		player?: { name: string; title: string; quote: string; level: number; xp: number; xpTarget: number; avatar: string };
+		player?: { name: string; title: string; quote: string; avatar: string };
 	} = $props();
 
 	const player = $derived(
-		playerProp ?? { name: profilManager.username, title: $t("PROFILE.DEFAULT_TITLE"), quote: $t("PROFILE.DEFAULT_QUOTE"), level: 42, xp: 6500, xpTarget: 10000, avatar: "../assets/home/avatar/avatar-kenshii.png" }
+		playerProp ?? { name: profilManager.username, title: $t("PROFILE.DEFAULT_TITLE"), quote: $t("PROFILE.DEFAULT_QUOTE"), avatar: "../assets/home/avatar/avatar-kenshii.png" }
 	);
 
 	const sections: { value: Section; label: string }[] = $derived([
 		{ value: "overview", label: $t("PROFILE.SECTIONS.OVERVIEW") },
-		{ value: "achievements", label: $t("PROFILE.SECTIONS.ACHIEVEMENTS") },
-		{ value: "customization", label: $t("PROFILE.SECTIONS.CUSTOMIZATION") },
 		{ value: "setting", label: $t("PROFILE.SECTIONS.SETTINGS") },
 	]);
 
 	let profileSection = $state<Section>("overview");
 
-	const achievements: Achievement[] = [
-		{ key: "FIRST_STEP", image: "../assets/home/avatar/dragon.png", unlocked: true },
-		{ key: "TIGER_SPIRIT", image: "../assets/home/avatar/dragon.png", unlocked: true },
-		{ key: "TEMPLE_WAY", image: "../assets/home/avatar/dragon.png", unlocked: true },
-		{ key: "PERFECT_STREAK", image: "../assets/home/avatar/dragon.png", progress: 80 },
-		{ key: "HUNDRED_WINS", image: "../assets/home/avatar/dragon.png", progress: 73 },
-		{ key: "DOJO_MASTER", image: "../assets/home/avatar/dragon.png", progress: 0 },
-		{ key: "DOJO_MASTER", image: "../assets/home/avatar/dragon.png", progress: 0 },
-	];
-
-	const levelProgress = $derived(player.xpTarget > 0 ? Math.max(0, Math.min(100, Math.round((player.xp / player.xpTarget) * 100))) : 0);
-	const visibleAchievements = $derived(profileSection === "achievements" ? achievements : achievements.slice(0, 6));
-	const unlockedCount = achievements.filter((achievement) => achievement.unlocked).length;
-
-	const showAchievements = $derived(profileSection === "overview" || profileSection === "achievements");
-	const showCustomization = $derived(profileSection === "overview" || profileSection === "customization");
 	const showSettings = $derived(profileSection === "overview" || profileSection === "setting");
 
 
@@ -88,7 +63,7 @@
 		{/snippet}
 
 		<Card.Root class="shrink-0 bg-card/80 backdrop-blur-sm" aria-label={$t("PROFILE.IDENTITY")}>
-			<Card.Content class="grid grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)] items-center gap-6">
+			<Card.Content class="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-6">
 				<div class="flex flex-col items-center gap-2">
 					<div class="relative">
 						<Avatar.Root class="size-24 border-4 border-secondary shadow-[0_0_0_2px_var(--accent)]">
@@ -96,9 +71,6 @@
 							<Avatar.Image src={avatarSrc} alt={`Avatar de ${player.name}`} />
 							<Avatar.Fallback>{player.name.slice(0, 2)}</Avatar.Fallback>
 						</Avatar.Root>
-						<Button size="icon-sm" class="absolute right-0 bottom-0 rounded-full" aria-label={$t("PROFILE.CHANGE_PHOTO")} onclick={() => onCustomize("avatar")}>
-							<Camera />
-						</Button>
 					</div>
 					<Field.Field>
 					<Field.Label for="picture">Avatar</Field.Label>
@@ -126,86 +98,8 @@
 					<Separator class="my-2 w-24 bg-primary" />
 					<q class="text-sm text-muted-foreground italic">{player.quote}</q>
 				</div>
-
-				<div class="flex items-center gap-4">
-					<div class="flex size-20 shrink-0 items-center justify-center rounded-full border-8 border-secondary font-display text-3xl font-bold">
-						{player.level}
-					</div>
-					<div class="flex flex-1 flex-col gap-1.5">
-						<div class="flex items-center justify-between">
-							<strong class="text-xs tracking-widest">{$t("PROFILE.LEVEL")}</strong>
-							<b class="text-sm text-primary">{levelProgress}%</b>
-						</div>
-						<Progress value={levelProgress} class="h-2" aria-label={$t("PROFILE.LEVEL_PROGRESS")} />
-						<p class="text-xs text-muted-foreground">{player.xp.toLocaleString($locale ?? undefined)} / {player.xpTarget.toLocaleString($locale ?? undefined)} XP</p>
-						<small class="text-xs text-muted-foreground">{$t("PROFILE.NEXT_LEVEL", { values: { level: player.level + 1 } })}</small>
-					</div>
-				</div>
 			</Card.Content>
 		</Card.Root>
-
-		{#if showAchievements}
-			<Card.Root class="shrink-0 bg-card/80 backdrop-blur-sm">
-				<Card.Header>
-					<Card.Title class="font-display text-lg">◒ {$t("PROFILE.ACHIEVEMENTS.HEADING")}</Card.Title>
-					<Card.Action class="flex items-center gap-3 text-sm">
-						<b>{$t("PROFILE.ACHIEVEMENTS.UNLOCKED", { values: { count: unlockedCount, total: achievements.length } })}</b>
-						{#if profileSection !== "achievements"}
-							<Button variant="link" size="sm" class="px-0" onclick={() => (profileSection = "achievements")}>{$t("PROFILE.ACHIEVEMENTS.SEE_ALL")} ›</Button>
-						{/if}
-					</Card.Action>
-				</Card.Header>
-				<Card.Content class="grid grid-cols-3 gap-3">
-					{#each visibleAchievements as achievement, index (index)}
-						{@const locked = !achievement.unlocked && achievement.progress === 0}
-						<div class={cn("relative flex items-center gap-3 rounded-lg border border-border bg-muted/40 p-3 transition-transform hover:-translate-y-0.5", locked && "opacity-55 grayscale")}>
-							<img class="size-12 shrink-0 object-contain" src={achievement.image} alt="" />
-							<div class="flex min-w-0 flex-1 flex-col gap-1">
-								<h3 class="truncate font-semibold">{$t(`PROFILE.ACHIEVEMENTS.ITEMS.${achievement.key}.TITLE`)}</h3>
-								<p class="text-xs text-muted-foreground">{$t(`PROFILE.ACHIEVEMENTS.ITEMS.${achievement.key}.DESCRIPTION`)}</p>
-								{#if achievement.progress !== undefined}
-									<div class="flex items-center gap-2">
-										<Progress value={achievement.progress} class="h-1.5" />
-										<b class="text-xs">{achievement.progress}%</b>
-									</div>
-								{/if}
-							</div>
-							{#if achievement.unlocked}
-								<Stamp kanji="達" class="absolute top-2 right-2 size-7 text-sm" />
-							{:else if locked}
-								<Lock class="absolute top-2 right-2 size-4 text-muted-foreground" />
-							{/if}
-						</div>
-					{/each}
-				</Card.Content>
-			</Card.Root>
-		{/if}
-
-		{#if showCustomization}
-			<Card.Root class="shrink-0 bg-card/80 backdrop-blur-sm">
-				<Card.Header>
-					<Card.Title class="font-display text-lg">◒ {$t("PROFILE.CUSTOMIZATION.HEADING")}</Card.Title>
-				</Card.Header>
-				<Card.Content class="grid grid-cols-4 gap-3">
-					<Button variant="outline" class="h-auto justify-start gap-3 bg-transparent p-3 whitespace-normal" onclick={() => onCustomize("avatar")}>
-						<img class="size-12 rounded-full object-cover" src={avatarSrc} alt="" />
-						<span class="flex flex-col items-start text-left"><b>Avatar</b><small class="text-xs text-muted-foreground">Modifiez votre avatar de profil.</small></span>
-					</Button>
-					<Button variant="outline" class="h-auto justify-start gap-3 bg-transparent p-3 whitespace-normal" onclick={() => onCustomize("frame")}>
-						<span class="size-12 shrink-0 rounded-full border-4 border-double border-primary"></span>
-						<span class="flex flex-col items-start text-left"><b>{$t("PROFILE.CUSTOMIZATION.FRAME")}</b><small class="text-xs text-muted-foreground">{$t("PROFILE.CUSTOMIZATION.FRAME_HINT")}</small></span>
-					</Button>
-					<Button variant="outline" class="h-auto justify-start gap-3 bg-transparent p-3 whitespace-normal" onclick={() => onCustomize("title")}>
-						<span class="shrink-0 rounded-sm bg-secondary px-2 py-1 text-xs text-secondary-foreground">{player.title}</span>
-						<span class="flex flex-col items-start text-left"><b>{$t("PROFILE.CUSTOMIZATION.TITLE")}</b><small class="text-xs text-muted-foreground">{$t("PROFILE.CUSTOMIZATION.TITLE_HINT")}</small></span>
-					</Button>
-					<div class="flex flex-col items-center justify-center gap-2">
-						<Button variant="secondary" onclick={() => onCustomize("all")}>{$t("PROFILE.CUSTOMIZATION.CUSTOMIZE")}</Button>
-						<InkQuote quote={$t("PROFILE.CUSTOMIZATION.QUOTE")} />
-					</div>
-				</Card.Content>
-			</Card.Root>
-		{/if}
 
 		{#if showSettings}
 			<Card.Root class="shrink-0 bg-card/80 backdrop-blur-sm" aria-label={$t("PROFILE.SETTINGS.HEADING")}>
