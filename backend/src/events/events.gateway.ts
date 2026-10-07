@@ -47,13 +47,16 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private prisma: PrismaService,
   ) {}
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     let userId: number;
     try {
-      userId = authenticateSocket(this.jwt, client);
+      userId = await authenticateSocket(this.jwt, this.prisma, client);
     } catch {
       this.logger.warn('connection rejected: missing or invalid token');
       client.disconnect();
+      return;
+    }
+    if (client.disconnected) {
       return;
     }
     client.join(`user:${userId}`);

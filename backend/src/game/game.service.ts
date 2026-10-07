@@ -212,6 +212,31 @@ export class GameService {
     return session;
   }
 
+  async abandonForUser(userId: number): Promise<GameSession[]> {
+    const ids = await this.redis.zrangebyscore(DEADLINES_KEY, '-inf', '+inf');
+    const ended: GameSession[] = [];
+    for (const id of ids.map(Number)) {
+      const candidate = await this.load(id);
+      if (!candidate?.playerIds.includes(userId)) {
+        continue;
+      }
+      const session = await this.withLock(id, async () => {
+        const current = await this.load(id);
+        if (!current || current.status === 'OVER') {
+          return null;
+        }
+        this.stopClock(current, Date.now());
+        const over = await this.end(current, null, 'CANCELLED');
+        await this.redis.srem(UNRECORDED_KEY, String(id));
+        return over;
+      });
+      if (session) {
+        ended.push(session);
+      }
+    }
+    return ended;
+  }
+
   async expireDue(now = Date.now()): Promise<GameSession[]> {
     const ids = await this.redis.zrangebyscore(
       DEADLINES_KEY,
