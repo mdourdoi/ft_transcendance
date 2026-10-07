@@ -54,7 +54,7 @@
 				return ;
 			}
 			selectMode('login');
-		} catch (err) {
+		} catch {
 			error = 'NETWORK_ERROR';
 		}
 	}
@@ -81,7 +81,7 @@
 			email = '';
 			token.set(data.accessToken);
 			home();
-		} catch (err) {
+		} catch {
 			error = 'NETWORK_ERROR';
 		}
 	}
@@ -114,7 +114,7 @@
 			token.set(data.accessToken);
 			profilManager.able_two_fa();
 			home();
-		} catch (err) {
+		} catch {
 			error = 'NETWORK_ERROR';
 		}
 	}
@@ -201,17 +201,17 @@
 	<form novalidate on:submit|preventDefault={handleSubmit} class="absolute top-[500px] left-1/2 -translate-x-1/2 w-[550px] h-[600px]">
 		<img src={frame} alt="frame" class="absolute inset-0 w-full h-full" />
 		<div class="absolute inset-0 flex justify-center top-[75px] text-black" style="font-size: 40px;">
-			<p>Connexion</p>
+			<p>{$t('AUTH.LOGIN_TITLE')}</p>
 		</div>
 		<div class="absolute inset-0 flex justify-center top-[130px] text-black" style="font-size: 15px;">
-			<p>Retrouvez votre chemin sur le tatami.</p>
+			<p>{$t('AUTH.SUBTITLE')}</p>
 		</div>
 		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
 			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
 			<input
 				type="email"
 				bind:value={email}
-				placeholder="Email"
+				placeholder={$t('AUTH.EMAIL')}
 				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
 			/>
 		</div>
@@ -223,7 +223,7 @@
 			<input
 				type={ithide === 'hide' ? 'password' : 'text'}
 				bind:value={password}
-				placeholder="Password"
+				placeholder={$t('AUTH.PASSWORD')}
 				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
 			/>
 		</div>
@@ -260,7 +260,7 @@
 		>
 			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
 			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
-				Se connecter
+				{$t('AUTH.LOGIN')}
 			</span>
 		</button>
 		<img
@@ -269,7 +269,7 @@
 			class="absolute top-[415px] left-[calc(50%-130px)] -translate-x-1/2 w-[150px] h-[10px] -scale-x-100"
 		/>
 		<p class="absolute top-[405px] left-[calc(50%-100px)] w-[200px] text-center text-black text-lg font-semibold">
-			ou
+			{$t('AUTH.OR')}
 		</p>
 		<img
 			src={strace}
@@ -286,7 +286,7 @@
 		>
 			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
 			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
-				Creer un compte
+				{$t('AUTH.REGISTER')}
 			</span>
 		</button>
 		<img
@@ -308,16 +308,16 @@
 	<form novalidate on:submit|preventDefault={handleSubmit} class="absolute top-[500px] left-1/2 -translate-x-1/2 w-[550px] h-[600px]">
 		<img src={frame} alt="frame" class="absolute inset-0 w-full h-full" />
 		<div class="absolute inset-0 flex justify-center top-[75px] text-black" style="font-size: 40px;">
-			<p>Creer un compte</p>
+			<p>{$t('AUTH.REGISTER_TITLE')}</p>
 		</div>
 		<div class="absolute inset-0 flex justify-center top-[130px] text-black" style="font-size: 15px;">
-			<p>Retrouvez votre chemin sur le tatami.</p>
+			<p>{$t('AUTH.SUBTITLE')}</p>
 		</div>
 		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
 			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
 			<input
 				type="text"
-				placeholder="Username"
+				placeholder={$t('AUTH.USERNAME')}
 				bind:value={username}
 				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
 			/>
@@ -329,7 +329,7 @@
 			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
 			<input
 				type="email"
-				placeholder="Email"
+				placeholder={$t('AUTH.EMAIL')}
 				bind:value={email}
 				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
 			/>
@@ -342,7 +342,7 @@
 			<input
 				type={ithide === 'hide' ? 'password' : 'text'}
 				bind:value={password}
-				placeholder="Password"
+				placeholder={$t('AUTH.PASSWORD')}
 				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
 			/>
 		</div>
@@ -380,7 +380,7 @@
 		>
 			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
 			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
-				Creer un compte
+				{$t('AUTH.REGISTER')}
 			</span>
 		</button>
 		<img
@@ -389,7 +389,7 @@
 			class="absolute top-[475px] left-[calc(50%-130px)] -translate-x-1/2 w-[150px] h-[10px] -scale-x-100"
 		/>
 		<p class="absolute top-[465px] left-[calc(50%-100px)] w-[200px] text-center text-black text-lg font-semibold">
-			ou
+			{$t('AUTH.OR')}
 		</p>
 		<img
 			src={strace}
@@ -406,7 +406,7 @@
 		>
 			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
 			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
-				Se connecter
+				{$t('AUTH.LOGIN')}
 			</span>
 		</button>
 		<img
@@ -439,7 +439,7 @@
 	<form novalidate on:submit|preventDefault={handleSubmit} class="absolute top-[500px] left-1/2 -translate-x-1/2 w-[550px] h-[600px]">
 		<img src={frame} alt="frame" class="absolute inset-0 w-full h-full" />
 		<div class="absolute inset-0 flex justify-center top-[75px] text-black" style="font-size: 40px;">
-			<p>2fa validation</p>
+			<p>{$t('AUTH.TWOFA_TITLE')}</p>
 		</div>
 		<div class="absolute inset-0 flex justify-center top-[132px] text-black" style="font-size: 13px;">
 			<p class="w-[340px] text-center leading-tight">{$t('TWOFA.HINT')}</p>
@@ -448,7 +448,7 @@
 			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
 			<input
 				type="text"
-				placeholder="code"
+				placeholder={$t('AUTH.CODE')}
 				bind:value={twofa}
 				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
 			/>
@@ -460,7 +460,7 @@
 			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
 			<input
 				type="email"
-				placeholder="Email"
+				placeholder={$t('AUTH.EMAIL')}
 				bind:value={email}
 				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
 			/>
@@ -473,7 +473,7 @@
 			<input
 				type={ithide === 'hide' ? 'password' : 'text'}
 				bind:value={password}
-				placeholder="Password"
+				placeholder={$t('AUTH.PASSWORD')}
 				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
 			/>
 		</div>
@@ -510,7 +510,7 @@
 		>
 			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
 			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
-				Se connecter
+				{$t('AUTH.LOGIN')}
 			</span>
 		</button>
 		<img
@@ -519,7 +519,7 @@
 			class="absolute top-[435px] left-[calc(50%-130px)] -translate-x-1/2 w-[150px] h-[10px] -scale-x-100"
 		/>
 		<p class="absolute top-[425px] left-[calc(50%-100px)] w-[200px] text-center text-black text-lg font-semibold">
-			ou
+			{$t('AUTH.OR')}
 		</p>
 		<img
 			src={strace}
@@ -536,7 +536,7 @@
 		>
 			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
 			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
-				Retour
+				{$t('COMMON.BACK')}
 			</span>
 		</button>
 		<img

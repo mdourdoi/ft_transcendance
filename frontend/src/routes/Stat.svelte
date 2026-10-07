@@ -6,20 +6,21 @@
 	import * as NativeSelect from "$lib/components/ui/native-select";
 	import { InkQuote, PageShell } from "$lib/components/onitama";
 	import { cn } from "$lib/utils";
+	import { t, locale } from "$lib/i18n";
 
-	const summary = [
-		{ label: "Parties jouées", value: "287", icon: "⚔" },
-		{ label: "Victoires", value: "203", icon: "♛", highlight: true },
-		{ label: "Défaites", value: "84", icon: "☠" },
-		{ label: "Taux de victoire", value: "70%", icon: "★" },
-	];
+	const summary = $derived([
+		{ label: $t("STATS.SUMMARY.GAMES"), value: "287", icon: "⚔" },
+		{ label: $t("STATS.SUMMARY.WINS"), value: "203", icon: "♛", highlight: true },
+		{ label: $t("STATS.SUMMARY.LOSSES"), value: "84", icon: "☠" },
+		{ label: $t("STATS.SUMMARY.WINRATE"), value: "70%", icon: "★" },
+	]);
 
-	const modesConfig = {
-		ranked: { label: "Classées", color: "var(--chart-1)" },
-		normal: { label: "Normales", color: "var(--chart-2)" },
-		challenge: { label: "Défis", color: "var(--chart-3)" },
-		event: { label: "Événements", color: "var(--chart-4)" },
-	} satisfies Chart.ChartConfig;
+	const modesConfig = $derived({
+		ranked: { label: $t("STATS.MODES.RANKED"), color: "var(--chart-1)" },
+		normal: { label: $t("STATS.MODES.NORMAL"), color: "var(--chart-2)" },
+		challenge: { label: $t("STATS.MODES.CHALLENGE"), color: "var(--chart-3)" },
+		event: { label: $t("STATS.MODES.EVENT"), color: "var(--chart-4)" },
+	} satisfies Chart.ChartConfig);
 
 	const statsModes = [
 		{ mode: "ranked", value: 42, color: "var(--color-ranked)" },
@@ -28,25 +29,21 @@
 		{ mode: "event", value: 12, color: "var(--color-event)" },
 	] as const;
 
-	const ranks = ["Novice", "Disciple", "Adepte", "Expert", "Maître"];
+	const ranks = $derived(["NOVICE", "DISCIPLE", "ADEPT", "EXPERT", "MASTER"].map((rank) => $t(`STATS.RANKS.${rank}`)));
 
-	const rankConfig = {
-		rank: { label: "Rang", color: "var(--chart-1)" },
-	} satisfies Chart.ChartConfig;
+	const rankConfig = $derived({
+		rank: { label: $t("STATS.RANK"), color: "var(--chart-1)" },
+	} satisfies Chart.ChartConfig);
 
-	const rankProgress = [
-		{ month: "Jan", rank: 0.6 },
-		{ month: "Fév", rank: 1.2 },
-		{ month: "Mar", rank: 1.8 },
-		{ month: "Avr", rank: 2.3 },
-		{ month: "Mai", rank: 2.3 },
-		{ month: "Juin", rank: 3.4 },
-	];
+	const monthFormat = $derived(new Intl.DateTimeFormat($locale ?? undefined, { month: "short" }));
+	const rankProgress = $derived(
+		[0.6, 1.2, 1.8, 2.3, 2.3, 3.4].map((rank, month) => ({ month: monthFormat.format(new Date(2026, month, 1)), rank }))
+	);
 
-	const hourConfig = {
-		value: { label: "Performance", color: "var(--chart-2)" },
-		peak: { label: "Pic", color: "var(--chart-1)" },
-	} satisfies Chart.ChartConfig;
+	const hourConfig = $derived({
+		value: { label: $t("STATS.PERFORMANCE"), color: "var(--chart-2)" },
+		peak: { label: $t("STATS.PEAK"), color: "var(--chart-1)" },
+	} satisfies Chart.ChartConfig);
 
 	const hourlyStats = [
 		{ label: "0h", value: 6 },
@@ -63,11 +60,11 @@
 	].map((hour, index) => ({ ...hour, color: index === 6 || index === 7 ? "var(--color-peak)" : "var(--color-value)" }));
 
 	const mostPlayedCards = [
-		{ rank: 1, name: "Tigre", games: 56, image: "../assets/home/avatar/dragon.png" },
-		{ rank: 2, name: "Dragon", games: 48, image: "../assets/home/avatar/dragon.png" },
-		{ rank: 3, name: "Grue", games: 42, image: "../assets/home/avatar/dragon.png" },
-		{ rank: 4, name: "Serpent", games: 38, image: "../assets/home/avatar/dragon.png" },
-		{ rank: 5, name: "Mante", games: 31, image: "../assets/home/avatar/dragon.png" },
+		{ rank: 1, card: "TIGER", games: 56, image: "../assets/home/avatar/dragon.png" },
+		{ rank: 2, card: "DRAGON", games: 48, image: "../assets/home/avatar/dragon.png" },
+		{ rank: 3, card: "CRANE", games: 42, image: "../assets/home/avatar/dragon.png" },
+		{ rank: 4, card: "COBRA", games: 38, image: "../assets/home/avatar/dragon.png" },
+		{ rank: 5, card: "MANTIS", games: 31, image: "../assets/home/avatar/dragon.png" },
 	];
 
 	const frequentOpponents = [
@@ -78,13 +75,13 @@
 		{ rank: 5, name: "Shiro", games: 33, image: "../assets/home/avatar/daiko.png" },
 	];
 
-	const rankings = [
-		{ title: "Cartes les plus jouées", rows: mostPlayedCards },
-		{ title: "Adversaires fréquents", rows: frequentOpponents },
-	];
+	const rankings = $derived([
+		{ title: $t("STATS.MOST_PLAYED_CARDS"), rows: mostPlayedCards.map(({ card, ...row }) => ({ ...row, name: $t(`CARDS.${card}`) })) },
+		{ title: $t("STATS.FREQUENT_OPPONENTS"), rows: frequentOpponents },
+	]);
 </script>
 
-<PageShell title="Statistiques globales" subtitle="Un chemin de discipline, une progression sans fin.">
+<PageShell title={$t("STATS.TITLE")} subtitle={$t("STATS.SUBTITLE")}>
 	{#snippet sidebar()}
 		<div class="min-h-0 flex-1 rounded-xl bg-[url(/assets/home/background/samourai3.png)] bg-cover bg-top"></div>
 	{/snippet}
@@ -106,7 +103,7 @@
 	<section class="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-4">
 		<Card.Root class="bg-card/80 backdrop-blur-sm">
 			<Card.Header>
-				<Card.Title class="font-display text-lg">Répartition par mode de jeu</Card.Title>
+				<Card.Title class="font-display text-lg">{$t("STATS.BY_MODE")}</Card.Title>
 			</Card.Header>
 			<Card.Content class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
 				<Chart.Container config={modesConfig} class="aspect-square max-h-[200px]">
@@ -130,10 +127,10 @@
 
 		<Card.Root class="bg-card/80 backdrop-blur-sm">
 			<Card.Header>
-				<Card.Title class="font-display text-lg">Évolution du rang</Card.Title>
+				<Card.Title class="font-display text-lg">{$t("STATS.RANK_PROGRESS")}</Card.Title>
 				<Card.Action>
 					<NativeSelect.Root size="sm">
-						<NativeSelect.Option>6 derniers mois</NativeSelect.Option>
+						<NativeSelect.Option>{$t("STATS.LAST_6_MONTHS")}</NativeSelect.Option>
 					</NativeSelect.Root>
 				</Card.Action>
 			</Card.Header>
@@ -145,7 +142,7 @@
 						y="rank"
 						yDomain={[0, 4]}
 						padding={{ left: 64, bottom: 24, top: 8, right: 16 }}
-						series={[{ key: "rank", label: "Rang", color: rankConfig.rank.color }]}
+						series={[{ key: "rank", label: $t("STATS.RANK"), color: rankConfig.rank.color }]}
 						points={{ r: 4 }}
 						props={{
 							spline: { strokeWidth: 2 },
@@ -176,7 +173,7 @@
 								<Avatar.Fallback>{row.name.slice(0, 2)}</Avatar.Fallback>
 							</Avatar.Root>
 							<span class="flex-1 truncate">{row.name}</span>
-							<span class="text-xs text-muted-foreground">{row.games} parties</span>
+							<span class="text-xs text-muted-foreground">{$t("STATS.GAMES_COUNT", { values: { count: row.games } })}</span>
 						</div>
 					{/each}
 				</Card.Content>
@@ -186,7 +183,7 @@
 		<div class="flex flex-col gap-4">
 			<Card.Root class="bg-card/80 backdrop-blur-sm">
 				<Card.Header>
-					<Card.Title class="font-display text-lg">Performance par heure</Card.Title>
+					<Card.Title class="font-display text-lg">{$t("STATS.HOURLY")}</Card.Title>
 				</Card.Header>
 				<Card.Content>
 					<Chart.Container config={hourConfig} class="aspect-auto h-[160px] w-full">
@@ -211,7 +208,7 @@
 					</Chart.Container>
 				</Card.Content>
 			</Card.Root>
-			<InkQuote quote="Chaque partie est une leçon." stamp />
+			<InkQuote quote={$t("STATS.QUOTE")} stamp />
 		</div>
 	</section>
 </PageShell>

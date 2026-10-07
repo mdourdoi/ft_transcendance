@@ -6,17 +6,18 @@
 	import { InkQuote, PlayButton, Stamp } from '$lib/components/onitama';
 	import { cn } from '$lib/utils';
 	import { navigate } from '$lib/router';
+	import { t } from '$lib/i18n';
 
 	const news = [
-		{ title: 'Nouvelle saison', text: 'De nouveaux défis vous attendent sur le chemin.', image: '../assets/home/background/actuality_1.png' },
-		{ title: 'Tournoi du temple', text: 'Affrontez les meilleurs disciples du dojo.', image: '../assets/home/background/actuality_1.png' },
-		{ title: 'Nouvelles cartes', text: 'Maîtrisez de nouveaux déplacements.', image: '../assets/home/background/actuality_1.png' },
+		{ id: 'SEASON', image: '../assets/home/background/actuality_1.png' },
+		{ id: 'TOURNAMENT', image: '../assets/home/background/actuality_1.png' },
+		{ id: 'CARDS', image: '../assets/home/background/actuality_1.png' },
 	];
 
 	const modes = [
-		{ id: 'ranked', label: 'Partie classée', title: 'Ranked games', image: '../assets/home/background/ranked_card.png' },
-		{ id: 'normal', label: 'Partie normale', title: 'Normal games', image: '../assets/home/background/normal_card.png' },
-		{ id: 'training', label: 'Défis', title: 'Training games', image: '../assets/home/background/training_card.png' },
+		{ id: 'ranked', key: 'RANKED', image: '../assets/home/background/ranked_card.png' },
+		{ id: 'normal', key: 'NORMAL', image: '../assets/home/background/normal_card.png' },
+		{ id: 'training', key: 'TRAINING', image: '../assets/home/background/training_card.png' },
 	];
 
 	let selectedMode = $state<string | null>(null);
@@ -39,47 +40,47 @@
 <div class="grid h-full min-h-0 grid-rows-[minmax(300px,52%)_minmax(0,1fr)] gap-4 pt-1">
 	<section class="relative overflow-hidden rounded-2xl bg-[url(/assets/home/background/home.png)] bg-cover bg-center shadow-md ring-1 ring-foreground/15">
 		<div class="absolute top-[75%] left-[69%] w-[clamp(300px,32vw,520px)] -translate-x-1/2 -translate-y-1/2">
-			<PlayButton class="w-full" disabled={!selectedMode} onclick={play}>Jouer</PlayButton>
+			<PlayButton class="w-full" disabled={!selectedMode} onclick={play}>{$t('HOME.PLAY')}</PlayButton>
 		</div>
 	</section>
 
 	<section class="grid min-h-0 grid-cols-[minmax(280px,37%)_minmax(0,1fr)] gap-4">
 		<Carousel.Root setApi={(a) => (api = a)} opts={{ loop: true }} class="relative min-h-0 overflow-hidden rounded-2xl bg-secondary text-secondary-foreground shadow-md [&>[data-slot=carousel-content]]:h-full">
 			<Carousel.Content class="ms-0 h-full">
-				{#each news as item (item.title)}
+				{#each news as item (item.id)}
 					<Carousel.Item class="relative h-full ps-0">
 						<img class="absolute inset-0 size-full object-cover object-center" src={item.image} alt="" />
 						<div class="absolute inset-0 bg-gradient-to-b from-transparent via-secondary/20 to-secondary/95"></div>
 					</Carousel.Item>
 				{/each}
 			</Carousel.Content>
-			<Badge class="absolute top-3 left-3 rounded-sm px-3 py-1 font-display text-sm tracking-widest">ACTUALITÉS</Badge>
+			<Badge class="absolute top-3 left-3 rounded-sm px-3 py-1 font-display text-sm tracking-widest">{$t('HOME.NEWS')}</Badge>
 			<div class="absolute inset-x-5 bottom-3 flex flex-col gap-2">
-				<h2 class="font-display text-2xl">{news[current].title}</h2>
-				<p class="text-sm text-secondary-foreground/80">{news[current].text}</p>
+				<h2 class="font-display text-2xl">{$t(`HOME.NEWS_ITEMS.${news[current].id}.TITLE`)}</h2>
+				<p class="text-sm text-secondary-foreground/80">{$t(`HOME.NEWS_ITEMS.${news[current].id}.TEXT`)}</p>
 				<div class="flex items-center justify-between">
-					<Button variant="ghost" size="icon" class="text-2xl text-secondary-foreground hover:bg-secondary-foreground/10 hover:text-secondary-foreground" aria-label="Actualité précédente" onclick={() => api?.scrollPrev()}>‹</Button>
+					<Button variant="ghost" size="icon" class="text-2xl text-secondary-foreground hover:bg-secondary-foreground/10 hover:text-secondary-foreground" aria-label={$t('HOME.NEWS_PREVIOUS')} onclick={() => api?.scrollPrev()}>‹</Button>
 					<div class="flex gap-2">
-						{#each news as item, index (item.title)}
+						{#each news as item, index (item.id)}
 							<Button
 								variant="ghost"
-								aria-label={`Actualité ${index + 1}`}
+								aria-label={$t('HOME.NEWS_ITEM', { values: { index: index + 1 } })}
 								class={cn('size-2.5 rounded-full p-0 hover:bg-secondary-foreground/60', current === index ? 'bg-secondary-foreground' : 'bg-secondary-foreground/30')}
 								onclick={() => api?.scrollTo(index)}
 							></Button>
 						{/each}
 					</div>
-					<Button variant="ghost" size="icon" class="text-2xl text-secondary-foreground hover:bg-secondary-foreground/10 hover:text-secondary-foreground" aria-label="Actualité suivante" onclick={() => api?.scrollNext()}>›</Button>
+					<Button variant="ghost" size="icon" class="text-2xl text-secondary-foreground hover:bg-secondary-foreground/10 hover:text-secondary-foreground" aria-label={$t('HOME.NEWS_NEXT')} onclick={() => api?.scrollNext()}>›</Button>
 				</div>
 			</div>
 		</Carousel.Root>
 
 		<div class="grid min-h-0 grid-cols-3 grid-rows-[minmax(0,1fr)_auto] gap-3">
-			{#each modes as mode (mode.title)}
+			{#each modes as mode (mode.id)}
 				{@const selected = selectedMode === mode.id}
 				<Button
 					variant="ghost"
-					aria-label={mode.label}
+					aria-label={$t(`HOME.MODES.${mode.key}`)}
 					aria-pressed={selected}
 					onclick={() => (selectedMode = mode.id)}
 					class={cn(
@@ -93,11 +94,11 @@
 						<Stamp kanji="選" class="absolute top-2 right-2 size-8 text-base" />
 					{/if}
 					<span class={cn('absolute inset-x-0 bottom-0 py-1.5 text-center font-display text-sm tracking-widest uppercase transition-colors', selected ? 'bg-primary text-primary-foreground' : 'bg-secondary/85 text-secondary-foreground')}>
-						{mode.title}
+						{$t(`HOME.MODES.${mode.key}`)}
 					</span>
 				</Button>
 			{/each}
-			<InkQuote class="col-span-3" quote="Un petit pas déplace un grand destin." />
+			<InkQuote class="col-span-3" quote={$t('HOME.QUOTE')} />
 		</div>
 	</section>
 </div>

@@ -1,6 +1,6 @@
 import { register, init, locale, getLocaleFromNavigator } from "svelte-i18n";
 
-export const SUPPORTED_LOCALES = ["en", "fr"] as const;
+export const SUPPORTED_LOCALES = ["en", "fr", "es"] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 
 const STORAGE_KEY = "locale";

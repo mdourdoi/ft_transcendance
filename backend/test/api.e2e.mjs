@@ -6,23 +6,28 @@
  * chaque exécution, donc relançable à volonté. Les comptes créés restent en base.
  *
  * Lancer (Node >= 22, pour fetch et WebSocket) :
- *   docker compose up -d --build db redis backend
+ *   docker compose up -d --build
  *   node backend/test/api.e2e.mjs
  *
  * Variables :
- *   API_URL=http://localhost:3000   cible (défaut)
- *   VERBOSE=1                       affiche le corps de chaque réponse, pas seulement des échecs
+ *   API_URL=https://localhost:8443/api   cible (défaut, à travers le waf)
+ *   VERBOSE=1                            affiche le corps de chaque réponse, pas seulement des échecs
  *
  * Légende de la sortie :
  *   ✔ passe   ✘ échoue   ⚠ échoue, problème déjà connu (REVIEW-BACKEND.md)
  *   ★ passe alors qu'il était marqué connu → le problème semble corrigé, retirer `known`
  */
 
-const API = 'http://localhost:3000';
+const API = process.env.API_URL ?? 'https://localhost:8443/api';
 const VERBOSE = !!process.env.VERBOSE;
 const RUN = Date.now().toString(36);
 const PASSWORD = 'Passw0rd!';
 const NOPE = 2_000_000_000; // id qui n'existe pas mais tient dans un Int Postgres
+
+if (/^https:\/\/(localhost|127\.0\.0\.1)[:/]/.test(API)) {
+  process.removeAllListeners('warning');
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
 
 // ─── Affichage ────────────────────────────────────────────────────────────────
 
@@ -336,14 +341,12 @@ async function makeUser(name) {
 console.log(c.bold(`Tests e2e friendships → ${API}`));
 
 try {
-  await fetch(API);
+  await fetch(`${API}/`);
 } catch (e) {
   console.error(
     c.red(`\nAPI injoignable sur ${API} (${e.cause?.code ?? e.message}).`),
   );
-  console.error(
-    'Lance la stack : docker compose up -d --build db redis backend',
-  );
+  console.error('Lance la stack : docker compose up -d --build');
   process.exit(2);
 }
 

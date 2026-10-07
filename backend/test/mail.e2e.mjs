@@ -9,7 +9,7 @@
  * sont lus dans `docker logs`, et aucun vrai mail n'est envoyé aux adresses de test.
  *
  * Lancer (Node >= 22) :
- *   SMTP_HOST= docker compose up -d --build db redis backend
+ *   SMTP_HOST= docker compose up -d --build
  *   node backend/test/mail.e2e.mjs
  * Puis remettre le vrai SMTP :
  *   docker compose up -d backend
@@ -19,10 +19,10 @@
  * simuler l'expiration d'un code ou d'un lien.
  *
  * Variables :
- *   API_URL=http://localhost:3000        cible (défaut)
- *   BACKEND_CONTAINER=transcendence-backend
- *   DB_CONTAINER=transcendence-db
- *   REDIS_CONTAINER=transcendence-redis
+ *   API_URL=https://localhost:8443/api   cible (défaut, à travers le waf)
+ *   BACKEND_CONTAINER=transcendance-backend
+ *   DB_CONTAINER=transcendance-db
+ *   REDIS_CONTAINER=transcendance-redis
  *   VERBOSE=1                            affiche le corps de chaque réponse et chaque mail capturé
  *
  * Légende de la sortie :
@@ -33,15 +33,20 @@ import { spawnSync } from 'node:child_process';
 import { crc32, deflateSync } from 'node:zlib';
 import { generate } from 'otplib';
 
-const API = process.env.API_URL ?? 'http://localhost:3000';
-const BACKEND = process.env.BACKEND_CONTAINER ?? 'transcendence-backend';
-const DB = process.env.DB_CONTAINER ?? 'transcendence-db';
-const REDIS = process.env.REDIS_CONTAINER ?? 'transcendence-redis';
+const API = process.env.API_URL ?? 'https://localhost:8443/api';
+const BACKEND = process.env.BACKEND_CONTAINER ?? 'transcendance-backend';
+const DB = process.env.DB_CONTAINER ?? 'transcendance-db';
+const REDIS = process.env.REDIS_CONTAINER ?? 'transcendance-redis';
 const VERBOSE = !!process.env.VERBOSE;
 const RUN = Date.now().toString(36);
 const PASSWORD = 'Passw0rd!';
 const NEW_PASSWORD = 'N3wPassw0rd!';
 const APP_URL_RE = /https?:\/\/[^\s]+\?token=([\w-]+)/;
+
+if (/^https:\/\/(localhost|127\.0\.0\.1)[:/]/.test(API)) {
+  process.removeAllListeners('warning');
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
 
 // ─── Affichage ────────────────────────────────────────────────────────────────
 
@@ -377,13 +382,13 @@ function tinyPng() {
 console.log(c.bold(`Tests e2e mail → ${API}`));
 
 try {
-  await fetch(API);
+  await fetch(`${API}/`);
 } catch (e) {
   console.error(
     c.red(`\nAPI injoignable sur ${API} (${e.cause?.code ?? e.message}).`),
   );
   console.error(
-    'Lance la stack : SMTP_HOST= docker compose up -d --build db redis backend',
+    'Lance la stack : SMTP_HOST= docker compose up -d --build',
   );
   process.exit(2);
 }

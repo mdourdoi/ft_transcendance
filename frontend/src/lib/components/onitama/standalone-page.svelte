@@ -28,7 +28,7 @@
 			<Card.Content class="flex flex-col gap-6">
 				<PageHeader {title} {subtitle}>
 					<Button variant="outline" onclick={() => navigate("/", { useAnimation: true })}>
-						{$t("GAME.BACK")}
+						{$t("COMMON.BACK")}
 					</Button>
 				</PageHeader>
 				{@render children()}
