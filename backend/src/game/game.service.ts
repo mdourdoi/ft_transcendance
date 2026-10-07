@@ -13,8 +13,10 @@ import { REDIS_CLIENT } from '../redis/redis.constants.js';
 import {
   card,
   drawGameCards,
+  encodeReplay,
   Game,
   GameError,
+  packMove,
   Play,
   Position,
   PositionProps,
@@ -54,6 +56,7 @@ export class GameService {
   ) {}
 
   async createSession(match: Match): Promise<GameSession> {
+    const game = Game.start(drawGameCards()).toSnapshot();
     const session: GameSession = {
       matchId: match.id,
       mode: match.mode,
@@ -64,7 +67,9 @@ export class GameService {
       disconnectDeadlines: [null, null],
       clocks: [PLAYER_CLOCK_MS, PLAYER_CLOCK_MS],
       turnStartedAt: null,
-      game: Game.start(drawGameCards()).toSnapshot(),
+      game,
+      cards: [...game.hands[0], ...game.hands[1], game.neutral],
+      moves: [],
       winnerId: null,
       endReason: null,
     };
@@ -164,14 +169,18 @@ export class GameService {
     from: PositionProps,
     to: PositionProps,
   ): Promise<GameSession> {
-    return this.applyTurn(matchId, userId, (game) =>
-      game.play(
-        Play.create({
-          card: cardName,
-          from: Position.create(from),
-          to: Position.create(to),
-        }),
-      ),
+    return this.applyTurn(
+      matchId,
+      userId,
+      (game) =>
+        game.play(
+          Play.create({
+            card: cardName,
+            from: Position.create(from),
+            to: Position.create(to),
+          }),
+        ),
+      () => packMove(cardName, from, to),
     );
   }
 
@@ -180,7 +189,12 @@ export class GameService {
     userId: number,
     cardName: string,
   ): Promise<GameSession> {
-    return this.applyTurn(matchId, userId, (game) => game.pass(cardName));
+    return this.applyTurn(
+      matchId,
+      userId,
+      (game) => game.pass(cardName),
+      () => packMove(cardName),
+    );
   }
 
   async resign(matchId: number, userId: number): Promise<GameSession> {
@@ -326,6 +340,7 @@ export class GameService {
     matchId: number,
     userId: number,
     turn: (game: Game) => Game,
+    move: () => number,
   ): Promise<GameSession> {
     const session = await this.withLock(matchId, async () => {
       const current = await this.requireSession(matchId);
@@ -357,6 +372,7 @@ export class GameService {
 
       this.stopClock(current, now);
       current.game = next.toSnapshot();
+      current.moves.push(move());
       if (next.winner !== null && next.victory !== null) {
         return this.end(current, next.winner, next.victory);
       }
@@ -427,6 +443,7 @@ export class GameService {
           session.matchId,
           session.winnerId,
           session.endReason as MatchEndReason,
+          encodeReplay(session.cards, session.moves),
         );
       }
       await this.redis.srem(UNRECORDED_KEY, String(session.matchId));

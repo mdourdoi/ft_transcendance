@@ -7,6 +7,7 @@ export { Game } from './game.js';
 export { GameMap, MAP_SIZE } from './map.js';
 export { Play } from './play.js';
 export { Position } from './position.js';
+export { decodeReplay, encodeReplay, packMove, unpackMove } from './replay.js';
 export { Spread, TOTAL_CARDS } from './spread.js';
 
 export type { CardColor, Move as CardMove, CardProps } from './card.js';
@@ -14,3 +15,4 @@ export type { EntityKind, EntityProps } from './entity.js';
 export type { GameSnapshot, GameStartOptions, Victory } from './game.js';
 export type { PlayProps } from './play.js';
 export type { PositionProps } from './position.js';
+export type { Replay, ReplayMove } from './replay.js';

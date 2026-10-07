@@ -28,6 +28,7 @@ model Match {
   winnerId    Int?
   endReason   MatchEndReason?
   ratingDelta Int?
+  replay      Bytes?
 
   createdAt  DateTime  @default(now())
   finishedAt DateTime?
