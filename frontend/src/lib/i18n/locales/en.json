@@ -169,6 +169,8 @@
     "AVATAR_ALT": "{name}’s avatar",
     "UPLOAD_AVATAR": "Confirm",
     "CHANGE_AVATAR": "Change avatar",
+    "AVATAR_DROP": "Drop an image here or click to browse",
+    "AVATAR_HINT": "PNG, JPEG or WebP, 2 MB max.",
     "EDIT_NAME": "Edit name",
     "EDIT_TITLE": "Edit title",
     "DEFAULT_TITLE": "Disciple of the wind",

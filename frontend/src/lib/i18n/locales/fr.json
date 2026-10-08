@@ -169,6 +169,8 @@
     "AVATAR_ALT": "Avatar de {name}",
     "UPLOAD_AVATAR": "Valider",
     "CHANGE_AVATAR": "Changer l’avatar",
+    "AVATAR_DROP": "Glisse une image ici ou clique pour parcourir",
+    "AVATAR_HINT": "PNG, JPEG ou WebP, 2 Mo max.",
     "EDIT_NAME": "Modifier le nom",
     "EDIT_TITLE": "Modifier le titre",
     "DEFAULT_TITLE": "Disciple du vent",
