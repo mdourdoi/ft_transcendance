@@ -108,6 +108,20 @@ describe('BotsService', () => {
     assert.deepEqual(session?.joined, [false, true]);
   });
 
+  it('plays at the strongest level unless told otherwise', async () => {
+    await service.startMatch(ALICE);
+
+    assert.equal((await game.find(MATCH_ID))?.botLevel, 4);
+  });
+
+  it('remembers the level chosen by the player', async () => {
+    await service.startMatch(ALICE, 2);
+
+    const { session } = await game.join(MATCH_ID, ALICE);
+
+    assert.equal(session.botLevel, 2);
+  });
+
   it('starts the game as soon as the player joins', async () => {
     await service.startMatch(ALICE);
 

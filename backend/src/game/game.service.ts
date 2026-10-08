@@ -1,7 +1,12 @@
 import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { Redis } from 'ioredis';
-import { BOT_PLAYER_ID, BOT_PLAYER_INDEX } from '../bots/bots.constants.js';
+import {
+  BOT_LEVELS,
+  BOT_PLAYER_ID,
+  BOT_PLAYER_INDEX,
+  DEFAULT_BOT_LEVEL,
+} from '../bots/bots.constants.js';
 import { chooseTurn } from '../bots/calculator/choose-play.js';
 import { ErrorCode } from '../common/error-codes.js';
 import { acquireLock, releaseLock } from '../common/redis-lock.js';
@@ -58,12 +63,16 @@ export class GameService {
     private readonly matchesService: MatchesService,
   ) {}
 
-  async createSession(match: Match): Promise<GameSession> {
+  async createSession(
+    match: Match,
+    botLevel: number = DEFAULT_BOT_LEVEL,
+  ): Promise<GameSession> {
     const game = Game.start(drawGameCards()).toSnapshot();
     const session: GameSession = {
       matchId: match.id,
       mode: match.mode,
       playerIds: [match.playerOneId, match.playerTwoId ?? BOT_PLAYER_ID],
+      botLevel: match.mode === QueueMode.BOT ? botLevel : null,
       status: 'WAITING',
       joined: [false, match.mode === QueueMode.BOT],
       joinDeadline: Date.now() + JOIN_TIMEOUT_MS,
@@ -209,7 +218,8 @@ export class GameService {
       return null;
     }
     const botId = session.playerIds[BOT_PLAYER_INDEX];
-    const { card, play } = chooseTurn(Game.restore(session.game));
+    const level = BOT_LEVELS[(session.botLevel ?? DEFAULT_BOT_LEVEL) - 1];
+    const { card, play } = chooseTurn(Game.restore(session.game), level);
     if (!play) {
       return this.pass(session.matchId, botId, card);
     }

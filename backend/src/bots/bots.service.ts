@@ -4,6 +4,7 @@ import { GameService } from '../game/game.service.js';
 import { QueueMode } from '../generated/prisma/client.js';
 import { MatchesService } from '../matches/matches.service.js';
 import { QueueService } from '../queue/queue.service.js';
+import { DEFAULT_BOT_LEVEL } from './bots.constants.js';
 
 @Injectable()
 export class BotsService {
@@ -15,7 +16,7 @@ export class BotsService {
     private readonly queueService: QueueService,
   ) {}
 
-  async startMatch(userId: number) {
+  async startMatch(userId: number, level: number = DEFAULT_BOT_LEVEL) {
     if (await this.matchesService.findActiveForUser(userId)) {
       throw new ConflictException(ErrorCode.ALREADY_IN_MATCH);
     }
@@ -26,7 +27,7 @@ export class BotsService {
       userId,
       null,
     );
-    await this.gameService.createSession(match).catch((error: Error) => {
+    await this.gameService.createSession(match, level).catch((error: Error) => {
       this.logger.warn(
         `could not create game session for match ${match.id}: ${error.message}`,
       );

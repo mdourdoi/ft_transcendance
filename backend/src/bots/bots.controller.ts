@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   HttpCode,
   HttpStatus,
@@ -8,6 +9,7 @@ import {
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { JwtGuard } from '../auth/jwt.guard.js';
 import { BotsService } from './bots.service.js';
+import { StartBotMatchDto } from './dto/start-bot-match.dto.js';
 
 @Controller('bots')
 @UseGuards(JwtGuard)
@@ -16,7 +18,10 @@ export class BotsController {
 
   @Post('matches')
   @HttpCode(HttpStatus.CREATED)
-  startMatch(@CurrentUser('sub') userId: number) {
-    return this.botsService.startMatch(userId);
+  startMatch(
+    @CurrentUser('sub') userId: number,
+    @Body() dto: StartBotMatchDto,
+  ) {
+    return this.botsService.startMatch(userId, dto.level);
   }
 }

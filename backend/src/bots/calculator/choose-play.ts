@@ -1,30 +1,46 @@
 import { Game, Play } from '../../game/domain/index.js';
 import { evaluate } from './evaluate.js';
 
-const SEARCH_DEPTH = 8;
 const WIN_SCORE = 1_000_000;
+const SOFTMAX_CUTOFF = 6;
 
 export interface Turn {
   card: string;
   play: Play | null;
 }
 
-export function chooseTurn(game: Game): Turn {
+export interface BotLevel {
+  depth: number;
+  temperature: number;
+}
+
+export function chooseTurn(
+  game: Game,
+  level: BotLevel,
+  random: () => number = Math.random,
+): Turn {
   const candidates = turns(game);
-  console.log(`Found ${candidates.length} candidate turns`);
-  let best = candidates[0];
-  let bestScore = -Infinity;
+  const margin = level.temperature * SOFTMAX_CUTOFF;
+  const scores: number[] = [];
+  let best = -Infinity;
 
   for (const turn of candidates) {
-    const score = outcome(game, turn, SEARCH_DEPTH, bestScore, Infinity);
-    if (score > bestScore) {
-      best = turn;
-      bestScore = score;
-      console.log(`Evaluating turn: ${JSON.stringify(best)}`);
-    }
+    const score = outcome(game, turn, level.depth, best - margin, Infinity);
+    scores.push(score);
+    best = Math.max(best, score);
   }
 
-  return best;
+  const weights = scores.map((score) =>
+    score > best - margin ? Math.exp((score - best) / level.temperature) : 0,
+  );
+  let roll = random() * weights.reduce((sum, weight) => sum + weight, 0);
+  for (const [index, weight] of weights.entries()) {
+    roll -= weight;
+    if (roll < 0) {
+      return candidates[index];
+    }
+  }
+  return candidates[scores.indexOf(best)];
 }
 
 export function assess(game: Game, depth: number): number {
