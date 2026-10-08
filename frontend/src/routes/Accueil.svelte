@@ -26,8 +26,21 @@
 
 	let choosingBot = $state(false);
 
+	let notice = $state(false);
+	let noticeTimer: ReturnType<typeof setTimeout>;
+
+	function select(id: string) {
+		selectedMode = id;
+		notice = false;
+	}
+
 	function play() {
-		if (!selectedMode) return;
+		if (!selectedMode) {
+			notice = true;
+			clearTimeout(noticeTimer);
+			noticeTimer = setTimeout(() => (notice = false), 3000);
+			return;
+		}
 		if (selectedMode === 'training') {
 			choosingBot = true;
 			return;
@@ -53,8 +66,13 @@
 
 <div class="grid h-full min-h-0 grid-rows-[minmax(300px,52%)_minmax(0,1fr)] gap-4 pt-1">
 	<section class="relative overflow-hidden rounded-2xl bg-[url(/assets/home/background/home.png)] bg-cover bg-center shadow-md ring-1 ring-foreground/15">
+		{#if notice}
+			<p role="alert" class="absolute top-4 left-1/2 z-10 -translate-x-1/2 animate-in rounded-lg bg-secondary px-4 py-2 font-display text-sm tracking-widest whitespace-nowrap text-secondary-foreground shadow-lg ring-1 ring-foreground/15 fade-in-0 slide-in-from-top-2">
+				{$t('HOME.SELECT_MODE')}
+			</p>
+		{/if}
 		<div class="absolute top-[75%] left-[69%] w-[clamp(300px,32vw,520px)] -translate-x-1/2 -translate-y-1/2">
-			<PlayButton class="w-full" disabled={!selectedMode} onclick={play}>{$t('HOME.PLAY')}</PlayButton>
+			<PlayButton class="w-full" onclick={play}>{$t('HOME.PLAY')}</PlayButton>
 		</div>
 	</section>
 
@@ -96,7 +114,7 @@
 					variant="ghost"
 					aria-label={$t(`HOME.MODES.${mode.key}`)}
 					aria-pressed={selected}
-					onclick={() => (selectedMode = mode.id)}
+					onclick={() => select(mode.id)}
 					class={cn(
 						'group relative h-full min-h-0 overflow-hidden rounded-xl p-0 shadow-sm ring-1 ring-foreground/15 transition-all hover:-translate-y-1 hover:bg-transparent hover:shadow-lg active:translate-y-0',
 						selected && '-translate-y-1 shadow-lg ring-4 ring-primary hover:-translate-y-1',

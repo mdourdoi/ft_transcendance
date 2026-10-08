@@ -40,6 +40,7 @@
   },
   "HOME": {
     "PLAY": "Jugar",
+    "SELECT_MODE": "Selecciona primero un modo de juego.",
     "BOTS": {
       "TITLE": "Elige a tu rival",
       "ELO": "≈ {elo} Elo"
