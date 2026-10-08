@@ -131,7 +131,7 @@
 					class="group h-auto animate-in flex-col gap-2 rounded-xl bg-secondary p-3 text-secondary-foreground shadow-sm ring-1 ring-foreground/15 transition-all duration-300 fill-mode-backwards zoom-in-75 fade-in-0 hover:-translate-y-1 hover:bg-secondary hover:text-secondary-foreground hover:shadow-lg hover:ring-4 hover:ring-primary"
 				>
 					<img class="pointer-events-none aspect-square w-full object-contain transition-transform duration-300 select-none group-hover:scale-105" src={bot.image} alt="" />
-					<span class="font-display text-base tracking-widest uppercase">{$t(`HOME.BOTS.LEVELS.${bot.key}`)}</span>
+					<span class="font-display text-base tracking-widest uppercase">{bot.name}</span>
 					<Badge class="rounded-sm px-2 py-0.5 font-display text-xs tracking-widest">{$t('HOME.BOTS.ELO', { values: { elo: bot.elo } })}</Badge>
 				</Button>
 			{/each}

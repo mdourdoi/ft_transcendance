@@ -8,7 +8,7 @@
     import { createGame, legalMoves, canMove, playMove, passTurn } from '../lib/components/game/game/engine';
     import type { GameState, Player } from '../lib/components/game/game/engine';
     import { liveClocks, toGameState } from '../lib/components/game/game/online';
-    import { BOT_ID, BOT_NAME, currentUserId, playOnline } from '$lib/game-socket';
+    import { BOT_ID, BOT_LEVELS, botLevel, currentUserId, playOnline } from '$lib/game-socket';
     import type { GameStateView, OnlineGame } from '$lib/game-socket';
     import { navigate } from '$lib/router';
     import { t } from '$lib/i18n';
@@ -93,7 +93,7 @@
         if (id === myId)
             return friendManager.username || $t('GAME.ME');
         if (id === BOT_ID)
-            return BOT_NAME;
+            return (BOT_LEVELS.find((bot) => bot.level === $botLevel) ?? BOT_LEVELS[0]).name;
         return friendManager.friends.find((f) => f.user?.id === id)?.user.username ?? $t('GAME.OPPONENT');
     }
     function time(ms: number) {

@@ -42,13 +42,7 @@
     "PLAY": "Play",
     "BOTS": {
       "TITLE": "Choose your opponent",
-      "ELO": "≈ {elo} Elo",
-      "LEVELS": {
-        "NOVICE": "Novice",
-        "INTERMEDIATE": "Intermediate",
-        "HARD": "Hard",
-        "IMPOSSIBLE": "Impossible"
-      }
+      "ELO": "≈ {elo} Elo"
     },
     "NEWS": "NEWS",
     "NEWS_PREVIOUS": "Previous news",

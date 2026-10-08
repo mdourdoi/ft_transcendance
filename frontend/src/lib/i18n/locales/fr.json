@@ -42,13 +42,7 @@
     "PLAY": "Jouer",
     "BOTS": {
       "TITLE": "Choisis ton adversaire",
-      "ELO": "≈ {elo} Elo",
-      "LEVELS": {
-        "NOVICE": "Novice",
-        "INTERMEDIATE": "Intermédiaire",
-        "HARD": "Difficile",
-        "IMPOSSIBLE": "Impossible"
-      }
+      "ELO": "≈ {elo} Elo"
     },
     "NEWS": "ACTUALITÉS",
     "NEWS_PREVIOUS": "Actualité précédente",

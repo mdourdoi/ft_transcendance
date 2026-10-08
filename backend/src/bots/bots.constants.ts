@@ -1,6 +1,6 @@
 import { BotLevel } from './calculator/choose-play.js';
 
-export const BOT_USERNAME = 'nicolas';
+export const BOT_USERNAME = 'Dojo';
 export const BOT_PLAYER_ID = 0;
 export const BOT_PLAYER_INDEX = 1;
 export const BOT_LEVELS: BotLevel[] = [
