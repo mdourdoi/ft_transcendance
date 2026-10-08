@@ -17,9 +17,9 @@
 	];
 
 	const modes = [
-		{ id: 'ranked', key: 'RANKED', image: '../assets/home/background/ranked_card.jpeg' },
-		{ id: 'normal', key: 'NORMAL', image: '../assets/home/background/normal_card.jpeg' },
-		{ id: 'training', key: 'TRAINING', image: '../assets/home/background/training_card.jpeg' },
+		{ id: 'ranked', key: 'RANKED', image: '../assets/home/background/ranked_card.webp' },
+		{ id: 'normal', key: 'NORMAL', image: '../assets/home/background/normal_card.webp' },
+		{ id: 'training', key: 'TRAINING', image: '../assets/home/background/training_card.webp' },
 	];
 
 	let selectedMode = $state<string | null>(null);
