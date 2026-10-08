@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ErrorCode } from '../common/error-codes.js';
-import { DEFAULT_AVATAR_FILENAME } from '../constants.js';
 import {
   Friendship,
   FriendshipStatus,
@@ -65,7 +64,7 @@ export class FriendshipsService {
           user: {
             id: toUse.id,
             username: toUse.username,
-            avatarUrl: toUse.avatarUrl ?? DEFAULT_AVATAR_FILENAME,
+            avatarUrl: toUse.avatarUrl,
           },
           isSender:
             friendship.status === FriendshipStatus.PENDING ||
@@ -118,7 +117,7 @@ export class FriendshipsService {
           from: {
             id: expeditor.id,
             username: expeditor.username,
-            avatarUrl: expeditor.avatarUrl ?? DEFAULT_AVATAR_FILENAME,
+            avatarUrl: expeditor.avatarUrl,
           },
         });
       }

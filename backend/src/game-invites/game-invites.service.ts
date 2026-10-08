@@ -9,7 +9,6 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Redis } from 'ioredis';
 import { ErrorCode } from '../common/error-codes.js';
-import { DEFAULT_AVATAR_FILENAME } from '../constants.js';
 import { FriendshipsService } from '../friendships/friendships.service.js';
 import { GameService } from '../game/game.service.js';
 import { QueueMode } from '../generated/prisma/client.js';
@@ -58,7 +57,7 @@ export class GameInvitesService {
       from: {
         id: sender.id,
         username: sender.username,
-        avatarUrl: sender.avatarUrl ?? DEFAULT_AVATAR_FILENAME,
+        avatarUrl: sender.avatarUrl,
       },
       expiresAt,
     });

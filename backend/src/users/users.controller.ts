@@ -5,6 +5,8 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
+  ParseIntPipe,
   Patch,
   Post,
   UploadedFile,
@@ -119,5 +121,11 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   find(@Body() dto: FindUserDto) {
     return this.userService.find(dto.username);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get(':id/profile')
+  profile(@Param('id', ParseIntPipe) userId: number) {
+    return this.userService.profile(userId);
   }
 }

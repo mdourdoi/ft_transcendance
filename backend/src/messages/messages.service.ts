@@ -5,7 +5,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ErrorCode } from '../common/error-codes.js';
-import { DEFAULT_AVATAR_FILENAME } from '../constants.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ConversationDto } from './dto/conversation.dto.js';
 import { MessageDto } from './dto/message.dto.js';
@@ -53,7 +52,7 @@ export class MessagesService {
         sender: {
           id: item.sender.id,
           username: item.sender.username,
-          avatarUrl: item.sender.avatarUrl ?? DEFAULT_AVATAR_FILENAME,
+          avatarUrl: item.sender.avatarUrl,
         },
       });
       itemsDto.push(dto);
@@ -97,7 +96,7 @@ export class MessagesService {
       sender: {
         id: sender.id,
         username: sender.username,
-        avatarUrl: sender.avatarUrl ?? DEFAULT_AVATAR_FILENAME,
+        avatarUrl: sender.avatarUrl,
       },
     };
   }

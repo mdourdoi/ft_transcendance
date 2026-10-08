@@ -3,7 +3,7 @@ model User {
   email                String               @unique
   username             String               @unique
   passwordHash         String
-  avatarUrl            String?
+  avatarUrl            String               @default("default.png")
   twoFactorEnabled     Boolean              @default(false)
   twoFactorSecret      String?
   rating               Int                  @default(1000)
