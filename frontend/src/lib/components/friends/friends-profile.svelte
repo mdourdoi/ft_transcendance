@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { Badge } from "$lib/components/ui/badge";
   import * as Avatar from "$lib/components/ui/avatar";
   import { t } from "$lib/i18n";
 
@@ -24,11 +23,6 @@
         />
         <Avatar.Fallback></Avatar.Fallback>
       </Avatar.Root>
-      <Badge
-        variant="secondary"
-        class="absolute -bottom-2 left-1/2 -translate-x-1/2 border-2 border-accent px-2"
-        >42</Badge
-      >
     </div>
     <div class="flex min-w-0 flex-col gap-1">
       <strong class="truncate text-xl text-secondary-foreground"

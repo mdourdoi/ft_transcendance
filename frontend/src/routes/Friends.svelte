@@ -15,7 +15,9 @@
     FriendsSection,
   } from "$lib/components/friends";
   import { friendManager } from "$lib/stores/friend.svelte";
+  import { inviteManager } from "$lib/stores/invites.svelte";
   import { logout } from "$lib/auth";
+  import { cn } from "$lib/utils";
   import { t } from "$lib/i18n";
   import { onlineFriends } from "$lib/socket";
 
@@ -33,12 +35,30 @@
     text: "text-emerald-700",
   });
 
-  let popup: "" | "message" | "add" = $state("");
+  let adding = $state(false);
+  let chatting = $state(false);
+  const announced: Record<number, number> = {};
+
+  $effect(() => {
+    for (const invite of Object.values(inviteManager.incoming)) {
+      if (announced[invite.from.id] === invite.expiresAt) continue;
+      announced[invite.from.id] = invite.expiresAt;
+      const friend = friendManager.friends.find((f) => f.user?.id === invite.from.id);
+      if (!friend) continue;
+      selectedValue = String(friend.conversationId);
+      chatting = true;
+    }
+  });
   let selectedValue = $state("");
 </script>
 
 <aside
-  class="grid h-full grid-rows-[15.5vh_minmax(0,1fr)_auto] overflow-hidden px-[5px] pt-[5px]"
+  class={cn(
+    "grid h-full overflow-hidden px-[5px] pt-[5px]",
+    chatting
+      ? "grid-rows-[15.5vh_minmax(0,2fr)_minmax(0,3fr)_auto]"
+      : "grid-rows-[15.5vh_minmax(0,1fr)_auto]",
+  )}
 >
   <FriendsProfile username={friendManager.username} avatar={friendManager.avatar} />
 
@@ -101,7 +121,7 @@
               <ContextMenu.Item
                 onclick={() => {
                   selectedValue = String(f.conversationId);
-                  popup = "message";
+                  chatting = true;
                 }}
               >
                 Envoyer un message
@@ -159,18 +179,24 @@
     </ScrollArea>
   </section>
 
+  {#if chatting}
+    <div class="min-h-0 animate-in px-2 pb-2 duration-300 fade-in-0 slide-in-from-bottom-6">
+      <ChatPanel bind:selectedValue onclose={() => (chatting = false)} />
+    </div>
+  {/if}
+
   <FriendsFooter
-    onmessages={() => (popup = "message")}
-    onadd={() => (popup = "add")}
+    onmessages={() => (chatting = !chatting)}
+    onadd={() => (adding = true)}
     onlogout={logout}
   />
 </aside>
 
 <Sheet.Root
-  open={popup !== ""}
+  open={adding}
   onOpenChange={(open) => {
     if (!open) {
-      popup = "";
+      adding = false;
       friendManager.error = "";
     }
   }}
@@ -184,16 +210,12 @@
         >{$t("COMMON.EYEBROW")}</span
       >
       <Sheet.Title class="font-display text-2xl">
-        {$t(popup === "add" ? "FRIENDS.ADD_CONTACT" : "FRIENDS.MESSAGING")}
+        {$t("FRIENDS.ADD_CONTACT")}
       </Sheet.Title>
     </Sheet.Header>
 
     <div class="flex flex-col gap-4 p-4">
-      {#if popup === "message"}
-        <ChatPanel bind:selectedValue />
-      {:else if popup === "add"}
-        <AddFriendForm />
-      {/if}
+      <AddFriendForm />
     </div>
   </Sheet.Content>
 </Sheet.Root>

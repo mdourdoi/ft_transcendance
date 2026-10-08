@@ -2,6 +2,7 @@ import { io, Socket } from 'socket.io-client';
 import { token } from "$lib/auth";
 import { get, writable } from 'svelte/store';
 import { friendManager } from "$lib/stores/friend.svelte";
+import { inviteManager, type InviteSender } from "$lib/stores/invites.svelte";
 
 
 let socket: Socket | null = null;
@@ -35,6 +36,18 @@ function connectSocket() {
     });
     socket.on('friendRequest', () => {
         friendManager.friendships_requests();
+    });
+    socket.on('gameInvite', ({ from, expiresAt }: { from: InviteSender; expiresAt: number }) => {
+        inviteManager.receive(from, expiresAt);
+    });
+    socket.on('gameInviteAccepted', ({ opponentId }: { opponentId: number }) => {
+        inviteManager.accepted(opponentId);
+    });
+    socket.on('gameInviteDeclined', ({ userId }: { userId: number }) => {
+        inviteManager.refused(userId);
+    });
+    socket.on('gameInviteCancelled', ({ userId }: { userId: number }) => {
+        inviteManager.withdrawn(userId);
     });
     return socket;
 }
@@ -71,5 +84,6 @@ export function onNewMessage(handler: (m: ChatMessage) => void) {
 function disconnectSocket() {
     socket?.disconnect();
     onlineFriends.set({})
+    inviteManager.reset();
     socket = null;
 }

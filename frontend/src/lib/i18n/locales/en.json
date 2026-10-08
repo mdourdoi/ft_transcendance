@@ -205,7 +205,8 @@
     "STATUS": {
       "ONLINE": "Online",
       "IN_GAME": "In game",
-      "AWAY": "Away"
+      "AWAY": "Away",
+      "OFFLINE": "Offline"
     },
     "SEARCH_PLACEHOLDER": "Search for a friend...",
     "SEARCH": "Search",
@@ -216,12 +217,13 @@
     "MESSAGING": "Messaging",
     "CHOOSE_FRIEND": "Choose a friend",
     "CHOOSE_CONTACT": "Choose a contact…",
-    "REFRESH": "Refresh",
     "YOUR_MESSAGE": "Your message",
     "MESSAGE_PLACEHOLDER": "Write your message…",
     "SEND": "Send",
     "SELECT_FRIEND": "Select a friend to open the conversation.",
-    "ADD": "Add"
+    "ADD": "Add",
+    "CHAT_EMPTY": "No messages yet. Start the conversation!",
+    "SCROLL_BOTTOM": "Jump to latest messages"
   },
   "GAME": {
     "HEAD_TITLE": "Onitama · Local game",
@@ -398,5 +400,14 @@
     "ADD_FRIEND": "Add friend",
     "REQUEST_SENT": "Request sent",
     "FRIEND": "Already friends"
+  },
+  "INVITES": {
+    "CHALLENGE": "Challenge to a game",
+    "RECEIVED": "{name} challenges you!",
+    "SENT": "Challenge sent",
+    "DECLINED": "{name} declined the challenge.",
+    "EXPIRES": "Expires in {seconds}s",
+    "ACCEPT": "Accept",
+    "DECLINE": "Decline"
   }
 }

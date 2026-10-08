@@ -205,7 +205,8 @@
     "STATUS": {
       "ONLINE": "En línea",
       "IN_GAME": "En partida",
-      "AWAY": "Ausente"
+      "AWAY": "Ausente",
+      "OFFLINE": "Desconectado"
     },
     "SEARCH_PLACEHOLDER": "Buscar un amigo...",
     "SEARCH": "Buscar",
@@ -216,12 +217,13 @@
     "MESSAGING": "Mensajería",
     "CHOOSE_FRIEND": "Elegir un amigo",
     "CHOOSE_CONTACT": "Elige un contacto…",
-    "REFRESH": "Actualizar",
     "YOUR_MESSAGE": "Tu mensaje",
     "MESSAGE_PLACEHOLDER": "Escribe tu mensaje…",
     "SEND": "Enviar",
     "SELECT_FRIEND": "Selecciona un amigo para abrir su conversación.",
-    "ADD": "Añadir"
+    "ADD": "Añadir",
+    "CHAT_EMPTY": "Aún no hay mensajes. ¡Empieza la conversación!",
+    "SCROLL_BOTTOM": "Ir a los últimos mensajes"
   },
   "GAME": {
     "HEAD_TITLE": "Onitama · Partida local",
@@ -398,5 +400,14 @@
     "ADD_FRIEND": "Añadir como amigo",
     "REQUEST_SENT": "Solicitud enviada",
     "FRIEND": "Ya sois amigos"
+  },
+  "INVITES": {
+    "CHALLENGE": "Retar a una partida",
+    "RECEIVED": "¡{name} te reta!",
+    "SENT": "Reto enviado",
+    "DECLINED": "{name} ha rechazado el reto.",
+    "EXPIRES": "Caduca en {seconds} s",
+    "ACCEPT": "Aceptar",
+    "DECLINE": "Rechazar"
   }
 }

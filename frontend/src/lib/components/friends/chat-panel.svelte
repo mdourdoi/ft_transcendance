@@ -1,25 +1,56 @@
 <script lang="ts">
+  import { tick } from "svelte";
+  import ArrowDown from "@lucide/svelte/icons/arrow-down";
+  import Swords from "@lucide/svelte/icons/swords";
+  import X from "@lucide/svelte/icons/x";
   import { Button } from "$lib/components/ui/button";
-  import { Label } from "$lib/components/ui/label";
-  import { Textarea } from "$lib/components/ui/textarea";
+  import * as Avatar from "$lib/components/ui/avatar";
+  import * as Card from "$lib/components/ui/card";
   import * as NativeSelect from "$lib/components/ui/native-select";
+  import { Stamp } from "$lib/components/onitama";
   import { cn } from "$lib/utils";
   import { authFetch } from "$lib/auth";
-  import { t } from "$lib/i18n";
-  import { sendMessage, onNewMessage, type ChatMessage } from "$lib/socket";
+  import { t, locale } from "$lib/i18n";
+  import { onlineFriends, sendMessage, onNewMessage, type ChatMessage } from "$lib/socket";
   import { friendManager } from "$lib/stores/friend.svelte";
+  import { inviteManager } from "$lib/stores/invites.svelte";
+  import ChatComposer from "./chat-composer.svelte";
+  import ChatInvite from "./chat-invite.svelte";
+  import ChatMessageBubble from "./chat-message.svelte";
 
-  let { selectedValue = $bindable("") }: { selectedValue?: string } = $props();
+  let {
+    selectedValue = $bindable(""),
+    onclose,
+  }: { selectedValue?: string; onclose: () => void } = $props();
 
   const selectedId = $derived(selectedValue ? Number(selectedValue) : null);
   const selected = $derived(
     friendManager.friends.find((f) => f.conversationId === selectedId),
   );
+  const online = $derived(!!selected && !!$onlineFriends[selected.user.id]);
+  const timeFormat = $derived(
+    new Intl.DateTimeFormat($locale ?? undefined, { hour: "2-digit", minute: "2-digit" }),
+  );
+
   let messages = $state<ChatMessage[]>([]);
   let nextCursor = $state<string | null>(null);
   let hasMore = $state(false);
   let text = $state("");
+  let sending = $state(false);
   let sendError = $state<string | null>(null);
+  let viewport = $state<HTMLDivElement>();
+  let atBottom = $state(true);
+
+  async function toBottom(smooth = false) {
+    await tick();
+    viewport?.scrollTo({ top: viewport.scrollHeight, behavior: smooth ? "smooth" : "auto" });
+    atBottom = true;
+  }
+
+  function track() {
+    if (!viewport) return;
+    atBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight < 24;
+  }
 
   $effect(() => {
     const id = selectedId;
@@ -27,6 +58,7 @@
     nextCursor = null;
     hasMore = false;
     sendError = null;
+    inviteManager.error = "";
     if (id === null) return;
 
     authFetch(`/api/conversations/${id}/messages?take=20`)
@@ -36,6 +68,7 @@
         messages = page.items;
         nextCursor = page.nextCursor;
         hasMore = page.hasMore;
+        void toBottom();
       })
       .catch(() => {});
   });
@@ -45,7 +78,9 @@
       if (msg.conversationId !== undefined && msg.conversationId !== selectedId)
         return;
       if (messages.some((m) => m.id === msg.id)) return;
+      const follow = atBottom || msg.sender.username === friendManager.username;
       messages = [...messages, msg];
+      if (follow) void toBottom(true);
     }),
   );
 
@@ -57,86 +92,139 @@
     );
     const page = await res.json();
     if (id !== selectedId) return;
+    const before = viewport?.scrollHeight ?? 0;
     messages = [...page.items, ...messages];
     nextCursor = page.nextCursor;
     hasMore = page.hasMore;
+    await tick();
+    if (viewport) viewport.scrollTop += viewport.scrollHeight - before;
   }
 
-  async function submit(e: SubmitEvent) {
-    e.preventDefault();
-    if (selectedId === null || !text.trim()) return;
+  async function send() {
+    if (selectedId === null || !text.trim() || sending) return;
+    sending = true;
     const res = await sendMessage(selectedId, text);
+    sending = false;
     if (res.ok) {
       text = "";
       sendError = null;
+      if (!messages.some((m) => m.id === res.message.id)) messages = [...messages, res.message];
+      void toBottom(true);
     } else {
       sendError = res.error;
     }
   }
 </script>
 
-<div class="flex flex-col gap-2">
-  <Label for="conversation_contact">{$t("FRIENDS.CHOOSE_FRIEND")}</Label>
-  <NativeSelect.Root
-    id="conversation_contact"
-    bind:value={selectedValue}
-    class="w-full"
-  >
-    <NativeSelect.Option value="" disabled
-      >{$t("FRIENDS.CHOOSE_CONTACT")}</NativeSelect.Option
-    >
-    {#each friendManager.friends as f (f.conversationId)}
-      <NativeSelect.Option value={String(f.conversationId)}
-        >{f.user.username}</NativeSelect.Option
-      >
-    {/each}
-  </NativeSelect.Root>
-</div>
-{#if selected}
-  <div class="flex items-center justify-between">
-    <h3 class="font-display text-lg">{selected.user.username}</h3>
-    <Button variant="outline" size="sm">{$t("FRIENDS.REFRESH")}</Button>
-  </div>
-  <div
-    class="flex max-h-80 min-h-40 flex-col gap-2 overflow-y-auto rounded-md border border-border bg-muted/40 p-3"
-    aria-label="Historique des messages"
-    aria-live="polite"
-  >
-    {#if hasMore}
-      <Button variant="outline" size="sm" onclick={loadMore}
-        >{$t("COMMON.LOAD_MORE")}</Button
-      >
+<Card.Root class="h-full gap-0 border-2 border-double border-border bg-card/90 py-0 shadow-md">
+  <Card.Header class="flex items-center gap-3 border-b border-border py-3">
+    {#if selected}
+      <Avatar.Root class="size-10 shrink-0">
+        <Avatar.Image src={`/api/avatars/${selected.user.avatarUrl ?? "default.png"}`} alt={selected.user.username} />
+        <Avatar.Fallback>{selected.user.username.slice(0, 2)}</Avatar.Fallback>
+        {#if online}
+          <Avatar.Badge class="bg-emerald-500" />
+        {/if}
+      </Avatar.Root>
+    {:else}
+      <Stamp kanji="話" class="size-10 shrink-0 text-xl" />
     {/if}
-    {#each messages as m (m.id)}
-      <div
-        class={cn(
-          "max-w-[85%] rounded-md px-2 py-1 text-sm",
-          m.sender.username === friendManager.username
-            ? "self-end bg-primary text-primary-foreground"
-            : "self-start bg-card",
-        )}
+    <div class="flex min-w-0 flex-1 flex-col gap-1">
+      <NativeSelect.Root
+        size="sm"
+        aria-label={$t("FRIENDS.CHOOSE_FRIEND")}
+        bind:value={selectedValue}
+        class="w-full bg-card font-display text-base"
       >
-        <strong class="block text-xs opacity-70">{m.sender.username}</strong>
-        {m.content}
+        <NativeSelect.Option value="" disabled>{$t("FRIENDS.CHOOSE_CONTACT")}</NativeSelect.Option>
+        {#each friendManager.friends as f (f.conversationId)}
+          <NativeSelect.Option value={String(f.conversationId)}>{f.user.username}</NativeSelect.Option>
+        {/each}
+      </NativeSelect.Root>
+      {#if selected}
+        <span class={cn("px-1 text-xs", online ? "text-emerald-700" : "text-muted-foreground")}>
+          {$t(online ? "FRIENDS.STATUS.ONLINE" : "FRIENDS.STATUS.OFFLINE")}
+        </span>
+      {/if}
+    </div>
+    {#if selected}
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        class="shrink-0 self-start text-primary"
+        aria-label={$t("INVITES.CHALLENGE")}
+        title={$t("INVITES.CHALLENGE")}
+        disabled={!!inviteManager.outgoing[selected.user.id] || !!inviteManager.incoming[selected.user.id]}
+        onclick={() => inviteManager.send(selected.user.id)}
+      >
+        <Swords />
+      </Button>
+    {/if}
+    <Button variant="ghost" size="icon-sm" class="shrink-0 self-start" aria-label={$t("COMMON.CLOSE")} onclick={onclose}>
+      <X />
+    </Button>
+  </Card.Header>
+
+  <Card.Content class="relative min-h-0 flex-1 p-0">
+    {#if !selected}
+      <div class="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
+        <Stamp kanji="友" />
+        <p class="text-sm text-muted-foreground italic">{$t("FRIENDS.SELECT_FRIEND")}</p>
       </div>
-    {/each}
-  </div>
-  <form class="flex flex-col gap-2" onsubmit={submit}>
-    <Label for="message-text">{$t("FRIENDS.YOUR_MESSAGE")}</Label>
-    <Textarea
-      id="message-text"
-      bind:value={text}
-      maxlength={1024}
-      rows={3}
-      placeholder={$t("FRIENDS.MESSAGE_PLACEHOLDER")}
-    />
-    <Button type="submit" class="self-end">{$t("FRIENDS.SEND")}</Button>
-    {#if sendError}<p class="text-sm text-destructive">
+    {:else}
+      <div
+        bind:this={viewport}
+        onscroll={track}
+        role="log"
+        aria-relevant="additions"
+        aria-live="polite"
+        aria-label={$t("FRIENDS.MESSAGING")}
+        class="flex h-full flex-col gap-2 overflow-y-auto p-(--card-spacing)"
+      >
+        {#if hasMore}
+          <Button variant="outline" size="sm" class="self-center" onclick={loadMore}>{$t("COMMON.LOAD_MORE")}</Button>
+        {/if}
+        {#each messages as m (m.id)}
+          <ChatMessageBubble
+            message={m}
+            mine={m.sender.username === friendManager.username}
+            time={timeFormat.format(new Date(m.createdAt))}
+          />
+        {:else}
+          <div class="m-auto flex flex-col items-center gap-3 text-center">
+            <Stamp kanji="話" />
+            <p class="text-sm text-muted-foreground italic">{$t("FRIENDS.CHAT_EMPTY")}</p>
+          </div>
+        {/each}
+      </div>
+      {#if !atBottom}
+        <Button
+          variant="secondary"
+          size="icon-sm"
+          class="absolute bottom-2 left-1/2 -translate-x-1/2 animate-in rounded-full shadow-md fade-in-0 zoom-in-75"
+          aria-label={$t("FRIENDS.SCROLL_BOTTOM")}
+          onclick={() => toBottom(true)}
+        >
+          <ArrowDown />
+        </Button>
+      {/if}
+    {/if}
+  </Card.Content>
+
+  <Card.Footer class="flex-col items-stretch gap-2 border-t border-border">
+    {#if selected}
+      <ChatInvite friend={selected.user} />
+    {/if}
+    {#if inviteManager.error}
+      <p role="alert" class="text-sm text-destructive">
+        {$t(`ERRORS.${inviteManager.error}`, { default: $t("ERRORS.UNKNOWN_ERROR") })}
+      </p>
+    {/if}
+    <ChatComposer bind:value={text} disabled={!selected || sending} onsend={send} />
+    {#if sendError}
+      <p role="alert" class="text-sm text-destructive">
         {$t(`ERRORS.${sendError}`, { default: sendError })}
-      </p>{/if}
-  </form>
-{:else}
-  <p class="text-sm text-muted-foreground">
-    {$t("FRIENDS.SELECT_FRIEND")}
-  </p>
-{/if}
+      </p>
+    {/if}
+  </Card.Footer>
+</Card.Root>
