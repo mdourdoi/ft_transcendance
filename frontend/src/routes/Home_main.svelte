@@ -43,7 +43,7 @@
 <div class="relative h-screen w-screen overflow-hidden">
 	<img
 		class="pointer-events-none fixed inset-0 size-full select-none"
-		src="../assets/home/background/background.png"
+		src="../assets/home/background/background.webp"
 		alt=""
 	/>
 	<div class="relative grid h-full grid-cols-[minmax(0,1fr)_var(--friends-width)] grid-rows-[var(--topbar-height)_minmax(0,1fr)]">
