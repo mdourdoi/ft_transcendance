@@ -23,7 +23,12 @@
     <InkQuote class="mt-auto" quote={$t("PROFILE.QUOTE")} author="" stamp />
   {/snippet}
 
-  <IdentityCard />
+  <IdentityCard
+    name={profilManager.username}
+    avatarUrl={profilManager.avatarUrl}
+    rating={profilManager.rating}
+    editable
+  />
 
   <CollapsibleCard title={$t("STATS.TITLE")} description={$t("STATS.SUBTITLE")}>
     <Card.Content class="flex flex-col gap-4">

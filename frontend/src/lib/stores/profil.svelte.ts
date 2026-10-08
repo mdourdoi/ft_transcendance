@@ -16,6 +16,7 @@ export class ProfilManager {
     qr_code = $state('');
     is_2fa_enabled = $state(false);
     avatarUrl = $state<string | null>(null);
+    rating = $state<number | null>(null);
 
     able_two_fa() {
         this.is_2fa_enabled = true;
@@ -65,6 +66,7 @@ export class ProfilManager {
             this.username = data.username;
             this.email = data.email;
             this.avatarUrl = data.avatarUrl;
+            this.rating = data.rating;
             const is2fa = data.isTwoFactorEnabled ?? data.isTwoFactorAuthEnabled ?? data.twoFactorEnabled;
             if (typeof is2fa !== 'undefined') {
                 this.is_2fa_enabled = Boolean(is2fa);

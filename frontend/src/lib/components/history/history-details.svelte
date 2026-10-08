@@ -21,6 +21,7 @@
 		movesCount?: number;
 		playerIndex?: number;
 		replay?: ReplayData | null;
+		owner?: string;
 	};
 </script>
 

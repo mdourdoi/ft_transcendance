@@ -20,8 +20,9 @@ function duration(match: ApiMatch): string {
 	return minutes < 1 ? '< 1 min' : `${minutes} min`;
 }
 
-function toGame(match: ApiMatch): Game {
+function toGame(match: ApiMatch, owner?: string): Game {
 	return {
+		owner,
 		id: String(match.id),
 		result: match.won ? 'Victory' : 'Defeat',
 		mode: match.mode === 'RANKED' ? 'Ranked' : match.mode === 'BOT' ? 'Training' : 'Normal',
@@ -44,6 +45,8 @@ export class HistoryManager {
 	loading = $state(false);
 	error = $state<string | null>(null);
 
+	constructor(private readonly player?: { id: number; username: string }) {}
+
 	reset() {
 		this.games = [];
 		this.nextCursor = null;
@@ -65,10 +68,11 @@ export class HistoryManager {
 		this.loading = true;
 		this.error = null;
 		try {
-			const res = await authFetch(cursor === undefined ? '/api/matches' : `/api/matches?cursor=${cursor}`);
+			const path = this.player ? `/api/matches/user/${this.player.id}` : '/api/matches';
+			const res = await authFetch(cursor === undefined ? path : `${path}?cursor=${cursor}`);
 			const data = await res.json();
 			if (!res.ok) throw new Error(data.message);
-			this.games.push(...data.matches.map(toGame));
+			this.games.push(...data.matches.map((match: ApiMatch) => toGame(match, this.player?.username)));
 			this.nextCursor = data.nextCursor;
 		} catch (err) {
 			this.error = err instanceof Error ? err.message : String(err);

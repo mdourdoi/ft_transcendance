@@ -3,12 +3,14 @@
 	import Profil from './Profil.svelte';
 	import History from './History.svelte';
 	import Friends from './Friends.svelte';
+	import Search from './Search.svelte';
+	import type { FoundPlayer } from '$lib/components/players/player-search.svelte';
 	import Sakura from '$lib/components/onitama/sakura-petals.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils';
 	import { t } from '$lib/i18n';
 
-	type Onglet = 'home' | 'historique' | 'profil';
+	type Onglet = 'home' | 'historique' | 'profil' | 'search';
 
 	const onglets: { id: Onglet; label: string; icon: string }[] = [
 		{
@@ -26,9 +28,20 @@
 			label: 'NAV.PROFILE',
 			icon: 'M12 3.5a4 4 0 1 1 0 8a4 4 0 0 1 0-8zM4 19.5c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z',
 		},
+		{
+			id: 'search',
+			label: 'NAV.SEARCH',
+			icon: 'M10.5 3a7.5 7.5 0 0 1 5.9 12.1l4.3 4.3a1.5 1.5 0 0 1-2.1 2.1l-4.3-4.3A7.5 7.5 0 1 1 10.5 3zm0 3a4.5 4.5 0 1 0 0 9a4.5 4.5 0 0 0 0-9z',
+		},
 	];
 
 	let onglet: Onglet = $state('home');
+	let player: FoundPlayer | null = $state(null);
+
+	function open(id: Onglet) {
+		onglet = id;
+		player = null;
+	}
 	let sakura: Sakura | undefined = $state();
 </script>
 
@@ -60,7 +73,7 @@
 							'h-auto flex-col gap-1 px-4 py-2 font-display text-lg text-foreground/80 italic hover:bg-transparent hover:text-foreground',
 							active && 'text-primary underline decoration-2 underline-offset-4 hover:text-primary'
 						)}
-						onclick={() => (onglet = item.id)}
+						onclick={() => open(item.id)}
 					>
 						<svg class="size-[4.5vh]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
 							<path d={item.icon} />
@@ -78,6 +91,8 @@
 				<Profil />
 			{:else if onglet === 'historique'}
 				<History />
+			{:else if onglet === 'search'}
+				<Search bind:player />
 			{/if}
 		</main>
 

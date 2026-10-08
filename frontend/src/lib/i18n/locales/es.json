@@ -34,7 +34,8 @@
     "MAIN": "Navegación principal",
     "HOME": "Inicio",
     "HISTORY": "Historial",
-    "PROFILE": "Perfil"
+    "PROFILE": "Perfil",
+    "SEARCH": "Buscar"
   },
   "HOME": {
     "PLAY": "Jugar",
@@ -197,7 +198,8 @@
       },
       "RESET": "Restablecer las preferencias de audio y juego",
       "RESET_HINT": "Los ajustes de cuenta y seguridad se conservan."
-    }
+    },
+    "ELO": "{elo} Elo"
   },
   "FRIENDS": {
     "STATUS": {
@@ -382,5 +384,19 @@
     "EMPTY_SOURCE_SQUARE": "No hay ninguna pieza en esta casilla",
     "DESTINATION_OCCUPIED": "Esta casilla ya está ocupada por una de tus piezas",
     "POSITION_OUT_OF_BOUNDS": "Esta casilla está fuera del tablero"
+  },
+  "SEARCH": {
+    "TITLE": "Buscar un jugador",
+    "PLACEHOLDER": "Nombre del jugador",
+    "HINT": "Escribe un nombre para buscar entre todos los jugadores.",
+    "EMPTY": "Ningún jugador encontrado.",
+    "SUBTITLE": "Encuentra a un jugador y consulta su ficha."
+  },
+  "PLAYER": {
+    "SUBTITLE": "Ficha del jugador",
+    "TABS_LABEL": "Secciones del jugador",
+    "ADD_FRIEND": "Añadir como amigo",
+    "REQUEST_SENT": "Solicitud enviada",
+    "FRIEND": "Ya sois amigos"
   }
 }

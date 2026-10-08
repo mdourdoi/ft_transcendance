@@ -89,28 +89,31 @@ export class FriendManager {
 		}
 	}
 
-	add_friend = async (event: SubmitEvent) => {
-		event.preventDefault();
-		this.error = '';
+	async send_request(username: string): Promise<string> {
 		try {
 			const res = await authFetch('/api/friendships/send', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ username: this.to_add })
+				body: JSON.stringify({ username })
 			});
 			if (!res.ok) {
 				const data = await res.json();
-				const errorCode = Array.isArray(data.message) ? data.message[0] : data.message ?? 'UNKNOWN_ERROR';
-				this.error = errorCode;
-				return;
+				return Array.isArray(data.message) ? data.message[0] : data.message ?? 'UNKNOWN_ERROR';
 			}
-			this.to_add = '';
 			await this.get_friends();
 			await this.friendships_requests();
 			await this.get_sent_requests();
+			return '';
 		} catch (err) {
-			this.error = err instanceof Error ? err.message : String(err);
+			return err instanceof Error ? err.message : String(err);
 		}
+	}
+
+	add_friend = async (event: SubmitEvent) => {
+		event.preventDefault();
+		this.error = await this.send_request(this.to_add);
+		if (!this.error)
+			this.to_add = '';
 	}
 
 	async accept_request(friend_id: number) {

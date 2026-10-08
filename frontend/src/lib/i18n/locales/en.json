@@ -34,7 +34,8 @@
     "MAIN": "Main navigation",
     "HOME": "Home",
     "HISTORY": "History",
-    "PROFILE": "Profile"
+    "PROFILE": "Profile",
+    "SEARCH": "Search"
   },
   "HOME": {
     "PLAY": "Play",
@@ -197,7 +198,8 @@
       },
       "RESET": "Reset audio and game preferences",
       "RESET_HINT": "Account and security settings are kept."
-    }
+    },
+    "ELO": "{elo} Elo"
   },
   "FRIENDS": {
     "STATUS": {
@@ -382,5 +384,19 @@
     "EMPTY_SOURCE_SQUARE": "There is no piece on this square",
     "DESTINATION_OCCUPIED": "This square is already occupied by one of your pieces",
     "POSITION_OUT_OF_BOUNDS": "This square is outside the board"
+  },
+  "SEARCH": {
+    "TITLE": "Search for a player",
+    "PLACEHOLDER": "Player username",
+    "HINT": "Type a username to search among all players.",
+    "EMPTY": "No player found.",
+    "SUBTITLE": "Find a player and view their card."
+  },
+  "PLAYER": {
+    "SUBTITLE": "Player card",
+    "TABS_LABEL": "Player sections",
+    "ADD_FRIEND": "Add friend",
+    "REQUEST_SENT": "Request sent",
+    "FRIEND": "Already friends"
   }
 }

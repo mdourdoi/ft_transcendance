@@ -34,7 +34,8 @@
 	const total = $derived(states.length - 1);
 	const shown = $derived(states[Math.min(step, total)]);
 	const lastMove = $derived(step > 0 ? game.replay?.moves[step - 1] : undefined);
-	const names = $derived(me === 0 ? [$t('GAME.ME'), game.opponent] : [game.opponent, $t('GAME.ME')]);
+	const owner = $derived(game.owner ?? $t('GAME.ME'));
+	const names = $derived(me === 0 ? [owner, game.opponent] : [game.opponent, owner]);
 	const share = $derived.by(() => {
 		const first = advantages?.[step];
 		if (first === undefined) return null;
