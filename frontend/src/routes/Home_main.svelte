@@ -2,14 +2,13 @@
 	import Accueil from './Accueil.svelte';
 	import Profil from './Profil.svelte';
 	import History from './History.svelte';
-	import Stat from './Stat.svelte';
 	import Friends from './Friends.svelte';
 	import Sakura from '$lib/components/onitama/sakura-petals.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils';
 	import { t } from '$lib/i18n';
 
-	type Onglet = 'home' | 'historique' | 'stats' | 'profil';
+	type Onglet = 'home' | 'historique' | 'profil';
 
 	const onglets: { id: Onglet; label: string; icon: string }[] = [
 		{
@@ -21,11 +20,6 @@
 			id: 'historique',
 			label: 'NAV.HISTORY',
 			icon: 'M4.5 3h15a1.5 1.5 0 0 1 0 3h-15a1.5 1.5 0 0 1 0-3zM6 7h12v10H6zM8.5 9.5v1.5h7V9.5zM8.5 13v1.5h5V13zM4.5 18h15a1.5 1.5 0 0 1 0 3h-15a1.5 1.5 0 0 1 0-3z',
-		},
-		{
-			id: 'stats',
-			label: 'NAV.STATS',
-			icon: 'M5 12h2a1 1 0 0 1 1 1v7H4v-7a1 1 0 0 1 1-1zM11 4h2a1 1 0 0 1 1 1v15h-4V5a1 1 0 0 1 1-1zM17 8h2a1 1 0 0 1 1 1v11h-4V9a1 1 0 0 1 1-1z',
 		},
 		{
 			id: 'profil',
@@ -84,8 +78,6 @@
 				<Profil />
 			{:else if onglet === 'historique'}
 				<History />
-			{:else if onglet === 'stats'}
-				<Stat />
 			{/if}
 		</main>
 
