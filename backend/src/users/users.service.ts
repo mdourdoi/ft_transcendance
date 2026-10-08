@@ -55,12 +55,25 @@ export class UsersService {
     return row;
   }
 
+  search(userId: number, query: string) {
+    return this.prisma.user.findMany({
+      where: {
+        username: { contains: query, mode: 'insensitive' },
+        id: { not: userId },
+      },
+      select: { id: true, username: true, avatarUrl: true, rating: true },
+      orderBy: { username: 'asc' },
+      take: 10,
+    });
+  }
+
   async profile(userId: number) {
     const row = await this.findById(userId);
     return {
       id: row.id,
       username: row.username,
       avatarUrl: row.avatarUrl,
+      rating: row.rating,
     };
   }
 

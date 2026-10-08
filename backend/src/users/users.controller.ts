@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -24,6 +25,7 @@ import { AVATAR_UPLOAD_DIR } from '../constants.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { EmailTokenDto } from './dto/email-token.dto.js';
 import { FindUserDto } from './dto/find-user.dto.js';
+import { SearchUsersDto } from './dto/search-users.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { UsersService } from './users.service.js';
 
@@ -121,6 +123,12 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   find(@Body() dto: FindUserDto) {
     return this.userService.find(dto.username);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('search')
+  search(@CurrentUser('sub') userId: number, @Query() dto: SearchUsersDto) {
+    return this.userService.search(userId, dto.q);
   }
 
   @UseGuards(JwtGuard)
