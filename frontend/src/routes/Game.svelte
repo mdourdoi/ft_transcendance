@@ -10,22 +10,17 @@
     import { liveClocks, toGameState } from '../lib/components/game/game/online';
     import { BOT_ID, BOT_LEVELS, botLevel, currentUserId, playOnline } from '$lib/game-socket';
     import type { GameStateView, OnlineGame } from '$lib/game-socket';
+    import { authFetch } from '$lib/auth';
     import { navigate } from '$lib/router';
     import { t } from '$lib/i18n';
     import { friendManager } from '../utils/friend.svelte';
 
-    type Modal = 'rules' | 'settings' | 'resign' | 'exit' | 'result';
+    type Modal = 'rules' | 'resign' | 'exit' | 'result';
 
-    interface Props {
-        mode?: string;
-        onexit?: () => void;
-        names?: [string, string];
-        assetBase?: string;
-        logoSrc?: string;
-        avatars?: [string, string];
-    }
+    let { mode }: { mode?: string } = $props();
 
-    let { mode, onexit, names = ['RaiNeko', 'Kenshii'], assetBase = '../assets/game/', logoSrc, avatars }: Props = $props();
+    const names: [string, string] = ['RaiNeko', 'Kenshii'];
+    const asset = '../assets/game';
 
     const players = [1, 0] as const;
     const myId = currentUserId();
@@ -40,14 +35,13 @@
     let error = $state('');
     let modal = $state<Modal | null>(null);
     let dialog = $state<HTMLDialogElement>();
-    let showHints = $state(true);
-    let initialMinutes = $state(10);
     let view = $state<GameStateView | null>(null);
     let opponentAway = $state(false);
+    let profiles = $state<Record<number, { username: string; avatarUrl: string }>>({});
     let session: OnlineGame | null = null;
+    const requested: Record<number, boolean> = {};
     let lastTick = 0;
 
-    const asset = $derived(assetBase.replace(/\/$/, ''));
     const queueMode = $derived(mode === 'ranked' ? 'RANKED' : mode === 'normal' ? 'UNRANKED' : mode === 'training' ? 'BOT' : null);
     const online = $derived(queueMode !== null);
     const me = $derived(view && myId !== null ? view.playerIds.indexOf(myId) : -1);
@@ -60,7 +54,7 @@
     const shown = $derived(cursor === null ? game : past[cursor]);
     const step = $derived(cursor ?? past.length);
     const seats = $derived(online && view ? (view.playerIds.map(nameOf) as [string, string]) : names);
-    const destinations = $derived(selected && showHints && !reviewing ? legalMoves(game, selected, cardIndex) : []);
+    const destinations = $derived(selected && !reviewing ? legalMoves(game, selected, cardIndex) : []);
     const blocked = $derived(!over && !canMove(game));
     const liveMode = $derived(view?.mode ?? queueMode);
     const title = $derived($t(!online ? 'GAME.TITLES.LOCAL' : liveMode === 'RANKED' ? 'GAME.TITLES.RANKED' : liveMode === 'BOT' ? 'GAME.TITLES.TRAINING' : 'GAME.TITLES.NORMAL'));
@@ -78,7 +72,6 @@
     });
     const titles = $derived<Record<Modal, string>>({
         rules: $t('GAME.MODALS.RULES'),
-        settings: $t('COMMON.SETTINGS'),
         resign: $t('GAME.MODALS.RESIGN'),
         exit: $t('GAME.MODALS.EXIT'),
         result: verdict
@@ -90,11 +83,32 @@
     const other = (player: Player) => (1 - player) as Player;
 
     function nameOf(id: number) {
+        if (profiles[id])
+            return profiles[id].username;
         if (id === myId)
             return friendManager.username || $t('GAME.ME');
         if (id === BOT_ID)
             return (BOT_LEVELS.find((bot) => bot.level === $botLevel) ?? BOT_LEVELS[0]).name;
         return friendManager.friends.find((f) => f.user?.id === id)?.user.username ?? $t('GAME.OPPONENT');
+    }
+    function avatarOf(owner: number) {
+        const id = online && view ? view.playerIds[owner] : null;
+        if (id === BOT_ID)
+            return (BOT_LEVELS.find((bot) => bot.level === $botLevel) ?? BOT_LEVELS[0]).image;
+        if (id !== null && profiles[id])
+            return `/api/avatars/${profiles[id].avatarUrl}`;
+        return `${asset}/avatars/${owner === 1 ? 'ronin' : 'kunoichi'}.png`;
+    }
+    async function loadProfile(id: number) {
+        try {
+            const res = await authFetch(`/api/users/${id}/profile`);
+            if (res.ok)
+                profiles[id] = await res.json();
+            else
+                requested[id] = false;
+        } catch {
+            requested[id] = false;
+        }
     }
     function time(ms: number) {
         const seconds = Math.ceil(ms / 1000);
@@ -128,6 +142,12 @@
             past = [...past, game];
         view = next;
         game = toGameState(next);
+        for (const id of next.playerIds) {
+            if (id === BOT_ID || requested[id])
+                continue;
+            requested[id] = true;
+            void loadProfile(id);
+        }
         selected = null;
         cardIndex = 0;
         error = '';
@@ -203,7 +223,7 @@
         if (online)
             return startOnline();
         reset();
-        clocks = [initialMinutes * 60000, initialMinutes * 60000];
+        clocks = [600000, 600000];
         started = false;
         lastTick = performance.now();
     }
@@ -266,7 +286,7 @@
         <img src="../assets/game/decor/sakura.png" alt="" aria-hidden="true" draggable="false" class="pointer-events-none absolute -left-[2%] top-0 -z-10 hidden w-[27%] lg:block" />
         <img src="../assets/game/decor/pagoda.png" alt="" aria-hidden="true" draggable="false" class="pointer-events-none absolute right-[2%] top-[8%] -z-10 hidden w-[15%] opacity-80 lg:block" />
         <img src="../assets/game/decor/ronin.png" alt="" aria-hidden="true" draggable="false" class="pointer-events-none absolute bottom-[9%] left-[2%] -z-10 hidden h-[28%] w-[13%] object-contain lg:block" />
-        <img src={logoSrc ?? "../assets/game/ui/onitama.png"} alt="Onitama" class="absolute left-[1%] top-[1%] hidden h-[15%] w-[21%] object-contain lg:block" />
+        <img src="../assets/game/ui/onitama.png" alt="Onitama" class="absolute left-[1%] top-[1%] hidden h-[15%] w-[21%] object-contain lg:block" />
         <header class="order-1 mx-auto w-full max-w-sm text-center lg:absolute lg:left-[39%] lg:top-[3%] lg:w-[26%] lg:max-w-none">
             <h1 class="ink-banner py-[5%] text-[clamp(18px,1.65cqw,29px)]" style={bg('brush-black')}>{title}</h1>
             <p class="mt-1 text-[clamp(12px,1cqw,17px)]">{$t('GAME.TAGLINE')}</p>
@@ -275,7 +295,6 @@
             <button type="button" class="ink-banner px-4 py-1 text-left lg:py-[6%]" style={bg('brush-black')} onclick={()=>modal='exit'}>‹ {$t('COMMON.BACK')}</button>
             <span class="ink-banner hidden px-3 py-[6%] italic lg:block" style={bg('brush-red')}>{$t('GAME.IN_PROGRESS')}</span>
             <button type="button" class="text-left italic hover:text-red-800 lg:pl-3" onclick={()=>modal='rules'}>{$t('GAME.RULES')}</button>
-            <button type="button" class="text-left italic hover:text-red-800 lg:pl-3" onclick={()=>modal='settings'}>{$t('COMMON.SETTINGS')}</button>
             <div class="flex items-center justify-between gap-3 lg:gap-1 lg:border-t lg:border-[#80603e]/50 lg:pt-2">
                 <button type="button" class="px-2 text-[1.4em] leading-none disabled:opacity-30" aria-label={$t('GAME.PREVIOUS_MOVE')} title={`${$t('GAME.PREVIOUS_MOVE')} (←)`} disabled={step === 0} onclick={back}>‹</button>
                 <span class="text-[.8em] tabular-nums" aria-live="polite">{$t('GAME.MOVE_COUNTER', { values: { step, total: past.length } })}</span>
@@ -289,12 +308,12 @@
             <section aria-label={$t('GAME.PLAYER', { values: { name: seats[owner] } })} class="asset-fill flex flex-row items-center gap-3 px-4 py-3 drop-shadow-lg max-lg:rounded-md max-lg:border-[3px] max-lg:border-double max-lg:border-[#6b4a2b] max-lg:bg-[#f4dfbc] max-lg:bg-none! lg:absolute lg:top-[17%] lg:h-[46%] lg:w-[17%] lg:flex-col lg:items-stretch lg:gap-0 lg:p-[1.35%]" style={bg('player-panel')} style:left={owner === 1 ? '16%' : '69%'} style:order={owner === (flipped ? 1 : 0) ? 5 : 3}>
                 <div class="flex min-w-0 flex-1 flex-col lg:contents">
                     <div class="flex min-h-0 items-center gap-[6%] lg:h-[21%]">
-                        <div class="relative aspect-square w-12 shrink-0 lg:w-[40%]">
-                            <img src={avatars?.[owner] ?? `../assets/game/avatars/${owner === 1 ? 'ronin' : 'kunoichi'}.png`} alt="" class="h-full w-full rounded-full object-contain" />
+                        <div class="relative aspect-square w-12 shrink-0 lg:w-[30%]">
+                            <img src={avatarOf(owner)} alt="" class="h-full w-full rounded-full object-cover" />
                             <img src="../assets/game/ui/avatar-ring.svg" alt="" class="pointer-events-none absolute inset-0 h-full w-full" />
                         </div>
                         <div class="min-w-0">
-                            <h2 class="truncate text-[clamp(16px,1.4cqw,25px)] font-bold" title={seats[owner]}>{seats[owner]}</h2>
+                            <h2 class="line-clamp-2 text-[clamp(14px,1.2cqw,22px)] leading-tight font-bold break-all" title={seats[owner]}>{seats[owner]}</h2>
                             <p class="mt-1 text-[clamp(11px,.85cqw,16px)]">{$t((owner === 1) !== flipped ? 'GAME.NORTH' : 'GAME.SOUTH')} · {$t(owner === 1 ? 'GAME.RED' : 'GAME.BLACK')}</p>
                         </div>
                     </div>
@@ -401,26 +420,11 @@
                     <button class="ink-banner px-5 py-2" onclick={quit}>{$t('COMMON.QUIT')}</button>
                 {/if}
             </div>
-        {:else if modal==='settings'}
-            <label class="flex items-center gap-3"><input type="checkbox" bind:checked={showHints}/>{$t('GAME.SHOW_HINTS')}</label>
-            {#if !online}
-                <label class="mt-5 block">{$t('GAME.NEXT_DURATION')}
-                    <select bind:value={initialMinutes} class="ml-2 border p-1">
-                        <option value={5}>5 min</option>
-                        <option value={10}>10 min</option>
-                        <option value={15}>15 min</option>
-                    </select>
-                </label>
-                <p class="mt-4 text-sm">{$t('GAME.DURATION_HINT')}</p>
-            {/if}
         {:else if modal==='resign'}
             <p>{$t('GAME.RESIGN_TEXT', { values: { name: seats[online && me >= 0 ? me : game.turn] } })}</p>
             <button class="ink-banner mt-5 bg-red-800 px-5 py-2" onclick={resign}>{$t('GAME.CONFIRM_RESIGN')}</button>
         {:else}
-            {#if onexit}
-                <p>{$t('GAME.NOT_SAVED')}</p>
-                <button class="ink-banner mt-5 px-5 py-2" onclick={()=>{modal=null;onexit?.();}}>{$t('GAME.BACK_TO_LAUNCHER')}</button>
-            {:else if online}
+            {#if online}
                 <p>{$t(view?.status === 'PLAYING' ? 'GAME.EXIT_PLAYING' : 'GAME.EXIT_IDLE')}</p>
                 <button class="ink-banner mt-5 px-5 py-2" onclick={quit}>{$t('COMMON.QUIT')}</button>
             {:else}
