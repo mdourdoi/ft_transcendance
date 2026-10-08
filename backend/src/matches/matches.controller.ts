@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Param,
   ParseIntPipe,
   Query,
   UseGuards,
@@ -25,5 +26,13 @@ export class MatchesController {
   @Get('current')
   async current(@CurrentUser('sub') userId: number) {
     return { match: await this.matchesService.findActiveForUser(userId) };
+  }
+
+  @Get(':id/analysis')
+  analysis(
+    @CurrentUser('sub') userId: number,
+    @Param('id', ParseIntPipe) matchId: number,
+  ) {
+    return this.matchesService.findAnalysis(matchId, userId);
   }
 }

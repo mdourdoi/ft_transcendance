@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { AuthModule } from './auth/auth.module.js';
+import { BotsModule } from './bots/bots.module.js';
 import { validateEnv } from './config/env.validation.js';
 import { AVATAR_UPLOAD_DIR } from './constants.js';
 import { EventsModule } from './events/events.module.js';
@@ -37,6 +38,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     QueueModule,
     GameModule,
     GameInvitesModule,
+    BotsModule,
     EventsModule,
     EventEmitterModule.forRoot(),
   ],

@@ -40,6 +40,10 @@
   },
   "HOME": {
     "PLAY": "Jouer",
+    "BOTS": {
+      "TITLE": "Choisis ton adversaire",
+      "ELO": "≈ {elo} Elo"
+    },
     "NEWS": "ACTUALITÉS",
     "NEWS_PREVIOUS": "Actualité précédente",
     "NEWS_NEXT": "Actualité suivante",
@@ -97,6 +101,21 @@
       "RATING": "Variation du classement",
       "MOVES": "Nombre de coups",
       "UNKNOWN": "Non renseigné"
+    },
+    "REPLAY": {
+      "TITLE": "Replay de la partie",
+      "OPEN": "Revoir la partie",
+      "FIRST": "Début de la partie",
+      "LAST": "Fin de la partie",
+      "PLAY": "Lecture",
+      "PAUSE": "Pause",
+      "START": "Position de départ",
+      "MOVE": "{name} joue {card}",
+      "PASS": "{name} passe et échange {card}",
+      "ADVANTAGE": "Avantage : {name}",
+      "BALANCED": "Position équilibrée",
+      "METER": "Chances de victoire",
+      "NO_ANALYSIS": "Analyse indisponible"
     },
     "END_REASONS": {
       "WAY_OF_STONE": "Voie de la pierre",
@@ -219,7 +238,8 @@
     "TITLES": {
       "LOCAL": "PARTIE LOCALE",
       "RANKED": "PARTIE CLASSÉE",
-      "NORMAL": "PARTIE NORMALE"
+      "NORMAL": "PARTIE NORMALE",
+      "TRAINING": "ENTRAÎNEMENT"
     },
     "TAGLINE": "Un esprit calme, un mouvement juste.",
     "MENU_LABEL": "Menu de la partie",

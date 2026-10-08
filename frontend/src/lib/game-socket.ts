@@ -1,8 +1,18 @@
 import { io, Socket } from 'socket.io-client';
-import { get } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import { authFetch, token } from '$lib/auth';
 
-export type QueueMode = 'RANKED' | 'UNRANKED';
+export type QueueMode = 'RANKED' | 'UNRANKED' | 'BOT';
+export const BOT_ID = 0;
+export const BOT_LEVELS = [
+    { level: 1, name: 'Deshi', elo: 600, image: '/assets/game/pieces/black-student.png' },
+    { level: 2, name: 'Senpai', elo: 1100, image: '/assets/game/pieces/red-student.png' },
+    { level: 3, name: 'Sensei', elo: 1450, image: '/assets/game/pieces/black-master.png' },
+    { level: 4, name: 'Shihan', elo: 2000, image: '/assets/game/pieces/red-master.png' }
+];
+export const botLevel = writable(Number(localStorage.getItem('botLevel')) || BOT_LEVELS[0].level);
+botLevel.subscribe((level) => localStorage.setItem('botLevel', String(level)));
+
 export type GameStatus = 'WAITING' | 'PLAYING' | 'OVER';
 export type GameEndReason =
     | 'WAY_OF_STONE'
@@ -105,6 +115,21 @@ export function playOnline(mode: QueueMode, handlers: OnlineGameHandlers): Onlin
         queue.on('queue.matched', (match: { matchId: number }) => joinGame(match.matchId));
     }
 
+    async function challengeBot() {
+        try {
+            const res = await authFetch('/api/bots/matches', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ level: get(botLevel) })
+            });
+            const body = await res.json();
+            if (res.ok) joinGame(body.matchId);
+            else handlers.onError(body.message ?? 'UNKNOWN_ERROR');
+        } catch {
+            handlers.onError('NETWORK_ERROR');
+        }
+    }
+
     async function start() {
         let current: { id: number } | null = null;
         try {
@@ -115,6 +140,7 @@ export function playOnline(mode: QueueMode, handlers: OnlineGameHandlers): Onlin
         }
         if (closed) return;
         if (current) joinGame(current.id);
+        else if (mode === 'BOT') await challengeBot();
         else search();
     }
 

@@ -10,6 +10,7 @@ export interface GameSession {
   matchId: number;
   mode: QueueMode;
   playerIds: [number, number];
+  botLevel: number | null;
   status: GameStatus;
   joined: [boolean, boolean];
   joinDeadline: number;

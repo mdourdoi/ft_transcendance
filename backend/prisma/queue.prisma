@@ -1,6 +1,7 @@
 enum QueueMode {
   RANKED
   UNRANKED
+  BOT
 }
 
 enum MatchStatus {
@@ -24,7 +25,7 @@ model Match {
   status MatchStatus @default(ACTIVE)
 
   playerOneId Int
-  playerTwoId Int
+  playerTwoId Int?
   winnerId    Int?
   endReason   MatchEndReason?
   ratingDelta Int?
@@ -34,7 +35,7 @@ model Match {
   finishedAt DateTime?
 
   playerOne User  @relation("PlayerOne", fields: [playerOneId], references: [id], onDelete: Cascade)
-  playerTwo User  @relation("PlayerTwo", fields: [playerTwoId], references: [id], onDelete: Cascade)
+  playerTwo User? @relation("PlayerTwo", fields: [playerTwoId], references: [id], onDelete: Cascade)
   winner    User? @relation("Winner", fields: [winnerId], references: [id], onDelete: SetNull)
 
   @@index([playerOneId])
