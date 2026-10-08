@@ -4,7 +4,7 @@
   import { Input } from "$lib/components/ui/input";
   import { ScrollArea } from "$lib/components/ui/scroll-area";
   import * as Sheet from "$lib/components/ui/sheet";
-  import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
+  import * as ContextMenu from "$lib/components/ui/context-menu";
   import {
     AddFriendForm,
     ChatPanel,
@@ -98,27 +98,27 @@
               status={$onlineFriends[f.user.id] ? online : null}
               class="group"
             >
-              <DropdownMenu.Item
+              <ContextMenu.Item
                 onclick={() => {
                   selectedValue = String(f.conversationId);
                   popup = "message";
                 }}
               >
                 Envoyer un message
-              </DropdownMenu.Item>
-              <DropdownMenu.Separator />
-              <DropdownMenu.Item
+              </ContextMenu.Item>
+              <ContextMenu.Separator />
+              <ContextMenu.Item
                 class="text-destructive"
                 onclick={() => friendManager.block_friend(f.user.id)}
               >
                 Bloquer
-              </DropdownMenu.Item>
-              <DropdownMenu.Item
+              </ContextMenu.Item>
+              <ContextMenu.Item
                 class="text-destructive"
                 onclick={() => friendManager.remove_friend(f.user.id)}
               >
                 Retirer des amis
-              </DropdownMenu.Item>
+              </ContextMenu.Item>
             </FriendRow>
           {/each}
         </FriendsSection>
@@ -130,11 +130,11 @@
         >
           {#each friendManager.blocked as f (f.user.id)}
             <FriendRow user={f.user}>
-              <DropdownMenu.Item
+              <ContextMenu.Item
                 onclick={() => friendManager.unblock_friend(f.user.id)}
               >
                 Débloquer
-              </DropdownMenu.Item>
+              </ContextMenu.Item>
             </FriendRow>
           {/each}
         </FriendsSection>
@@ -146,12 +146,12 @@
         >
           {#each friendManager.sent as f (f.user.id)}
             <FriendRow user={f.user}>
-              <DropdownMenu.Item
+              <ContextMenu.Item
                 class="text-destructive"
                 onclick={() => friendManager.cancel_invitation(f.user.id)}
               >
                 Annuler l'invitation
-              </DropdownMenu.Item>
+              </ContextMenu.Item>
             </FriendRow>
           {/each}
         </FriendsSection>
