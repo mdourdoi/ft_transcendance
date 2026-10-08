@@ -1,7 +1,7 @@
 import { io, Socket } from 'socket.io-client';
 import { token } from "$lib/auth";
 import { get, writable } from 'svelte/store';
-import { friendManager } from "../utils/friend.svelte";
+import { friendManager } from "$lib/stores/friend.svelte";
 
 
 let socket: Socket | null = null;

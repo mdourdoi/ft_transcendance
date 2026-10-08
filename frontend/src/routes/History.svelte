@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Ellipsis from '@lucide/svelte/icons/ellipsis';
-	import History_Details, { type Game } from './History_Details.svelte';
-	import History_Replay from './History_Replay.svelte';
+	import HistoryDetails, { type Game } from '$lib/components/history/history-details.svelte';
+	import HistoryReplay from '$lib/components/history/history-replay.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 	import * as Avatar from '$lib/components/ui/avatar';
@@ -10,7 +10,7 @@
 	import * as Table from '$lib/components/ui/table';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import { InkQuote, PageShell, SideNav } from '$lib/components/onitama';
-	import { historyManager } from '../utils/history.svelte';
+	import { historyManager } from '$lib/stores/history.svelte';
 	import { t, locale } from '$lib/i18n';
 
 	const filters = $derived([
@@ -106,7 +106,7 @@
 </Tabs.Root>
 
 {#if gameOption}
-	<History_Details
+	<HistoryDetails
 		game={gameOption}
 		onclose={() => (gameOption = null)}
 		onreplay={() => {
@@ -117,5 +117,5 @@
 {/if}
 
 {#if replayGame}
-	<History_Replay game={replayGame} onclose={() => (replayGame = null)} />
+	<HistoryReplay game={replayGame} onclose={() => (replayGame = null)} />
 {/if}

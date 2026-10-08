@@ -83,7 +83,7 @@
 
 <PageShell title={$t("STATS.TITLE")} subtitle={$t("STATS.SUBTITLE")}>
 	{#snippet sidebar()}
-		<div class="min-h-0 flex-1 rounded-xl bg-[url(/assets/home/background/samourai3.png)] bg-cover bg-top"></div>
+		<div class="min-h-0 flex-1 rounded-xl bg-[url(/assets/home/background/samourai3.webp)] bg-cover bg-top"></div>
 	{/snippet}
 
 	<section class="grid grid-cols-4 gap-4">

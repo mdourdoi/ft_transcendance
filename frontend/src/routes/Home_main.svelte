@@ -4,7 +4,7 @@
 	import History from './History.svelte';
 	import Stat from './Stat.svelte';
 	import Friends from './Friends.svelte';
-	import Sakura from './SakuraPetals.svelte';
+	import Sakura from '$lib/components/onitama/sakura-petals.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils';
 	import { t } from '$lib/i18n';
@@ -54,7 +54,7 @@
 				aria-label="Onitama"
 				onclick={() => sakura?.launchBurst()}
 			>
-				<img class="h-full w-auto rounded-lg object-contain" src="../assets/home/logo/onitama.png" alt="Onitama" />
+				<img class="h-full w-auto rounded-lg object-contain" src="../assets/home/logo/onitama.webp" alt="Onitama" />
 			</Button>
 			<nav class="flex items-center justify-center gap-[2vw]" aria-label={$t('NAV.MAIN')}>
 				{#each onglets as item (item.id)}

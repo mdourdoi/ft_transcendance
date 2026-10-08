@@ -11,9 +11,9 @@
 	import { t } from '$lib/i18n';
 
 	const news = [
-		{ id: 'SEASON', image: '../assets/home/background/actuality_1.png' },
-		{ id: 'TOURNAMENT', image: '../assets/home/background/actuality_1.png' },
-		{ id: 'CARDS', image: '../assets/home/background/actuality_1.png' },
+		{ id: 'SEASON', image: '../assets/home/background/actuality_1.webp' },
+		{ id: 'TOURNAMENT', image: '../assets/home/background/actuality_1.webp' },
+		{ id: 'CARDS', image: '../assets/home/background/actuality_1.webp' },
 	];
 
 	const modes = [
@@ -65,7 +65,7 @@
 </script>
 
 <div class="grid h-full min-h-0 grid-rows-[minmax(300px,52%)_minmax(0,1fr)] gap-4 pt-1">
-	<section class="relative overflow-hidden rounded-2xl bg-[url(/assets/home/background/home.png)] bg-cover bg-center shadow-md ring-1 ring-foreground/15">
+	<section class="relative overflow-hidden rounded-2xl bg-[url(/assets/home/background/home.webp)] bg-cover bg-center shadow-md ring-1 ring-foreground/15">
 		{#if notice}
 			<p role="alert" class="absolute top-4 left-1/2 z-10 -translate-x-1/2 animate-in rounded-lg bg-secondary px-4 py-2 font-display text-sm tracking-widest whitespace-nowrap text-secondary-foreground shadow-lg ring-1 ring-foreground/15 fade-in-0 slide-in-from-top-2">
 				{$t('HOME.SELECT_MODE')}

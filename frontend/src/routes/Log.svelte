@@ -1,28 +1,53 @@
 <script lang="ts">
-	import logo from '../../assets/logo-onitama2.png';
-	import frame from '../../assets/frame.png';
-	import strace from '../../assets/Icone/strace.png';
-	import cadre from '../../assets/bouton_outline.png';
+	import logo from '../../assets/logo-onitama2.webp';
+	import strace from '../../assets/Icone/strace.webp';
 	import logomail from '../../assets/Icone/email.png';
 	import logopassword from '../../assets/Icone/Maj.png';
-	import bloque from '../../assets/Icone/hide.png';
 	import user from '../../assets/Icone/user.png';
-	import debloque from '../../assets/Icone/not_hide.png';
+	import { AuthButton, AuthDivider, AuthField, AuthForm, PasswordToggle } from '$lib/components/auth';
+	import '$lib/components/auth/auth.css';
 	import { navigate } from '$lib/router';
 	import { token } from '$lib/auth';
 	import { t } from '$lib/i18n';
-	import {profilManager} from '../utils/profil.svelte';
+	import { profilManager } from '$lib/stores/profil.svelte';
 
-	let currentStep = 'login';
-	let ithide = 'hide';
-	let twofa = '';
-	let email = '';
-	let password = '';
-	let username = '';
-	let error = '';
+	type Step = 'login' | 'signin' | '2fa';
+
+	let currentStep = $state<Step>('login');
+	let hidden = $state(true);
+	let twofa = $state('');
+	let email = $state('');
+	let password = $state('');
+	let username = $state('');
+	let error = $state('');
 	let loading = false;
 
-	function home() {
+	const passwordType = $derived(hidden ? 'password' : 'text');
+
+	async function post(path: string, body: Record<string, string>) {
+		try {
+			const res = await fetch(path, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(body)
+			});
+			const data = await res.json();
+			if (!res.ok) {
+				error = Array.isArray(data.message) ? data.message[0] : data.message ?? 'UNKNOWN_ERROR';
+				return null;
+			}
+			return data;
+		} catch {
+			error = 'NETWORK_ERROR';
+			return null;
+		}
+	}
+
+	function enter(accessToken: string) {
+		password = '';
+		email = '';
+		twofa = '';
+		token.set(accessToken);
 		navigate(`/home`, { useAnimation: true });
 	}
 
@@ -32,25 +57,11 @@
 			return;
 		}
 		if (!/^[a-zA-Z0-9]{3,24}$/.test(username)) {
-		error = 'INVALID_USERNAME';
-		return;
-	}
-		try {
-			const res = await fetch('/api/auth/register', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ email: email, username: username, password: password })
-			});
-			const data = await res.json();
-			if (!res.ok) {
-				const errorCode = Array.isArray(data.message) ? data.message[0]: data.message ?? 'UNKNOWN_ERROR';
-				error = errorCode;
-				return ;
-			}
-			selectMode('login');
-		} catch {
-			error = 'NETWORK_ERROR';
+			error = 'INVALID_USERNAME';
+			return;
 		}
+		if (await post('/api/auth/register', { email, username, password }))
+			selectMode('login');
 	}
 
 	async function connectUser() {
@@ -58,68 +69,28 @@
 			error = 'EMPTY_FIELDS';
 			return;
 		}
-		try {
-			const res = await fetch('/api/auth/login', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ email: email, password: password })
-			});
-			const data = await res.json();
-			if (!res.ok) {
-				const errorCode = Array.isArray(data.message) ? data.message[0]: data.message ?? 'UNKNOWN_ERROR';
-				error = errorCode;
-				if (error === 'TWOFA_CODE_REQUIRED') selectMode('2fa');
-				return ;
-			}
-			password = '';
-			email = '';
-			token.set(data.accessToken);
-			home();
-		} catch {
-			error = 'NETWORK_ERROR';
-		}
+		const data = await post('/api/auth/login', { email, password });
+		if (data)
+			enter(data.accessToken);
+		else if (error === 'TWOFA_CODE_REQUIRED')
+			selectMode('2fa');
 	}
 
 	async function connectTwoFa() {
-		const cleanCode = twofa.trim();
-		if (!password.trim() || !email.trim() || !cleanCode) {
+		const code = twofa.trim();
+		if (!password.trim() || !email.trim() || !code) {
 			error = 'EMPTY_FIELDS';
 			return;
 		}
-		try {
-			const res = await fetch('/api/auth/login', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ 
-					email: email.trim(), 
-					password: password.trim(), 
-					code: cleanCode 
-				})
-			});
-			const data = await res.json();
-			if (!res.ok) {
-				const errorCode = Array.isArray(data.message) ? data.message[0] : data.message ?? 'UNKNOWN_ERROR';
-				error = errorCode;
-				return;
-			}
-			password = '';
-			email = '';
-			twofa = '';
-			token.set(data.accessToken);
-			profilManager.able_two_fa();
-			home();
-		} catch {
-			error = 'NETWORK_ERROR';
-		}
+		const data = await post('/api/auth/login', { email: email.trim(), password: password.trim(), code });
+		if (!data)
+			return;
+		profilManager.able_two_fa();
+		enter(data.accessToken);
 	}
 
-	function selectMode(mode: string) {
+	function selectMode(mode: Step) {
 		currentStep = mode;
-		error = '';
-	}
-
-	function selectModePass(mode: string) {
-		ithide = mode;
 		error = '';
 	}
 
@@ -141,7 +112,7 @@
 	}
 </script>
 
-<main class="relative flex h-screen w-screen items-center justify-center bg-[url('../../assets/Login_background.png')] bg-cover bg-center bg-no-repeat">
+<main class="auth-screen relative flex h-screen w-screen items-center justify-center bg-[url('../../assets/Login_background.webp')] bg-cover bg-center bg-no-repeat">
 	{#if error}
 	<p class="absolute top-[470px] left-1/2 -translate-x-1/2 w-[400px] text-center text-red-600 text-base font-semibold z-50">
 		{$t(`ERRORS.${error}`, { default: $t('ERRORS.UNKNOWN_ERROR') })}
@@ -164,374 +135,38 @@
 	/>
 
 	{#if currentStep === 'login'}
-	<form novalidate on:submit|preventDefault={handleSubmit} class="absolute top-[500px] left-1/2 -translate-x-1/2 w-[550px] h-[600px]">
-		<img src={frame} alt="frame" class="absolute inset-0 w-full h-full" />
-		<div class="absolute inset-0 flex justify-center top-[75px] text-black" style="font-size: 40px;">
-			<p>{$t('AUTH.LOGIN_TITLE')}</p>
-		</div>
-		<div class="absolute inset-0 flex justify-center top-[130px] text-black" style="font-size: 15px;">
-			<p>{$t('AUTH.SUBTITLE')}</p>
-		</div>
-		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
-			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
-			<input
-				type="email"
-				bind:value={email}
-				placeholder={$t('AUTH.EMAIL')}
-				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
-			/>
-		</div>
-		<div>
-			<img src={logomail} alt="logo" class="absolute top-[175px] left-[110px]" />
-		</div>
-		<div class="relative w-[340px] h-[60px] top-[170px] left-[100px]">
-			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
-			<input
-				type={ithide === 'hide' ? 'password' : 'text'}
-				bind:value={password}
-				placeholder={$t('AUTH.PASSWORD')}
-				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
-			/>
-		</div>
-		<div>
-			<img src={logopassword} alt="logo" class="absolute top-[240px] left-[110px]" />
-			{#if ithide === 'not hide'}
-				<button
-					type="button"
-					class="absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
-							top-[122px] left-[390px]"
-					style="background: transparent !important; box-shadow: none !important;"
-					on:click={() => selectModePass('hide')}
-				>
-					<img src={bloque} alt="description" class="w-[40px] h-[40px] object-contain" />
-				</button>
-			{:else}
-				<button
-					type="button"
-					class="absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
-							top-[122px] left-[390px]"
-					style="background: transparent !important; box-shadow: none !important;"
-					on:click={() => selectModePass('not hide')}
-				>
-					<img src={debloque} alt="description" class="w-[40px] h-[40px] object-contain" />
-				</button>
-			{/if}
-		</div>
-		<button
-			type="submit"
-			class="group absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
-				top-[150px] left-[calc(50%-175px)] relative w-[340px] h-[60px]
-				flex items-center justify-center"
-			style="background: transparent !important; box-shadow: none !important;"
-		>
-			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
-			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
-				{$t('AUTH.LOGIN')}
-			</span>
-		</button>
-		<img
-			src={strace}
-			alt="logo"
-			class="absolute top-[415px] left-[calc(50%-130px)] -translate-x-1/2 w-[150px] h-[10px] -scale-x-100"
-		/>
-		<p class="absolute top-[405px] left-[calc(50%-100px)] w-[200px] text-center text-black text-lg font-semibold">
-			{$t('AUTH.OR')}
-		</p>
-		<img
-			src={strace}
-			alt="logo"
-			class="absolute top-[415px] left-[calc(50%+125px)] -translate-x-1/2 w-[150px] h-[10px]"
-		/>
-		<button
-			type="button"
-			class="group absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
-				top-[230px] left-[calc(50%-175px)] relative w-[340px] h-[60px]
-				flex items-center justify-center"
-			style="background: transparent !important; box-shadow: none !important;"
-			on:click={() => selectMode('signin')}
-		>
-			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
-			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
-				{$t('AUTH.REGISTER')}
-			</span>
-		</button>
-		<img
-			src={strace}
-			alt="logo"
-			class="absolute top-[660px] left-[calc(50%-110px)] -translate-x-1/2 w-[90px] h-auto -scale-x-100"
-		/>
-		<p class="absolute top-[650px] left-[calc(50%-100px)] w-[200px] text-center text-black text-lg font-semibold">
-			onitama
-		</p>
-		<img
-			src={strace}
-			alt="logo"
-			class="absolute top-[660px] left-[calc(50%+120px)] -translate-x-1/2 w-[90px] h-auto"
-		/>
-	</form>
+	<AuthForm title={$t('AUTH.LOGIN_TITLE')} onsubmit={handleSubmit}>
+		<AuthField type="email" bind:value={email} placeholder={$t('AUTH.EMAIL')} icon={logomail} class="top-[160px]" iconClass="top-[175px]" />
+		<AuthField type={passwordType} bind:value={password} placeholder={$t('AUTH.PASSWORD')} icon={logopassword} class="top-[170px]" iconClass="top-[240px]">
+			<PasswordToggle bind:hidden class="top-[122px]" ontoggle={() => (error = '')} />
+		</AuthField>
+		<AuthButton type="submit" class="top-[150px]">{$t('AUTH.LOGIN')}</AuthButton>
+		<AuthDivider lineClass="top-[415px]" textClass="top-[405px]" />
+		<AuthButton class="top-[230px]" onclick={() => selectMode('signin')}>{$t('AUTH.REGISTER')}</AuthButton>
+	</AuthForm>
 
 	{:else if currentStep === 'signin'}
-	<form novalidate on:submit|preventDefault={handleSubmit} class="absolute top-[500px] left-1/2 -translate-x-1/2 w-[550px] h-[600px]">
-		<img src={frame} alt="frame" class="absolute inset-0 w-full h-full" />
-		<div class="absolute inset-0 flex justify-center top-[75px] text-black" style="font-size: 40px;">
-			<p>{$t('AUTH.REGISTER_TITLE')}</p>
-		</div>
-		<div class="absolute inset-0 flex justify-center top-[130px] text-black" style="font-size: 15px;">
-			<p>{$t('AUTH.SUBTITLE')}</p>
-		</div>
-		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
-			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
-			<input
-				type="text"
-				placeholder={$t('AUTH.USERNAME')}
-				bind:value={username}
-				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
-			/>
-		</div>
-		<div>
-			<img src={user} alt="logo" class="absolute top-[170px] left-[110px]" />
-		</div>
-		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
-			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
-			<input
-				type="email"
-				placeholder={$t('AUTH.EMAIL')}
-				bind:value={email}
-				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
-			/>
-		</div>
-		<div>
-			<img src={logomail} alt="logo" class="absolute top-[235px] left-[110px]" />
-		</div>
-		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
-			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
-			<input
-				type={ithide === 'hide' ? 'password' : 'text'}
-				bind:value={password}
-				placeholder={$t('AUTH.PASSWORD')}
-				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
-			/>
-		</div>
-		<div>
-			<img src={logopassword} alt="logo" class="absolute top-[292px] left-[110px]" />
-			{#if ithide === 'not hide'}
-				<button
-					type="button"
-					class="absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
-							top-[112px] left-[390px]"
-					style="background: transparent !important; box-shadow: none !important;"
-					on:click={() => selectModePass('hide')}
-				>
-					<img src={bloque} alt="description" class="w-[40px] h-[40px] object-contain" />
-				</button>
-			{:else}
-				<button
-					type="button"
-					class="absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
-							top-[112px] left-[390px]"
-					style="background: transparent !important; box-shadow: none !important;"
-					on:click={() => selectModePass('not hide')}
-				>
-					<img src={debloque} alt="description" class="w-[40px] h-[40px] object-contain" />
-				</button>
-			{/if}
-		</div>
-		<button
-			type="submit"
-			class="group absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
-				top-[130px] left-[calc(50%-175px)] relative w-[340px] h-[60px]
-				flex items-center justify-center"
-			style="background: transparent !important; box-shadow: none !important;"
-		>
-			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
-			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
-				{$t('AUTH.REGISTER')}
-			</span>
-		</button>
-		<img
-			src={strace}
-			alt="logo"
-			class="absolute top-[435px] left-[calc(50%-130px)] -translate-x-1/2 w-[150px] h-[10px] -scale-x-100"
-		/>
-		<p class="absolute top-[425px] left-[calc(50%-100px)] w-[200px] text-center text-black text-lg font-semibold">
-			{$t('AUTH.OR')}
-		</p>
-		<img
-			src={strace}
-			alt="logo"
-			class="absolute top-[435px] left-[calc(50%+125px)] -translate-x-1/2 w-[150px] h-[10px]"
-		/>
-		<button
-			type="button"
-			class="group absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
-				top-[180px] left-[calc(50%-175px)] relative w-[340px] h-[60px]
-				flex items-center justify-center"
-			style="background: transparent !important; box-shadow: none !important;"
-			on:click={() => selectMode('login')}
-		>
-			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
-			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
-				{$t('AUTH.LOGIN')}
-			</span>
-		</button>
-		<img
-			src={strace}
-			alt="logo"
-			class="absolute top-[660px] left-[calc(50%-110px)] -translate-x-1/2 w-[90px] h-auto -scale-x-100"
-		/>
-		<p class="absolute top-[650px] left-[calc(50%-100px)] w-[200px] text-center text-black text-lg font-semibold">
-			onitama
-		</p>
-		<img
-			src={strace}
-			alt="logo"
-			class="absolute top-[660px] left-[calc(50%+120px)] -translate-x-1/2 w-[90px] h-auto"
-		/>
-	</form>
+	<AuthForm title={$t('AUTH.REGISTER_TITLE')} onsubmit={handleSubmit}>
+		<AuthField bind:value={username} placeholder={$t('AUTH.USERNAME')} icon={user} class="top-[160px]" iconClass="top-[170px]" />
+		<AuthField type="email" bind:value={email} placeholder={$t('AUTH.EMAIL')} icon={logomail} class="top-[160px]" iconClass="top-[235px]" />
+		<AuthField type={passwordType} bind:value={password} placeholder={$t('AUTH.PASSWORD')} icon={logopassword} class="top-[160px]" iconClass="top-[292px]">
+			<PasswordToggle bind:hidden class="top-[112px]" ontoggle={() => (error = '')} />
+		</AuthField>
+		<AuthButton type="submit" class="top-[130px]">{$t('AUTH.REGISTER')}</AuthButton>
+		<AuthDivider lineClass="top-[435px]" textClass="top-[425px]" />
+		<AuthButton class="top-[180px]" onclick={() => selectMode('login')}>{$t('AUTH.LOGIN')}</AuthButton>
+	</AuthForm>
 
-	{:else if currentStep === '2fa'}
-	<form novalidate on:submit|preventDefault={handleSubmit} class="absolute top-[500px] left-1/2 -translate-x-1/2 w-[550px] h-[600px]">
-		<img src={frame} alt="frame" class="absolute inset-0 w-full h-full" />
-		<div class="absolute inset-0 flex justify-center top-[75px] text-black" style="font-size: 40px;">
-			<p>{$t('AUTH.TWOFA_TITLE')}</p>
-		</div>
-		<div class="absolute inset-0 flex justify-center top-[130px] text-black" style="font-size: 15px;">
-			<p>{$t('AUTH.SUBTITLE')}</p>
-		</div>
-		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
-			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
-			<input
-				type="text"
-				placeholder={$t('AUTH.CODE')}
-				bind:value={twofa}
-				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
-			/>
-		</div>
-		<div>
-			<img src={logopassword} alt="logo" class="absolute top-[170px] left-[110px]" />
-		</div>
-		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
-			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
-			<input
-				type="email"
-				placeholder={$t('AUTH.EMAIL')}
-				bind:value={email}
-				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
-			/>
-		</div>
-		<div>
-			<img src={logomail} alt="logo" class="absolute top-[235px] left-[110px]" />
-		</div>
-		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
-			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
-			<input
-				type={ithide === 'hide' ? 'password' : 'text'}
-				bind:value={password}
-				placeholder={$t('AUTH.PASSWORD')}
-				class="absolute inset-0 w-full h-full bg-transparent px-4 text-center outline-none text-black"
-			/>
-		</div>
-		<div>
-			<img src={logopassword} alt="logo" class="absolute top-[292px] left-[110px]" />
-			{#if ithide === 'not hide'}
-				<button
-					type="button"
-					class="absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
-							top-[112px] left-[390px]"
-					style="background: transparent !important; box-shadow: none !important;"
-					on:click={() => selectModePass('hide')}
-				>
-					<img src={bloque} alt="description" class="w-[40px] h-[40px] object-contain" />
-				</button>
-			{:else}
-				<button
-					type="button"
-					class="absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
-							top-[112px] left-[390px]"
-					style="background: transparent !important; box-shadow: none !important;"
-					on:click={() => selectModePass('not hide')}
-				>
-					<img src={debloque} alt="description" class="w-[40px] h-[40px] object-contain" />
-				</button>
-			{/if}
-		</div>
-		<button
-			type="submit"
-			class="group absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
-				top-[130px] left-[calc(50%-175px)] relative w-[340px] h-[60px]
-				flex items-center justify-center"
-			style="background: transparent !important; box-shadow: none !important;"
-		>
-			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
-			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
-				{$t('AUTH.LOGIN')}
-			</span>
-		</button>
-		<img
-			src={strace}
-			alt="logo"
-			class="absolute top-[435px] left-[calc(50%-130px)] -translate-x-1/2 w-[150px] h-[10px] -scale-x-100"
-		/>
-		<p class="absolute top-[425px] left-[calc(50%-100px)] w-[200px] text-center text-black text-lg font-semibold">
-			{$t('AUTH.OR')}
-		</p>
-		<img
-			src={strace}
-			alt="logo"
-			class="absolute top-[435px] left-[calc(50%+125px)] -translate-x-1/2 w-[150px] h-[10px]"
-		/>
-		<button
-			type="button"
-			class="group absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
-				top-[180px] left-[calc(50%-175px)] relative w-[340px] h-[60px]
-				flex items-center justify-center"
-			style="background: transparent !important; box-shadow: none !important;"
-			on:click={() => selectMode('login')}
-		>
-			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
-			<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
-				{$t('COMMON.BACK')}
-			</span>
-		</button>
-		<img
-			src={strace}
-			alt="logo"
-			class="absolute top-[660px] left-[calc(50%-110px)] -translate-x-1/2 w-[90px] h-auto -scale-x-100"
-		/>
-		<p class="absolute top-[650px] left-[calc(50%-100px)] w-[200px] text-center text-black text-lg font-semibold">
-			onitama
-		</p>
-		<img
-			src={strace}
-			alt="logo"
-			class="absolute top-[660px] left-[calc(50%+120px)] -translate-x-1/2 w-[90px] h-auto"
-		/>
-	</form>
+	{:else}
+	<AuthForm title={$t('AUTH.TWOFA_TITLE')} onsubmit={handleSubmit}>
+		<AuthField bind:value={twofa} placeholder={$t('AUTH.CODE')} icon={logopassword} class="top-[160px]" iconClass="top-[170px]" />
+		<AuthField type="email" bind:value={email} placeholder={$t('AUTH.EMAIL')} icon={logomail} class="top-[160px]" iconClass="top-[235px]" />
+		<AuthField type={passwordType} bind:value={password} placeholder={$t('AUTH.PASSWORD')} icon={logopassword} class="top-[160px]" iconClass="top-[292px]">
+			<PasswordToggle bind:hidden class="top-[112px]" ontoggle={() => (error = '')} />
+		</AuthField>
+		<AuthButton type="submit" class="top-[130px]">{$t('AUTH.LOGIN')}</AuthButton>
+		<AuthDivider lineClass="top-[435px]" textClass="top-[425px]" />
+		<AuthButton class="top-[180px]" onclick={() => selectMode('login')}>{$t('COMMON.BACK')}</AuthButton>
+	</AuthForm>
 	{/if}
 </main>
-
-<style>
-	button {
-		color: white;
-		background-color: rgba(0, 0, 0, 0.6);
-		border: 2px solid transparent;
-		border-radius: 50px;
-		padding: 1rem 2.5rem;
-		font-size: 1.5rem;
-		font-weight: bold;
-		text-transform: uppercase;
-		letter-spacing: 2px;
-		cursor: pointer;
-		transition: all 0.3s ease;
-		position: relative;
-		z-index: 10;
-		outline: none;
-	}
-
-	button:hover {
-		background-color: rgba(255, 255, 255, 0.9);
-		color: #000;
-		transform: scale(1.05);
-		box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-	}
-</style>
