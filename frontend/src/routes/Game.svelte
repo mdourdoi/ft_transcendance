@@ -8,7 +8,7 @@
     import { createGame, legalMoves, canMove, playMove, passTurn } from '../lib/components/game/game/engine';
     import type { GameState, Player } from '../lib/components/game/game/engine';
     import { liveClocks, toGameState } from '../lib/components/game/game/online';
-    import { currentUserId, playOnline } from '$lib/game-socket';
+    import { BOT_ID, BOT_LEVELS, botLevel, currentUserId, playOnline } from '$lib/game-socket';
     import type { GameStateView, OnlineGame } from '$lib/game-socket';
     import { navigate } from '$lib/router';
     import { t } from '$lib/i18n';
@@ -48,7 +48,7 @@
     let lastTick = 0;
 
     const asset = $derived(assetBase.replace(/\/$/, ''));
-    const queueMode = $derived(mode === 'ranked' ? 'RANKED' : mode === 'normal' ? 'UNRANKED' : null);
+    const queueMode = $derived(mode === 'ranked' ? 'RANKED' : mode === 'normal' ? 'UNRANKED' : mode === 'training' ? 'BOT' : null);
     const online = $derived(queueMode !== null);
     const me = $derived(view && myId !== null ? view.playerIds.indexOf(myId) : -1);
     const flipped = $derived(online && me === 1);
@@ -62,7 +62,8 @@
     const seats = $derived(online && view ? (view.playerIds.map(nameOf) as [string, string]) : names);
     const destinations = $derived(selected && showHints && !reviewing ? legalMoves(game, selected, cardIndex) : []);
     const blocked = $derived(!over && !canMove(game));
-    const title = $derived($t(!online ? 'GAME.TITLES.LOCAL' : (view?.mode ?? queueMode) === 'RANKED' ? 'GAME.TITLES.RANKED' : 'GAME.TITLES.NORMAL'));
+    const liveMode = $derived(view?.mode ?? queueMode);
+    const title = $derived($t(!online ? 'GAME.TITLES.LOCAL' : liveMode === 'RANKED' ? 'GAME.TITLES.RANKED' : liveMode === 'BOT' ? 'GAME.TITLES.TRAINING' : 'GAME.TITLES.NORMAL'));
     const winner = $derived(game.result?.winner ?? null);
     const outcome = $derived(winner === null ? $t('GAME.OUTCOME.CANCELLED') : $t('GAME.OUTCOME.WINNER', { values: { name: seats[winner] } }));
     const verdict = $derived($t(!online || me < 0 || winner === null ? 'GAME.VERDICT.OVER' : winner === me ? 'GAME.VERDICT.WIN' : 'GAME.VERDICT.LOSS'));
@@ -91,6 +92,8 @@
     function nameOf(id: number) {
         if (id === myId)
             return friendManager.username || $t('GAME.ME');
+        if (id === BOT_ID)
+            return (BOT_LEVELS.find((bot) => bot.level === $botLevel) ?? BOT_LEVELS[0]).name;
         return friendManager.friends.find((f) => f.user?.id === id)?.user.username ?? $t('GAME.OPPONENT');
     }
     function time(ms: number) {

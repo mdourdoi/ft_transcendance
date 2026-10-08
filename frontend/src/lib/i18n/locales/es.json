@@ -40,6 +40,10 @@
   },
   "HOME": {
     "PLAY": "Jugar",
+    "BOTS": {
+      "TITLE": "Elige a tu rival",
+      "ELO": "≈ {elo} Elo"
+    },
     "NEWS": "NOTICIAS",
     "NEWS_PREVIOUS": "Noticia anterior",
     "NEWS_NEXT": "Noticia siguiente",
@@ -98,6 +102,21 @@
       "RATING": "Variación de la clasificación",
       "MOVES": "Número de jugadas",
       "UNKNOWN": "Sin especificar"
+    },
+    "REPLAY": {
+      "TITLE": "Repetición de la partida",
+      "OPEN": "Ver la repetición",
+      "FIRST": "Inicio de la partida",
+      "LAST": "Final de la partida",
+      "PLAY": "Reproducir",
+      "PAUSE": "Pausa",
+      "START": "Posición inicial",
+      "MOVE": "{name} juega {card}",
+      "PASS": "{name} pasa y cambia {card}",
+      "ADVANTAGE": "Ventaja: {name}",
+      "BALANCED": "Posición igualada",
+      "METER": "Probabilidades de victoria",
+      "NO_ANALYSIS": "Análisis no disponible"
     },
     "END_REASONS": {
       "WAY_OF_STONE": "Camino de la piedra",
@@ -275,7 +294,8 @@
     "TITLES": {
       "LOCAL": "PARTIDA LOCAL",
       "RANKED": "PARTIDA CLASIFICATORIA",
-      "NORMAL": "PARTIDA NORMAL"
+      "NORMAL": "PARTIDA NORMAL",
+      "TRAINING": "ENTRENAMIENTO"
     },
     "TAGLINE": "Una mente tranquila, un movimiento justo.",
     "MENU_LABEL": "Menú de la partida",

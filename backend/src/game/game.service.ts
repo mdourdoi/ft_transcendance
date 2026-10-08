@@ -1,12 +1,20 @@
 import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { Redis } from 'ioredis';
+import {
+  BOT_LEVELS,
+  BOT_PLAYER_ID,
+  BOT_PLAYER_INDEX,
+  DEFAULT_BOT_LEVEL,
+} from '../bots/bots.constants.js';
+import { chooseTurn } from '../bots/calculator/choose-play.js';
 import { ErrorCode } from '../common/error-codes.js';
 import { acquireLock, releaseLock } from '../common/redis-lock.js';
 import {
   Match,
   MatchEndReason,
   MatchStatus,
+  QueueMode,
 } from '../generated/prisma/client.js';
 import { MatchesService } from '../matches/matches.service.js';
 import { REDIS_CLIENT } from '../redis/redis.constants.js';
@@ -55,14 +63,18 @@ export class GameService {
     private readonly matchesService: MatchesService,
   ) {}
 
-  async createSession(match: Match): Promise<GameSession> {
+  async createSession(
+    match: Match,
+    botLevel: number = DEFAULT_BOT_LEVEL,
+  ): Promise<GameSession> {
     const game = Game.start(drawGameCards()).toSnapshot();
     const session: GameSession = {
       matchId: match.id,
       mode: match.mode,
-      playerIds: [match.playerOneId, match.playerTwoId],
+      playerIds: [match.playerOneId, match.playerTwoId ?? BOT_PLAYER_ID],
+      botLevel: match.mode === QueueMode.BOT ? botLevel : null,
       status: 'WAITING',
-      joined: [false, false],
+      joined: [false, match.mode === QueueMode.BOT],
       joinDeadline: Date.now() + JOIN_TIMEOUT_MS,
       disconnectDeadlines: [null, null],
       clocks: [PLAYER_CLOCK_MS, PLAYER_CLOCK_MS],
@@ -194,6 +206,29 @@ export class GameService {
       userId,
       (game) => game.pass(cardName),
       () => packMove(cardName),
+    );
+  }
+
+  async playBotTurn(session: GameSession): Promise<GameSession | null> {
+    if (
+      session.mode !== QueueMode.BOT ||
+      session.status !== 'PLAYING' ||
+      session.game.currentPlayer !== BOT_PLAYER_INDEX
+    ) {
+      return null;
+    }
+    const botId = session.playerIds[BOT_PLAYER_INDEX];
+    const level = BOT_LEVELS[(session.botLevel ?? DEFAULT_BOT_LEVEL) - 1];
+    const { card, play } = chooseTurn(Game.restore(session.game), level);
+    if (!play) {
+      return this.pass(session.matchId, botId, card);
+    }
+    return this.play(
+      session.matchId,
+      botId,
+      play.card,
+      { row: play.from.row, col: play.from.col },
+      { row: play.to.row, col: play.to.col },
     );
   }
 
@@ -441,7 +476,7 @@ export class GameService {
       } else {
         await this.matchesService.finishMatch(
           session.matchId,
-          session.winnerId,
+          session.winnerId === BOT_PLAYER_ID ? null : session.winnerId,
           session.endReason as MatchEndReason,
           encodeReplay(session.cards, session.moves),
         );

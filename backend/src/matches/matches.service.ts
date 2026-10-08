@@ -1,4 +1,9 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   Match,
   MatchEndReason,
@@ -6,10 +11,15 @@ import {
   Prisma,
   QueueMode,
 } from '../generated/prisma/client.js';
+import { BOT_PLAYER_ID, BOT_USERNAME } from '../bots/bots.constants.js';
+import { analyseReplay } from '../bots/calculator/analyse.js';
 import { ErrorCode } from '../common/error-codes.js';
 import { DEFAULT_AVATAR_FILENAME } from '../constants.js';
 import { decodeReplay } from '../game/domain/index.js';
-import { MatchHistoryPageDto } from './dto/match-history.dto.js';
+import {
+  MatchAnalysisDto,
+  MatchHistoryPageDto,
+} from './dto/match-history.dto.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 const RATING_K_FACTOR = 32;
@@ -21,7 +31,11 @@ const OPPONENT_SELECT = { id: true, username: true, avatarUrl: true };
 export class MatchesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  createMatch(mode: QueueMode, playerOneId: number, playerTwoId: number) {
+  createMatch(
+    mode: QueueMode,
+    playerOneId: number,
+    playerTwoId: number | null,
+  ) {
     return this.prisma.match.create({
       data: { mode, playerOneId, playerTwoId },
     });
@@ -61,7 +75,13 @@ export class MatchesService {
     const page = rows.slice(0, HISTORY_PAGE_SIZE);
     const matches = page.map((match) => {
       const playerIndex = match.playerOneId === userId ? 0 : 1;
-      const opponent = playerIndex === 0 ? match.playerTwo : match.playerOne;
+      const opponent = (playerIndex === 0
+        ? match.playerTwo
+        : match.playerOne) ?? {
+        id: BOT_PLAYER_ID,
+        username: BOT_USERNAME,
+        avatarUrl: null,
+      };
       return {
         id: match.id,
         mode: match.mode,
@@ -85,6 +105,22 @@ export class MatchesService {
     };
   }
 
+  async findAnalysis(
+    matchId: number,
+    userId: number,
+  ): Promise<MatchAnalysisDto> {
+    const match = await this.findById(matchId);
+    if (!match) {
+      throw new NotFoundException(ErrorCode.MATCH_NOT_FOUND);
+    }
+    if (match.playerOneId !== userId && match.playerTwoId !== userId) {
+      throw new ForbiddenException(ErrorCode.NOT_IN_MATCH);
+    }
+    return {
+      advantages: match.replay ? analyseReplay(decodeReplay(match.replay)) : [],
+    };
+  }
+
   findActiveCreatedBefore(date: Date): Promise<Match[]> {
     return this.prisma.match.findMany({
       where: { status: MatchStatus.ACTIVE, createdAt: { lt: date } },
@@ -93,7 +129,7 @@ export class MatchesService {
 
   finishMatch(
     matchId: number,
-    winnerId: number,
+    winnerId: number | null,
     endReason: MatchEndReason,
     replay?: Uint8Array<ArrayBuffer>,
   ): Promise<Match> {
@@ -127,8 +163,16 @@ export class MatchesService {
       }
 
       const ratingDelta =
-        match.mode === QueueMode.RANKED
-          ? await this.applyRatingChange(tx, match, winnerId)
+        match.mode === QueueMode.RANKED &&
+        winnerId !== null &&
+        match.playerTwoId !== null
+          ? await this.applyRatingChange(
+              tx,
+              winnerId,
+              winnerId === match.playerOneId
+                ? match.playerTwoId
+                : match.playerOneId,
+            )
           : null;
 
       return tx.match.update({
@@ -152,11 +196,9 @@ export class MatchesService {
 
   private async applyRatingChange(
     tx: Prisma.TransactionClient,
-    match: Match,
     winnerId: number,
+    loserId: number,
   ): Promise<number> {
-    const loserId =
-      winnerId === match.playerOneId ? match.playerTwoId : match.playerOneId;
     const winner = await tx.user.findUniqueOrThrow({ where: { id: winnerId } });
     const loser = await tx.user.findUniqueOrThrow({ where: { id: loserId } });
 

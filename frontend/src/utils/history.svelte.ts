@@ -1,16 +1,17 @@
 import { authFetch } from '$lib/auth';
-import type { Game } from '../routes/History_Details.svelte';
+import type { Game, ReplayData } from '../routes/History_Details.svelte';
 
 type ApiMatch = {
 	id: number;
-	mode: 'RANKED' | 'UNRANKED';
+	mode: 'RANKED' | 'UNRANKED' | 'BOT';
 	endReason: string | null;
 	ratingDelta: number | null;
 	createdAt: string;
 	finishedAt: string | null;
 	won: boolean;
 	opponent: { id: number; username: string; avatarUrl: string };
-	replay: { moves: unknown[] } | null;
+	playerIndex: number;
+	replay: ReplayData | null;
 };
 
 function duration(match: ApiMatch): string {
@@ -23,7 +24,7 @@ function toGame(match: ApiMatch): Game {
 	return {
 		id: String(match.id),
 		result: match.won ? 'Victory' : 'Defeat',
-		mode: match.mode === 'RANKED' ? 'Ranked' : 'Normal',
+		mode: match.mode === 'RANKED' ? 'Ranked' : match.mode === 'BOT' ? 'Training' : 'Normal',
 		opponent: match.opponent.username,
 		opponentId: String(match.opponent.id),
 		avatar: `/api/avatars/${match.opponent.avatarUrl}`,
@@ -32,6 +33,8 @@ function toGame(match: ApiMatch): Game {
 		reason: match.endReason ?? undefined,
 		ratingDelta: match.ratingDelta == null ? undefined : match.won ? match.ratingDelta : -match.ratingDelta,
 		movesCount: match.replay?.moves.length,
+		playerIndex: match.playerIndex,
+		replay: match.replay,
 	};
 }
 

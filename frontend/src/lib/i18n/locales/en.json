@@ -40,6 +40,10 @@
   },
   "HOME": {
     "PLAY": "Play",
+    "BOTS": {
+      "TITLE": "Choose your opponent",
+      "ELO": "≈ {elo} Elo"
+    },
     "NEWS": "NEWS",
     "NEWS_PREVIOUS": "Previous news",
     "NEWS_NEXT": "Next news",
@@ -98,6 +102,21 @@
       "RATING": "Rating change",
       "MOVES": "Number of moves",
       "UNKNOWN": "Not specified"
+    },
+    "REPLAY": {
+      "TITLE": "Game replay",
+      "OPEN": "Watch the replay",
+      "FIRST": "Start of the game",
+      "LAST": "End of the game",
+      "PLAY": "Play",
+      "PAUSE": "Pause",
+      "START": "Starting position",
+      "MOVE": "{name} plays {card}",
+      "PASS": "{name} passes and trades {card}",
+      "ADVANTAGE": "Advantage: {name}",
+      "BALANCED": "Even position",
+      "METER": "Winning chances",
+      "NO_ANALYSIS": "Analysis unavailable"
     },
     "END_REASONS": {
       "WAY_OF_STONE": "Way of the Stone",
@@ -275,7 +294,8 @@
     "TITLES": {
       "LOCAL": "LOCAL GAME",
       "RANKED": "RANKED GAME",
-      "NORMAL": "NORMAL GAME"
+      "NORMAL": "NORMAL GAME",
+      "TRAINING": "TRAINING"
     },
     "TAGLINE": "A calm mind, a right move.",
     "MENU_LABEL": "Game menu",

@@ -24,3 +24,7 @@ export interface MatchHistoryPageDto {
   matches: MatchHistoryDto[];
   nextCursor: number | null;
 }
+
+export interface MatchAnalysisDto {
+  advantages: number[];
+}

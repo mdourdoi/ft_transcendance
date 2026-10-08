@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import Ellipsis from '@lucide/svelte/icons/ellipsis';
 	import History_Details, { type Game } from './History_Details.svelte';
+	import History_Replay from './History_Replay.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 	import * as Avatar from '$lib/components/ui/avatar';
@@ -23,6 +24,7 @@
 
 	let historyFilter = $state('all');
 	let gameOption: Game | null = $state(null);
+	let replayGame: Game | null = $state(null);
 
 	const games = $derived(
 		historyFilter === 'all' ? historyManager.games : historyManager.games.filter((game) => game.mode === historyFilter)
@@ -104,5 +106,16 @@
 </Tabs.Root>
 
 {#if gameOption}
-	<History_Details game={gameOption} onclose={() => (gameOption = null)} />
+	<History_Details
+		game={gameOption}
+		onclose={() => (gameOption = null)}
+		onreplay={() => {
+			replayGame = gameOption;
+			gameOption = null;
+		}}
+	/>
+{/if}
+
+{#if replayGame}
+	<History_Replay game={replayGame} onclose={() => (replayGame = null)} />
 {/if}
