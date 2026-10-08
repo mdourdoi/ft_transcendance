@@ -2,10 +2,12 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 	import * as Carousel from '$lib/components/ui/carousel';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import type { CarouselAPI } from '$lib/components/ui/carousel/context';
 	import { InkQuote, PlayButton, Stamp } from '$lib/components/onitama';
 	import { cn } from '$lib/utils';
 	import { navigate } from '$lib/router';
+	import { BOT_LEVELS, botLevel } from '$lib/game-socket';
 	import { t } from '$lib/i18n';
 
 	const news = [
@@ -22,9 +24,21 @@
 
 	let selectedMode = $state<string | null>(null);
 
+	let choosingBot = $state(false);
+
 	function play() {
 		if (!selectedMode) return;
+		if (selectedMode === 'training') {
+			choosingBot = true;
+			return;
+		}
 		navigate(`/game/${selectedMode}`, { useAnimation: true });
+	}
+
+	function challenge(level: number) {
+		botLevel.set(level);
+		choosingBot = false;
+		navigate('/game/training', { useAnimation: true });
 	}
 
 	let api = $state<CarouselAPI>();
@@ -102,3 +116,25 @@
 		</div>
 	</section>
 </div>
+
+<Dialog.Root bind:open={choosingBot}>
+	<Dialog.Content class="border-4 border-double border-border sm:max-w-3xl">
+		<Dialog.Header class="border-b border-border pb-3">
+			<Dialog.Title class="font-display text-2xl">{$t('HOME.BOTS.TITLE')}</Dialog.Title>
+		</Dialog.Header>
+		<div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+			{#each BOT_LEVELS as bot, index (bot.level)}
+				<Button
+					variant="ghost"
+					onclick={() => challenge(bot.level)}
+					style="animation-delay: {index * 80}ms"
+					class="group h-auto animate-in flex-col gap-2 rounded-xl bg-secondary p-3 text-secondary-foreground shadow-sm ring-1 ring-foreground/15 transition-all duration-300 fill-mode-backwards zoom-in-75 fade-in-0 hover:-translate-y-1 hover:bg-secondary hover:text-secondary-foreground hover:shadow-lg hover:ring-4 hover:ring-primary"
+				>
+					<img class="pointer-events-none aspect-square w-full object-contain transition-transform duration-300 select-none group-hover:scale-105" src={bot.image} alt="" />
+					<span class="font-display text-base tracking-widest uppercase">{$t(`HOME.BOTS.LEVELS.${bot.key}`)}</span>
+					<Badge class="rounded-sm px-2 py-0.5 font-display text-xs tracking-widest">{$t('HOME.BOTS.ELO', { values: { elo: bot.elo } })}</Badge>
+				</Button>
+			{/each}
+		</div>
+	</Dialog.Content>
+</Dialog.Root>
