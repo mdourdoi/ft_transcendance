@@ -20,20 +20,11 @@
     profilManager.get_user();
   });
 
-  let {
-    player: playerProp,
-  }: {
-    player?: { name: string; title: string; quote: string; avatar: string };
-  } = $props();
-
-  const player = $derived(
-    playerProp ?? {
-      name: profilManager.username,
-      title: $t("PROFILE.DEFAULT_TITLE"),
-      quote: $t("PROFILE.DEFAULT_QUOTE"),
-      avatar: "../assets/home/avatar/avatar-kenshii.png",
-    },
-  );
+  const player = $derived({
+    name: profilManager.username,
+    title: $t("PROFILE.DEFAULT_TITLE"),
+    quote: $t("PROFILE.DEFAULT_QUOTE"),
+  });
 
   let settingsOpen = $state(true);
 

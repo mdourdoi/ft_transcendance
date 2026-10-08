@@ -7,7 +7,6 @@
     "CANCEL": "Annuler",
     "QUIT": "Quitter",
     "BACK": "Retour",
-    "SETTINGS": "Paramètres",
     "VICTORY": "Victoire",
     "DEFEAT": "Défaite"
   },
@@ -166,13 +165,10 @@
     "SUBTITLE": "Montre ton style et ta patience",
     "QUOTE": "La maîtrise de soi mène à la victoire.",
     "IDENTITY": "Identité",
-    "AVATAR_ALT": "Avatar de {name}",
     "UPLOAD_AVATAR": "Valider",
     "CHANGE_AVATAR": "Changer l’avatar",
     "AVATAR_DROP": "Glisse une image ici ou clique pour parcourir",
     "AVATAR_HINT": "PNG, JPEG ou WebP, 2 Mo max.",
-    "EDIT_NAME": "Modifier le nom",
-    "EDIT_TITLE": "Modifier le titre",
     "DEFAULT_TITLE": "Disciple du vent",
     "DEFAULT_QUOTE": "Le calme est ma force.",
     "SETTINGS": {
@@ -208,17 +204,10 @@
     "STATUS": {
       "ONLINE": "En ligne",
       "IN_GAME": "En jeu",
-      "AWAY": "Absent",
-      "OFFLINE": "Hors ligne"
+      "AWAY": "Absent"
     },
     "SEARCH_PLACEHOLDER": "Rechercher un ami...",
     "SEARCH": "Rechercher",
-    "HEADING": "AMIS ({count})",
-    "OPTIONS": "Options",
-    "REQUESTS": "DEMANDES",
-    "NO_REQUESTS": "Aucune demande en attente",
-    "ACCEPT": "Accepter",
-    "DENY": "Refuser",
     "MESSAGES": "Messages",
     "ADD_FRIEND": "Ajouter un ami",
     "LOGOUT": "Déconnexion",
@@ -227,12 +216,10 @@
     "CHOOSE_FRIEND": "Choisir un ami",
     "CHOOSE_CONTACT": "Choisis un contact…",
     "REFRESH": "Actualiser",
-    "MESSAGE_HISTORY": "Historique des messages",
     "YOUR_MESSAGE": "Ton message",
     "MESSAGE_PLACEHOLDER": "Écris ton message…",
     "SEND": "Envoyer",
     "SELECT_FRIEND": "Sélectionne un ami pour ouvrir sa conversation.",
-    "CONTACT_USERNAME": "Pseudo du contact",
     "ADD": "Ajouter"
   },
   "GAME": {
@@ -318,13 +305,8 @@
     },
     "NEW_GAME": "Nouvelle partie",
     "VIEW_BOARD": "Voir le plateau",
-    "SHOW_HINTS": "Afficher les destinations possibles",
-    "NEXT_DURATION": "Durée de la prochaine partie",
-    "DURATION_HINT": "La durée choisie s’appliquera à la prochaine partie. Les chronomètres continuent pendant l’ouverture des menus.",
     "RESIGN_TEXT": "{name}, ton adversaire remportera la partie.",
     "CONFIRM_RESIGN": "Confirmer l’abandon",
-    "NOT_SAVED": "La partie locale ne sera pas sauvegardée.",
-    "BACK_TO_LAUNCHER": "Retour au launcher",
     "EXIT_PLAYING": "Si tu quittes en pleine partie, tu la perdras par forfait au bout de 30 secondes.",
     "EXIT_IDLE": "Tu vas quitter le dojo."
   },

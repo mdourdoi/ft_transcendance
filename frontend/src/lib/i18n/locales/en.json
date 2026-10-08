@@ -7,7 +7,6 @@
     "CANCEL": "Cancel",
     "QUIT": "Leave",
     "BACK": "Back",
-    "SETTINGS": "Settings",
     "VICTORY": "Victory",
     "DEFEAT": "Defeat"
   },
@@ -166,13 +165,10 @@
     "SUBTITLE": "Show your style and your patience",
     "QUOTE": "Self-mastery leads to victory.",
     "IDENTITY": "Identity",
-    "AVATAR_ALT": "{name}’s avatar",
     "UPLOAD_AVATAR": "Confirm",
     "CHANGE_AVATAR": "Change avatar",
     "AVATAR_DROP": "Drop an image here or click to browse",
     "AVATAR_HINT": "PNG, JPEG or WebP, 2 MB max.",
-    "EDIT_NAME": "Edit name",
-    "EDIT_TITLE": "Edit title",
     "DEFAULT_TITLE": "Disciple of the wind",
     "DEFAULT_QUOTE": "Calm is my strength.",
     "SETTINGS": {
@@ -208,17 +204,10 @@
     "STATUS": {
       "ONLINE": "Online",
       "IN_GAME": "In game",
-      "AWAY": "Away",
-      "OFFLINE": "Offline"
+      "AWAY": "Away"
     },
     "SEARCH_PLACEHOLDER": "Search for a friend...",
     "SEARCH": "Search",
-    "HEADING": "FRIENDS ({count})",
-    "OPTIONS": "Options",
-    "REQUESTS": "REQUESTS",
-    "NO_REQUESTS": "No pending requests",
-    "ACCEPT": "Accept",
-    "DENY": "Decline",
     "MESSAGES": "Messages",
     "ADD_FRIEND": "Add a friend",
     "LOGOUT": "Log out",
@@ -227,12 +216,10 @@
     "CHOOSE_FRIEND": "Choose a friend",
     "CHOOSE_CONTACT": "Choose a contact…",
     "REFRESH": "Refresh",
-    "MESSAGE_HISTORY": "Message history",
     "YOUR_MESSAGE": "Your message",
     "MESSAGE_PLACEHOLDER": "Write your message…",
     "SEND": "Send",
     "SELECT_FRIEND": "Select a friend to open the conversation.",
-    "CONTACT_USERNAME": "Contact’s username",
     "ADD": "Add"
   },
   "GAME": {
@@ -318,13 +305,8 @@
     },
     "NEW_GAME": "New game",
     "VIEW_BOARD": "View the board",
-    "SHOW_HINTS": "Show possible destinations",
-    "NEXT_DURATION": "Duration of the next game",
-    "DURATION_HINT": "The chosen duration will apply to the next game. The clocks keep running while menus are open.",
     "RESIGN_TEXT": "{name}, your opponent will win the game.",
     "CONFIRM_RESIGN": "Confirm resignation",
-    "NOT_SAVED": "The local game will not be saved.",
-    "BACK_TO_LAUNCHER": "Back to the launcher",
     "EXIT_PLAYING": "If you leave mid-game, you will forfeit it after 30 seconds.",
     "EXIT_IDLE": "You are about to leave the dojo."
   },

@@ -4,7 +4,7 @@ export { Position } from "./position";
 export { Entity } from "./entity";
 export { Card } from "./card";
 export { GameMap, MAP_SIZE } from "./map";
-export { card, fullDeck, drawGameCards, getAllCards } from "./deck";
+export { card, fullDeck, drawGameCards } from "./deck";
 
 export type { PositionProps } from "./position";
 export type { EntityProps, EntityKind } from "./entity";

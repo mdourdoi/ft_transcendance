@@ -43,7 +43,3 @@ export function drawGameCards(rng: () => number = Math.random): Card[] {
     }
     return pool.slice(0, 5);
 }
-
-export function getAllCards(): CardProps[] {
-    return [...BASE_CARDS];
-}

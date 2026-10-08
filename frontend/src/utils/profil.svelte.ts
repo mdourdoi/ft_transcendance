@@ -1,5 +1,4 @@
 import { authFetch } from '$lib/auth';
-import { navigate } from "$lib/router";
 import { friendManager } from './friend.svelte';
 
 export class ProfilManager {
@@ -49,7 +48,7 @@ export class ProfilManager {
             this.avatarUrl = data.avatarUrl;
             friendManager.get_user();
         }
-        catch (err) {
+        catch {
             this.error_avatar = 'NETWORK_ERROR';
         }
     }

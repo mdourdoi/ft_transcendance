@@ -1,7 +1,6 @@
 <script lang="ts">
   import Search from "@lucide/svelte/icons/search";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
-  import ChevronRight from "@lucide/svelte/icons/chevron-right";
   import Ellipsis from "@lucide/svelte/icons/ellipsis";
   import Check from "@lucide/svelte/icons/check";
   import X from "@lucide/svelte/icons/x";
@@ -17,7 +16,6 @@
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
   import { cn } from "$lib/utils";
   import { friendManager } from "../utils/friend.svelte";
-  import {profilManager} from '../utils/profil.svelte';
   import { logout, authFetch } from "$lib/auth";
   import { t } from '$lib/i18n';
   import {

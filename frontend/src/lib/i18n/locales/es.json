@@ -7,7 +7,6 @@
     "CANCEL": "Cancelar",
     "QUIT": "Salir",
     "BACK": "Volver",
-    "SETTINGS": "Ajustes",
     "VICTORY": "Victoria",
     "DEFEAT": "Derrota"
   },
@@ -166,13 +165,10 @@
     "SUBTITLE": "Muestra tu estilo y tu paciencia",
     "QUOTE": "El dominio de uno mismo conduce a la victoria.",
     "IDENTITY": "Identidad",
-    "AVATAR_ALT": "Avatar de {name}",
     "UPLOAD_AVATAR": "Validar",
     "CHANGE_AVATAR": "Cambiar el avatar",
     "AVATAR_DROP": "Arrastra una imagen aquí o haz clic para buscar",
     "AVATAR_HINT": "PNG, JPEG o WebP, 2 MB máx.",
-    "EDIT_NAME": "Editar el nombre",
-    "EDIT_TITLE": "Editar el título",
     "DEFAULT_TITLE": "Discípulo del viento",
     "DEFAULT_QUOTE": "La calma es mi fuerza.",
     "SETTINGS": {
@@ -208,17 +204,10 @@
     "STATUS": {
       "ONLINE": "En línea",
       "IN_GAME": "En partida",
-      "AWAY": "Ausente",
-      "OFFLINE": "Desconectado"
+      "AWAY": "Ausente"
     },
     "SEARCH_PLACEHOLDER": "Buscar un amigo...",
     "SEARCH": "Buscar",
-    "HEADING": "AMIGOS ({count})",
-    "OPTIONS": "Opciones",
-    "REQUESTS": "SOLICITUDES",
-    "NO_REQUESTS": "Ninguna solicitud pendiente",
-    "ACCEPT": "Aceptar",
-    "DENY": "Rechazar",
     "MESSAGES": "Mensajes",
     "ADD_FRIEND": "Añadir un amigo",
     "LOGOUT": "Cerrar sesión",
@@ -227,12 +216,10 @@
     "CHOOSE_FRIEND": "Elegir un amigo",
     "CHOOSE_CONTACT": "Elige un contacto…",
     "REFRESH": "Actualizar",
-    "MESSAGE_HISTORY": "Historial de mensajes",
     "YOUR_MESSAGE": "Tu mensaje",
     "MESSAGE_PLACEHOLDER": "Escribe tu mensaje…",
     "SEND": "Enviar",
     "SELECT_FRIEND": "Selecciona un amigo para abrir su conversación.",
-    "CONTACT_USERNAME": "Apodo del contacto",
     "ADD": "Añadir"
   },
   "GAME": {
@@ -318,13 +305,8 @@
     },
     "NEW_GAME": "Nueva partida",
     "VIEW_BOARD": "Ver el tablero",
-    "SHOW_HINTS": "Mostrar los destinos posibles",
-    "NEXT_DURATION": "Duración de la próxima partida",
-    "DURATION_HINT": "La duración elegida se aplicará a la próxima partida. Los relojes siguen corriendo mientras los menús están abiertos.",
     "RESIGN_TEXT": "{name}, tu rival ganará la partida.",
     "CONFIRM_RESIGN": "Confirmar el abandono",
-    "NOT_SAVED": "La partida local no se guardará.",
-    "BACK_TO_LAUNCHER": "Volver al lanzador",
     "EXIT_PLAYING": "Si sales en plena partida, la perderás por abandono al cabo de 30 segundos.",
     "EXIT_IDLE": "Vas a salir del dojo."
   },

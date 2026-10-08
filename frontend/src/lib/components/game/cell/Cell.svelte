@@ -3,9 +3,6 @@
 	import type { Entity } from '../game/entity';
 
 	let {
-		width = '100%',
-		height = '100%',
-		color = 'transparent',
 		assetBase = '../assets/game',
 		entity = null,
 		selected = false,
@@ -15,9 +12,6 @@
 		disabled = false,
 		onclick = () => {}
 	}: {
-		width?: string;
-		height?: string;
-		color?: string;
 		assetBase?: string;
 		entity?: Entity | null;
 		selected?: boolean;
@@ -33,7 +27,7 @@
 	}
 </script>
 
-<button type="button" {onclick} {disabled} aria-label={label} aria-pressed={selected} class="group relative flex min-h-0 min-w-0 items-center justify-center border border-[#49321b]/70 transition-colors hover:bg-[#fff1cb]/35 focus-visible:z-10" class:ring-4={selected} class:ring-amber-500={selected} style:width style:height style:background={selected ? '#e5b85e77' : color}>
+<button type="button" {onclick} {disabled} aria-label={label} aria-pressed={selected} class="group relative flex min-h-0 min-w-0 items-center justify-center border border-[#49321b]/70 transition-colors hover:bg-[#fff1cb]/35 focus-visible:z-10" class:ring-4={selected} class:ring-amber-500={selected} style:background={selected ? '#e5b85e77' : 'transparent'}>
 	{#if temple}
 		<span class="absolute text-[clamp(15px,3vw,44px)] text-[#573922]/20" aria-hidden="true">✦</span>
 	{/if}
