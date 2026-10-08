@@ -1,7 +1,7 @@
 import { Game, Play } from '../../game/domain/index.js';
 import { evaluate } from './evaluate.js';
 
-const SEARCH_DEPTH = 5;
+const SEARCH_DEPTH = 8;
 const WIN_SCORE = 1_000_000;
 
 export interface Turn {
