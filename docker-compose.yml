@@ -1,4 +1,51 @@
 services:
+  vault-init:
+    image: hashicorp/vault:1.18
+    container_name: transcendance-vault-init
+    entrypoint: ["sh", "/init.sh"]
+    environment:
+      VAULT_ADDR: http://vault:8200
+    volumes:
+      - ./vault/tools/init.sh:/init.sh:ro
+      - vault_keys:/vault/keys
+      - ./vault/policies:/vault/policies:ro
+      - vault_approle_backend:/vault/approle-backend
+      - vault_approle_database:/vault/approle-database
+    depends_on:
+      vault:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - transcendance
+    secrets:
+      - env
+
+  vault:
+    image: hashicorp/vault:1.18
+    container_name: transcendance-vault
+    restart: unless-stopped
+    command: server
+    environment:
+      VAULT_ADDR: http://127.0.0.1:8200
+    volumes:
+      - ./vault/config:/vault/config:ro
+      - vault_data:/vault/file
+    networks:
+      - transcendance
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "-q",
+          "-O",
+          "/dev/null",
+          "http://127.0.0.1:8200/v1/sys/health?uninitcode=200&sealedcode=200",
+        ]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+
   waf:
     build: ./waf
     container_name: transcendance-waf
@@ -15,14 +62,19 @@ services:
     image: postgres:16-alpine
     container_name: transcendance-db
     restart: unless-stopped
+    entrypoint: ["sh", "/vault-entrypoint.sh"]
+    command: ["postgres"]
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      VAULT_ADDR: http://vault:8200
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./vault/tools/db-entrypoint.sh:/vault-entrypoint.sh:ro
+      - vault_approle_database:/vault/approle:ro
+    depends_on:
+      vault-init:
+        condition: service_completed_successfully
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD", "pg_isready", "-q", "-U", "transcendence"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -52,29 +104,22 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      vault-init:
+        condition: service_completed_successfully
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
+      VAULT_ADDR: http://vault:8200
       DB_HOST: db
       DB_PORT: 5432
-      POSTGRES_USER: ${POSTGRES_USER}
-      JWT_SECRET: ${JWT_SECRET}
-      TWOFA_ENCRYPTION_KEY: ${TWOFA_ENCRYPTION_KEY}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       PORT: 3000
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173,http://127.0.0.1:5173}
-      SMTP_HOST: ${SMTP_HOST}
-      SMTP_PORT: ${SMTP_PORT}
-      SMTP_USER: ${SMTP_USER}
-      SMTP_PASS: ${SMTP_PASS}
-      MAIL_FROM: ${MAIL_FROM}
-      APP_URL: ${APP_URL}
     ports:
       - "127.0.0.1:5555:5555"
     networks:
       - transcendance
     volumes:
       - avatars:/app/uploads/avatars
+      - vault_approle_backend:/vault/approle:ro
 
   frontend:
     build: ./frontend
@@ -92,7 +137,15 @@ volumes:
   db_data:
   avatars:
   redis_data:
+  vault_keys:
+  vault_data:
+  vault_approle_backend:
+  vault_approle_database:
 
 networks:
   transcendance:
     driver: bridge
+
+secrets:
+  env:
+    file: ./.env
