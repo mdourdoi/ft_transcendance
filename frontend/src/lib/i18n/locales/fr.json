@@ -399,6 +399,74 @@
     "EEL": "Anguille",
     "COBRA": "Serpent"
   },
+  "REGISTER": {
+    "ACCEPT_TERMS": "J'ai lu et j'accepte la Politique de confidentialité et les Conditions d'utilisation"
+  },
+  "TWOFA": {
+    "HINT": "Entrez le code de votre application ou celui reçu par email.",
+    "RESEND": "Renvoyer le code par email",
+    "RESENT": "Si votre compte utilise les codes par email, un nouveau code vient d'être envoyé."
+  },
+  "PRIVACY": {
+    "TITLE": "Mes données",
+    "SUBTITLE": "Vos données vous appartiennent",
+    "LOGIN_REQUIRED": "Vous devez être connecté pour gérer vos données.",
+    "EXPORT": "Télécharger mes données",
+    "DELETE": "Supprimer mon compte",
+    "DELETE_WARNING": "La suppression de votre compte est immédiate et irréversible. Un lien de confirmation vous sera envoyé par email.",
+    "DELETE_CONFIRM": "Envoyer le lien de confirmation",
+    "CANCEL": "Annuler",
+    "STATUS_EXPORTED": "Vos données ont été téléchargées. Un email de confirmation vous a été envoyé.",
+    "STATUS_SENT": "Un lien de confirmation vous a été envoyé par email.",
+    "STATUS_RATE": "Patientez une minute avant de réessayer.",
+    "STATUS_ERROR": "Une erreur est survenue, réessayez plus tard."
+  },
+  "ACCOUNT_DELETE": {
+    "TITLE": "Suppression du compte",
+    "DONE": "Votre compte et toutes ses données ont été supprimés.",
+    "INVALID": "Ce lien est invalide ou a expiré."
+  },
+  "VERIFY_EMAIL": {
+    "TITLE": "Vérification de l'email",
+    "DONE": "Votre adresse email a été vérifiée.",
+    "INVALID": "Ce lien est invalide ou a expiré."
+  },
+  "POLICY": {
+    "TITLE": "Politique de confidentialité",
+    "DATA_TITLE": "Données collectées",
+    "DATA_BODY": "Votre adresse email, votre pseudo et votre avatar, le hash de votre mot de passe, votre secret de double authentification chiffré, vos amitiés, vos messages, vos matchs et votre classement.",
+    "PURPOSE_TITLE": "Pourquoi",
+    "PURPOSE_BODY": "Uniquement pour faire tourner le jeu : vous connecter, vous permettre de jouer, de discuter et de suivre votre progression. Vos données ne sont jamais vendues ni utilisées à des fins publicitaires.",
+    "RETENTION_TITLE": "Durée de conservation",
+    "RETENTION_BODY": "Tant que votre compte existe. Lorsque vous supprimez votre compte, vos données sont effacées immédiatement et de façon irréversible.",
+    "RIGHTS_TITLE": "Vos droits",
+    "RIGHTS_BODY": "Vous pouvez télécharger toutes vos données au format JSON et supprimer votre compte depuis la page « Mes données ». Vous pouvez corriger vos informations depuis votre profil.",
+    "CONTACT_TITLE": "Contact",
+    "CONTACT_BODY": "Pour toute question sur vos données, écrivez à onitama.transcendance@gmail.com."
+  },
+  "TERMS": {
+    "TITLE": "Conditions d'utilisation",
+    "SERVICE_TITLE": "Le service",
+    "SERVICE_BODY": "Onitama est un jeu de plateau en ligne proposé gratuitement dans le cadre d'un projet étudiant. Il est fourni en l'état, sans garantie de disponibilité.",
+    "ACCOUNT_TITLE": "Votre compte",
+    "ACCOUNT_BODY": "Vous êtes responsable de votre compte et de la confidentialité de vos identifiants. Les informations que vous fournissez doivent être exactes.",
+    "CONDUCT_TITLE": "Fair-play",
+    "CONDUCT_BODY": "Jouez loyalement et respectez les autres joueurs. La triche, le harcèlement et les messages injurieux sont interdits.",
+    "TERMINATION_TITLE": "Fin de compte",
+    "TERMINATION_BODY": "Vous pouvez supprimer votre compte à tout moment depuis la page « Mes données ». Nous pouvons suspendre un compte qui ne respecte pas ces conditions.",
+    "LIABILITY_TITLE": "Responsabilité",
+    "LIABILITY_BODY": "Nous ne pouvons être tenus responsables des interruptions de service ni de la perte de données de jeu."
+  },
+  "LEGAL": {
+    "UPDATED": "Dernière mise à jour : 6 octobre 2026"
+  },
+  "EMAIL_VERIFY": {
+    "LABEL": "Adresse email",
+    "HINT": "Votre adresse n'est pas encore vérifiée. La vérifier permet d'utiliser la double authentification par email.",
+    "SEND": "Envoyer le lien de vérification",
+    "SENT": "Un lien de vérification vous a été envoyé par email.",
+    "VERIFIED": "Adresse vérifiée"
+  },
   "ERRORS": {
     "EMPTY_FIELDS": "Veuillez remplir tous les champs",
     "NETWORK_ERROR": "Impossible de joindre le serveur, réessayez plus tard",
@@ -421,10 +489,10 @@
     "TWOFA_ALREADY_ENABLED": "La 2FA est déjà activée",
     "TWOFA_NOT_ENABLED": "La 2FA n'est pas activée",
     "TWOFA_NOT_INITIALIZED": "Lancez d'abord la configuration de la 2FA",
-    "EMAIL_ALREADY_VERIFIED": "Votre email est déjà vérifié",
-    "EMAIL_NOT_VERIFIED": "Vous devez d'abord vérifier votre email",
-    "MAIL_RATE_LIMITED": "Un email a déjà été envoyé récemment, patientez une minute avant de réessayer",
-    "MAIL_SEND_FAILED": "L'envoi de l'email a échoué, réessayez plus tard",
+    "EMAIL_ALREADY_VERIFIED": "Cette adresse email est déjà vérifiée",
+    "EMAIL_NOT_VERIFIED": "Vérifiez d'abord votre adresse email",
+    "MAIL_RATE_LIMITED": "Un email vient d'être envoyé, patientez une minute avant d'en demander un autre",
+    "MAIL_SEND_FAILED": "L'email n'a pas pu être envoyé, réessayez plus tard",
     "IMPOSSIBLE_REQUEST": "Cette action n'est pas possible",
     "USER_NOT_FOUND": "Utilisateur introuvable",
     "FORBIDDEN_CONVERSATION": "Vous n'avez pas accès à cette conversation",
@@ -453,6 +521,7 @@
     "NOT_YOUR_ENTITY": "Cette pièce ne vous appartient pas",
     "EMPTY_SOURCE_SQUARE": "Il n'y a aucune pièce sur cette case",
     "DESTINATION_OCCUPIED": "Cette case est déjà occupée par l'une de vos pièces",
-    "POSITION_OUT_OF_BOUNDS": "Cette case est en dehors du plateau"
+    "POSITION_OUT_OF_BOUNDS": "Cette case est en dehors du plateau",
+    "CONSENT_REQUIRED": "Vous devez accepter la Politique de confidentialité et les Conditions d'utilisation"
   }
 }

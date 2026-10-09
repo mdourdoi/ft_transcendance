@@ -399,6 +399,74 @@
     "EEL": "Eel",
     "COBRA": "Cobra"
   },
+  "REGISTER": {
+    "ACCEPT_TERMS": "I have read and accept the Privacy Policy and the Terms of Use"
+  },
+  "TWOFA": {
+    "HINT": "Enter the code from your app or the one sent by email.",
+    "RESEND": "Resend the code by email",
+    "RESENT": "If your account uses email codes, a new one has just been sent."
+  },
+  "PRIVACY": {
+    "TITLE": "My data",
+    "SUBTITLE": "Your data belongs to you",
+    "LOGIN_REQUIRED": "You must be logged in to manage your data.",
+    "EXPORT": "Download my data",
+    "DELETE": "Delete my account",
+    "DELETE_WARNING": "Deleting your account is immediate and irreversible. A confirmation link will be sent to you by email.",
+    "DELETE_CONFIRM": "Send the confirmation link",
+    "CANCEL": "Cancel",
+    "STATUS_EXPORTED": "Your data has been downloaded. A confirmation email has been sent to you.",
+    "STATUS_SENT": "A confirmation link has been sent to you by email.",
+    "STATUS_RATE": "Please wait a minute before trying again.",
+    "STATUS_ERROR": "An error occurred, please try again later."
+  },
+  "ACCOUNT_DELETE": {
+    "TITLE": "Account deletion",
+    "DONE": "Your account and all its data have been deleted.",
+    "INVALID": "This link is invalid or has expired."
+  },
+  "VERIFY_EMAIL": {
+    "TITLE": "Email verification",
+    "DONE": "Your email address has been verified.",
+    "INVALID": "This link is invalid or has expired."
+  },
+  "POLICY": {
+    "TITLE": "Privacy Policy",
+    "DATA_TITLE": "Data we collect",
+    "DATA_BODY": "Your email address, username and avatar, the hash of your password, your encrypted two-factor secret, your friendships, your messages, your matches and your ranking.",
+    "PURPOSE_TITLE": "Why we collect it",
+    "PURPOSE_BODY": "Only to run the game: logging you in, letting you play, chat and follow your progress. Your data is never sold and never used for advertising.",
+    "RETENTION_TITLE": "How long we keep it",
+    "RETENTION_BODY": "As long as your account exists. When you delete your account, your data is erased immediately and irreversibly.",
+    "RIGHTS_TITLE": "Your rights",
+    "RIGHTS_BODY": "You can download all your data as a JSON file and delete your account from the \"My data\" page. You can correct your information from your profile.",
+    "CONTACT_TITLE": "Contact",
+    "CONTACT_BODY": "For any question about your data, write to onitama.transcendance@gmail.com."
+  },
+  "TERMS": {
+    "TITLE": "Terms of Use",
+    "SERVICE_TITLE": "The service",
+    "SERVICE_BODY": "Onitama is an online board game offered free of charge as part of a student project. It is provided as is, with no guarantee of availability.",
+    "ACCOUNT_TITLE": "Your account",
+    "ACCOUNT_BODY": "You are responsible for your account and for keeping your credentials confidential. The information you provide must be accurate.",
+    "CONDUCT_TITLE": "Fair play",
+    "CONDUCT_BODY": "Play fairly and respect other players. Cheating, harassment and abusive messages are forbidden.",
+    "TERMINATION_TITLE": "Ending your account",
+    "TERMINATION_BODY": "You can delete your account at any time from the \"My data\" page. We may suspend an account that does not respect these terms.",
+    "LIABILITY_TITLE": "Liability",
+    "LIABILITY_BODY": "We cannot be held liable for service interruptions or for the loss of game data."
+  },
+  "LEGAL": {
+    "UPDATED": "Last updated: October 6, 2026"
+  },
+  "EMAIL_VERIFY": {
+    "LABEL": "Email address",
+    "HINT": "Your address is not verified yet. Verifying it lets you use two-factor authentication by email.",
+    "SEND": "Send the verification link",
+    "SENT": "A verification link has been sent to you by email.",
+    "VERIFIED": "Address verified"
+  },
   "ERRORS": {
     "EMPTY_FIELDS": "Please fill in all fields",
     "NETWORK_ERROR": "Unable to reach the server, please try again later",
@@ -421,9 +489,9 @@
     "TWOFA_ALREADY_ENABLED": "2FA is already enabled",
     "TWOFA_NOT_ENABLED": "2FA is not enabled",
     "TWOFA_NOT_INITIALIZED": "Start the 2FA setup first",
-    "EMAIL_ALREADY_VERIFIED": "Your email is already verified",
-    "EMAIL_NOT_VERIFIED": "You must verify your email first",
-    "MAIL_RATE_LIMITED": "An email was sent recently. Please wait a minute before retrying",
+    "EMAIL_ALREADY_VERIFIED": "This email address is already verified",
+    "EMAIL_NOT_VERIFIED": "Verify your email address first",
+    "MAIL_RATE_LIMITED": "An email was just sent, please wait a minute before asking for another one",
     "MAIL_SEND_FAILED": "The email could not be sent, please try again later",
     "IMPOSSIBLE_REQUEST": "This action is not possible",
     "USER_NOT_FOUND": "User not found",
@@ -453,6 +521,7 @@
     "NOT_YOUR_ENTITY": "This piece does not belong to you",
     "EMPTY_SOURCE_SQUARE": "There is no piece on this square",
     "DESTINATION_OCCUPIED": "This square is already occupied by one of your pieces",
-    "POSITION_OUT_OF_BOUNDS": "This square is outside the board"
+    "POSITION_OUT_OF_BOUNDS": "This square is outside the board",
+    "CONSENT_REQUIRED": "You must accept the Privacy Policy and the Terms of Use"
   }
 }

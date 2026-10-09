@@ -90,4 +90,9 @@ export class MailService implements OnModuleInit {
       "Your password was just changed. If this wasn't you, contact us.";
     return this.send(to, 'Password changed', msg, `<p>${msg}</p>`);
   }
+
+  public sendExportedData(to: string) {
+    const msg = 'Your data has been exported.';
+    return this.send(to, 'Data exported', msg, `<p>${msg}</p>`);
+  }
 }

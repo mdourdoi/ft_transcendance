@@ -1,10 +1,11 @@
 /**
- * Tests e2e des routes /friendships.
+ * Tests e2e des routes /friendships et /conversations, et de l'envoi de messages par
+ * WebSocket (événement `sendMessage`, diffusion `newMessage`).
  *
  * Tape sur une API qui tourne vraiment (pas de mock) et crée ses propres comptes à
  * chaque exécution, donc relançable à volonté. Les comptes créés restent en base.
  *
- * Lancer (Node >= 18, pour fetch) :
+ * Lancer (Node >= 22, pour fetch et WebSocket) :
  *   docker compose up -d --build
  *   node backend/test/api.e2e.mjs
  *
@@ -167,6 +168,138 @@ async function test(
   return res.body;
 }
 
+// ─── WebSocket ────────────────────────────────────────────────────────────────
+
+function openSocket(token) {
+  const ws = new WebSocket(
+    `${API.replace(/^http/, 'ws')}/socket.io/?EIO=4&transport=websocket`,
+  );
+  const received = [];
+  const waiters = [];
+  const acks = new Map();
+  let nextAck = 0;
+
+  const fire = (event, payload) => {
+    const waiter = waiters.find((w) => w.event === event && w.match(payload));
+    if (waiter) {
+      waiters.splice(waiters.indexOf(waiter), 1);
+      waiter.done(payload);
+    } else {
+      received.push({ event, payload });
+    }
+  };
+
+  ws.addEventListener('message', ({ data }) => {
+    const text = String(data);
+    if (text[0] === '0') ws.send(`40${JSON.stringify(token ? { token } : {})}`);
+    else if (text === '2') ws.send('3');
+    else if (text.startsWith('40')) fire('connect');
+    else if (text.startsWith('41') || text.startsWith('44')) fire('disconnect');
+    else if (text.startsWith('43')) {
+      const [, id, json] = text.match(/^43(\d+)(.*)$/s);
+      acks.get(Number(id))?.(JSON.parse(json)[0]);
+      acks.delete(Number(id));
+    } else if (text.startsWith('42')) {
+      const [event, payload] = JSON.parse(text.slice(2));
+      fire(event, payload);
+    }
+  });
+  ws.addEventListener('close', () => fire('disconnect'));
+  ws.addEventListener('error', () => fire('disconnect'));
+
+  return {
+    emit: (event, payload, ms = 5000) =>
+      new Promise((resolve, reject) => {
+        const id = nextAck++;
+        const timer = setTimeout(() => {
+          acks.delete(id);
+          reject(new Error(`pas de réponse à ${event}`));
+        }, ms);
+        acks.set(id, (response) => {
+          clearTimeout(timer);
+          resolve(response);
+        });
+        ws.send(`42${id}${JSON.stringify([event, payload])}`);
+      }),
+    heard: (event, match = () => true, ms = 2000) =>
+      new Promise((resolve) => {
+        const i = received.findIndex(
+          (r) => r.event === event && match(r.payload),
+        );
+        if (i !== -1) return resolve(received.splice(i, 1)[0].payload ?? true);
+        const timer = setTimeout(() => {
+          waiters.splice(waiters.indexOf(waiter), 1);
+          resolve(null);
+        }, ms);
+        const waiter = {
+          event,
+          match,
+          done: (payload) => {
+            clearTimeout(timer);
+            resolve(payload ?? true);
+          },
+        };
+        waiters.push(waiter);
+      }),
+    close: () => ws.close(),
+  };
+}
+
+async function socketOf(user) {
+  if (!user.socket) {
+    user.socket = openSocket(user.token);
+    if (!(await user.socket.heard('connect')))
+      throw new Error(`connexion WebSocket de ${user.name} impossible`);
+  }
+  return user.socket;
+}
+
+async function chatRefused(token) {
+  const socket = openSocket(token);
+  const refused = (await socket.heard('disconnect')) !== null;
+  socket.close();
+  return refused;
+}
+
+async function testSend(title, { as, body, error, checks, known }) {
+  const request = `WS sendMessage · ${as.name} · ${fmt(body, 80)}`;
+
+  let ack;
+  try {
+    ack = await (await socketOf(as)).emit('sendMessage', body);
+  } catch (e) {
+    report(
+      title,
+      request,
+      [{ label: 'accusé de réception', ok: false, got: e.message }],
+      { known },
+    );
+    return undefined;
+  }
+
+  const results = [
+    error
+      ? {
+          label: `refusé (${error})`,
+          ok: ack?.ok === false && ack.error === error,
+          got: ack?.ok ? 'accepté' : ack?.error,
+        }
+      : { label: 'accepté', ok: ack?.ok === true, got: ack?.error },
+  ];
+  if (!error && ack?.ok && checks) {
+    for (const [label, fn] of checks(ack.message)) {
+      try {
+        results.push({ label, ok: fn() === true });
+      } catch (e) {
+        results.push({ label, ok: false, got: e.message });
+      }
+    }
+  }
+
+  report(title, request, results, { known, body: ack });
+  return ack?.message;
+}
+
 // ─── Helpers métier ───────────────────────────────────────────────────────────
 
 const entry = (list, user) =>
@@ -179,6 +312,7 @@ async function makeUser(name) {
     email: `${username}@test.local`,
     username,
     password: PASSWORD,
+    acceptTerms: true,
   });
   if (reg.status !== 201)
     throw new Error(`register ${name} → ${reg.status} ${fmt(reg.body)}`);
@@ -244,6 +378,18 @@ await test('Envoyer une demande sans jeton', {
   body: { username: bob.username },
   status: 401,
 });
+await test('Lire une conversation sans jeton', {
+  path: '/conversations/1/messages',
+  status: 401,
+});
+{
+  const noToken = await chatRefused(undefined);
+  const forgedToken = await chatRefused(forged.token);
+  report('Se connecter au chat (WebSocket) sans jeton valide', null, [
+    { label: 'sans jeton → déconnecté', ok: noToken },
+    { label: 'jeton forgé → déconnecté', ok: forgedToken },
+  ]);
+}
 
 // ─── 2 ────────────────────────────────────────────────────────────────────────
 section('2. Validation des entrées des routes friendships');
@@ -564,6 +710,286 @@ await test('alice retire dave une seconde fois', {
 // ─── 6 ────────────────────────────────────────────────────────────────────────
 section('6. Blocage d’un ami');
 
+await test('carol (étrangère) ne peut pas lire la conversation alice↔bob', {
+  as: carol,
+  path: `/conversations/${convAB}/messages`,
+  status: 403,
+});
+await testSend('carol (étrangère) ne peut pas y écrire', {
+  as: carol,
+  body: { conversationId: convAB, content: 'intrusion' },
+  error: 'FORBIDDEN_CONVERSATION',
+});
+await test('Conversation inexistante', {
+  as: alice,
+  path: `/conversations/${NOPE}/messages`,
+  status: 403,
+});
+await test("conversationId non numérique dans l’URL", {
+  as: alice,
+  path: '/conversations/abc/messages',
+  status: 400,
+});
+await testSend('Écrire dans une conversation inexistante', {
+  as: alice,
+  body: { conversationId: NOPE, content: 'x' },
+  error: 'FORBIDDEN_CONVERSATION',
+});
+await testSend('conversationId absent', {
+  as: alice,
+  body: { content: 'x' },
+  error: 'INVALID_CONVERSATION_ID',
+});
+await testSend('conversationId non numérique', {
+  as: alice,
+  body: { conversationId: 'abc', content: 'x' },
+  error: 'INVALID_CONVERSATION_ID',
+});
+await testSend('content absent', {
+  as: alice,
+  body: { conversationId: convAB },
+  error: 'INVALID_MESSAGE',
+});
+await testSend('content vide', {
+  as: alice,
+  body: { conversationId: convAB, content: '' },
+  error: 'EMPTY_MESSAGE',
+});
+await testSend('content de type number', {
+  as: alice,
+  body: { conversationId: convAB, content: 123 },
+  error: 'INVALID_MESSAGE',
+});
+await testSend('content de 1025 caractères (limite 1024)', {
+  as: alice,
+  body: { conversationId: convAB, content: 'x'.repeat(1025) },
+  error: 'INVALID_MESSAGE',
+});
+await testSend('content composé uniquement d’espaces', {
+  as: alice,
+  body: { conversationId: convAB, content: '   ' },
+  error: 'EMPTY_MESSAGE',
+});
+await testSend('content de exactement 1024 caractères', {
+  as: alice,
+  body: { conversationId: convAB, content: 'x'.repeat(1024) },
+});
+await socketOf(bob);
+await socketOf(carol);
+const hello = await testSend('alice envoie un message', {
+  as: alice,
+  body: { conversationId: convAB, content: '  Salut bob  ' },
+  checks: (m) => [
+    ['id est une string', () => typeof m.id === 'string'],
+    ['content sans les espaces autour', () => m.content === 'Salut bob'],
+    [
+      'createdAt est une date valide',
+      () => !Number.isNaN(Date.parse(m.createdAt)),
+    ],
+    ['sender.id === alice', () => m.sender.id === alice.id],
+    ['sender.username === alice', () => m.sender.username === alice.username],
+  ],
+});
+{
+  const isHello = (m) => m?.id === hello?.id;
+  const toBob = await bob.socket.heard('newMessage', isHello);
+  const toAlice = await alice.socket.heard('newMessage', isHello);
+  const toCarol = await carol.socket.heard('newMessage', isHello, 300);
+  report(
+    'Le message est diffusé en direct aux membres de la conversation',
+    null,
+    [
+      { label: 'bob reçoit newMessage', ok: toBob !== null },
+      { label: 'même contenu', ok: toBob?.content === 'Salut bob' },
+      { label: 'alice le reçoit aussi (autres onglets)', ok: toAlice !== null },
+      { label: 'carol (étrangère) ne reçoit rien', ok: toCarol === null },
+    ],
+  );
+}
+await test('bob reçoit le message en dernière position', {
+  as: bob,
+  path: `/conversations/${convAB}/messages`,
+  status: 200,
+  checks: (page) => {
+    const last = page.items.at(-1);
+    return [
+      ['dernier message === "Salut bob"', () => last.content === 'Salut bob'],
+      ['envoyé par alice', () => last.sender.id === alice.id],
+    ];
+  },
+});
+
+// ─── 7 ────────────────────────────────────────────────────────────────────────
+section('7. Messages — pagination par curseur');
+
+const before = await call(
+  alice,
+  'GET',
+  `/conversations/${convAB}/messages?take=100`,
+);
+const initial = before.body?.items?.length ?? 0;
+{
+  const socket = await socketOf(bob);
+  const bad = [];
+  for (let i = 1; i <= 25; i++) {
+    const ack = await socket.emit('sendMessage', {
+      conversationId: convAB,
+      content: `page-${String(i).padStart(2, '0')}`,
+    });
+    if (!ack?.ok) bad.push(ack?.error);
+  }
+  report(
+    `bob envoie 25 messages d’affilée (${initial} déjà présents)`,
+    `WS sendMessage · bob · ×25`,
+    [{ label: '25 × accepté', ok: bad.length === 0, got: bad.join(',') }],
+  );
+}
+const total = initial + 25;
+
+const page1 = await test('Page 1 sans curseur (take par défaut = 20)', {
+  as: alice,
+  path: `/conversations/${convAB}/messages`,
+  status: 200,
+  checks: (p) => [
+    ['20 messages', () => p.items.length === 20],
+    ['hasMore === true', () => p.hasMore === true],
+    [
+      'nextCursor === id du plus ancien de la page (items[0])',
+      () => p.nextCursor === p.items[0].id,
+    ],
+    ['ordre chronologique croissant', () => chronological(p.items)],
+    [
+      'le dernier est le plus récent (page-25)',
+      () => p.items.at(-1).content === 'page-25',
+    ],
+  ],
+});
+const page2 = await test('Page 2 avec le curseur de la page 1', {
+  as: alice,
+  path: `/conversations/${convAB}/messages?cursor=${page1?.nextCursor}`,
+  status: 200,
+  checks: (p) => [
+    [`${total - 20} messages restants`, () => p.items.length === total - 20],
+    ['hasMore === false', () => p.hasMore === false],
+    ['nextCursor === null', () => p.nextCursor === null],
+    ['ordre chronologique croissant', () => chronological(p.items)],
+    [
+      'aucun doublon avec la page 1',
+      () => !p.items.some((m) => ids(page1).includes(m.id)),
+    ],
+    [
+      'tous plus anciens que la page 1',
+      () =>
+        new Date(p.items.at(-1).createdAt) <=
+        new Date(page1.items[0].createdAt),
+    ],
+  ],
+});
+{
+  const all = [...ids(page2), ...ids(page1)];
+  report('Pages 1 + 2 couvrent toute la conversation', null, [
+    {
+      label: `${total} messages au total`,
+      ok: all.length === total,
+      got: all.length,
+    },
+    { label: 'tous distincts', ok: new Set(all).size === all.length },
+  ]);
+}
+await test('take=5', {
+  as: alice,
+  path: `/conversations/${convAB}/messages?take=5`,
+  status: 200,
+  checks: (p) => [
+    ['5 messages', () => p.items.length === 5],
+    ['hasMore === true', () => p.hasMore === true],
+  ],
+});
+await test('take=0 est ramené à 1', {
+  as: alice,
+  path: `/conversations/${convAB}/messages?take=0`,
+  status: 200,
+  checks: (p) => [['1 message', () => p.items.length === 1]],
+});
+await test('take=-5 est ramené à 1', {
+  as: alice,
+  path: `/conversations/${convAB}/messages?take=-5`,
+  status: 200,
+  checks: (p) => [['1 message', () => p.items.length === 1]],
+});
+await test('take=1000 est plafonné à 100', {
+  as: alice,
+  path: `/conversations/${convAB}/messages?take=1000`,
+  status: 200,
+  checks: (p) => [
+    [
+      `${Math.min(total, 100)} messages`,
+      () => p.items.length === Math.min(total, 100),
+    ],
+    ['hasMore cohérent', () => p.hasMore === total > 100],
+  ],
+});
+// Le ValidationPipe global (transform: true) convertit `take` via `+value` AVANT les pipes
+// du paramètre : 'abc' → NaN, que DefaultValuePipe remplace par 20 ; '' → 0, ramené à 1.
+// ParseIntPipe ne voit donc jamais la chaîne d’origine.
+await test('take=abc → silencieusement remplacé par 20 (pas de 400)', {
+  as: alice,
+  path: `/conversations/${convAB}/messages?take=abc`,
+  status: 200,
+  checks: (p) => [['20 messages', () => p.items.length === 20]],
+});
+await test('take= (vide) → converti en 0 puis ramené à 1', {
+  as: alice,
+  path: `/conversations/${convAB}/messages?take=`,
+  status: 200,
+  checks: (p) => [['1 message', () => p.items.length === 1]],
+});
+await test('take=12.7 → refusé par ParseIntPipe (incohérent avec take=abc)', {
+  as: alice,
+  path: `/conversations/${convAB}/messages?take=12.7`,
+  status: 400,
+});
+await test('Curseur inexistant → retombe sur la page 1', {
+  as: alice,
+  path: `/conversations/${convAB}/messages?cursor=nexistepas`,
+  status: 200,
+  checks: (p) => [
+    ['mêmes messages que la page 1', () => sameIds(ids(p), ids(page1))],
+  ],
+});
+
+// Curseur venant d’une autre conversation : il faut une seconde conversation avec un message.
+await call(dave, 'POST', '/friendships/send', { username: bob.username });
+await call(bob, 'POST', '/friendships/accept', { targetId: dave.id });
+const bobFriends = await call(bob, 'GET', '/friendships');
+const convBD = entry(bobFriends.body, dave)?.conversationId;
+const foreign = await (
+  await socketOf(dave)
+).emit('sendMessage', { conversationId: convBD, content: 'ailleurs' });
+report(
+  'Préparation : bob↔dave amis, dave écrit dans leur conversation',
+  `conversation ${convBD}, message ${foreign?.message?.id}`,
+  [
+    { label: 'conversation créée', ok: Number.isInteger(convBD), got: convBD },
+    { label: 'message créé', ok: foreign?.ok === true, got: foreign?.error },
+  ],
+);
+await test("Curseur d’une autre conversation → ignoré, retombe sur la page 1", {
+  as: bob,
+  path: `/conversations/${convAB}/messages?cursor=${foreign?.message?.id}`,
+  status: 200,
+  checks: (p) => [
+    ['mêmes messages que la page 1', () => sameIds(ids(p), ids(page1))],
+  ],
+});
+
+// ─── 8 ────────────────────────────────────────────────────────────────────────
+section('8. Blocage d’un ami — le bloqué ne doit plus pouvoir écrire');
+
+await testSend('Avant blocage : bob peut écrire à alice', {
+  as: bob,
+  body: { conversationId: convAB, content: 'encore là' },
+});
 await test('alice bloque bob', {
   as: alice,
   method: 'POST',
@@ -571,6 +997,24 @@ await test('alice bloque bob', {
   body: { targetId: bob.id },
   status: 201,
 });
+await testSend('bob (bloqué) tente d’écrire → refusé', {
+  as: bob,
+  body: { conversationId: convAB, content: 'tu me lis ?' },
+  error: 'FORBIDDEN_CONVERSATION',
+});
+await test('bob (bloqué) tente de lire → refusé', {
+  as: bob,
+  path: `/conversations/${convAB}/messages`,
+  status: 403,
+});
+await test(
+  "alice n’a plus accès non plus (historique supprimé, choix assumé §5)",
+  {
+    as: alice,
+    path: `/conversations/${convAB}/messages`,
+    status: 403,
+  },
+);
 await test('alice voit bob dans ses bloqués', {
   as: alice,
   path: '/friendships/blocked',
@@ -719,7 +1163,6 @@ await test('Bloquer un utilisateur inexistant → 404 attendu', {
   path: '/friendships/block',
   body: { targetId: NOPE },
   status: 404,
-  known: '§2.2',
 });
 await test('alice bloque carol, sans aucune relation', {
   as: alice,

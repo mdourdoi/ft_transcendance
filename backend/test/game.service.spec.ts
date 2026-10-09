@@ -345,6 +345,28 @@ describe('GameService', () => {
     assert.deepEqual(session.joined, [false, true]);
   });
 
+  it('cancels the running game of a deleted player without recording it', async () => {
+    await startedGame();
+
+    const ended = await service.abandonForUser(PLAYER_ONE);
+
+    assert.equal(ended.length, 1);
+    assert.equal(ended[0].status, 'OVER');
+    assert.equal(ended[0].winnerId, null);
+    assert.equal(ended[0].endReason, 'CANCELLED');
+    assert.deepEqual(await redis.smembers('game:unrecorded'), []);
+    assert.equal(redis.zscore('game:deadlines', String(MATCH_ID)), undefined);
+    assert.deepEqual(matches.cancelled, []);
+    assert.deepEqual(matches.finished, []);
+  });
+
+  it('leaves the games of other players alone when a user is deleted', async () => {
+    const session = await startedGame();
+
+    assert.deepEqual(await service.abandonForUser(99), []);
+    assert.equal((await service.find(MATCH_ID))?.status, session.status);
+  });
+
   it('retries recording a result until the database accepts it', async () => {
     await startedGame();
     matches.failing = true;

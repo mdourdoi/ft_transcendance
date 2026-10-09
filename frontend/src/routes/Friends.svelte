@@ -16,10 +16,10 @@
   import * as Sheet from "$lib/components/ui/sheet";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
   import { cn } from "$lib/utils";
+  import { t } from "$lib/i18n";
   import { friendManager } from "../utils/friend.svelte";
   import {profilManager} from '../utils/profil.svelte';
   import { logout, authFetch } from "$lib/auth";
-  import { t } from '$lib/i18n';
   import {
     onlineFriends,
     sendMessage,

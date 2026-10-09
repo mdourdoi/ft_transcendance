@@ -21,6 +21,8 @@
 	let username = '';
 	let error = '';
 	let loading = false;
+	let acceptTerms = false;
+	let notice = '';
 
 	function home() {
 		navigate(`/home`, { useAnimation: true });
@@ -35,11 +37,15 @@
 		error = 'INVALID_USERNAME';
 		return;
 	}
+		if (!acceptTerms) {
+			error = 'CONSENT_REQUIRED';
+			return;
+		}
 		try {
 			const res = await fetch('/api/auth/register', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ email: email, username: username, password: password })
+				body: JSON.stringify({ email: email, username: username, password: password, acceptTerms: true })
 			});
 			const data = await res.json();
 			if (!res.ok) {
@@ -68,7 +74,7 @@
 			if (!res.ok) {
 				const errorCode = Array.isArray(data.message) ? data.message[0]: data.message ?? 'UNKNOWN_ERROR';
 				error = errorCode;
-				if (error === 'TWOFA_CODE_REQUIRED') selectMode('2fa');
+				if (error === 'TWOFA_CODE_REQUIRED' || error === 'MAIL_RATE_LIMITED') selectMode('2fa');
 				return ;
 			}
 			password = '';
@@ -113,9 +119,32 @@
 		}
 	}
 
+	async function resendCode() {
+		if (loading) return;
+		loading = true;
+		error = '';
+		notice = '';
+		try {
+			const res = await fetch('/api/auth/login', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ email: email.trim(), password: password.trim() })
+			});
+			const data = await res.json();
+			const errorCode = Array.isArray(data.message) ? data.message[0] : data.message ?? 'UNKNOWN_ERROR';
+			if (errorCode === 'TWOFA_CODE_REQUIRED') notice = 'TWOFA.RESENT';
+			else error = errorCode;
+		} catch (err) {
+			error = 'NETWORK_ERROR';
+		} finally {
+			loading = false;
+		}
+	}
+
 	function selectMode(mode: string) {
 		currentStep = mode;
 		error = '';
+		notice = '';
 	}
 
 	function selectModePass(mode: string) {
@@ -127,6 +156,7 @@
 		if (loading) return;
 		loading = true;
 		error = '';
+		notice = '';
 		try {
 			if (currentStep === 'signin') {
 				await addUser();
@@ -145,6 +175,10 @@
 	{#if error}
 	<p class="absolute top-[470px] left-1/2 -translate-x-1/2 w-[400px] text-center text-red-600 text-base font-semibold z-50">
 		{$t(`ERRORS.${error}`, { default: $t('ERRORS.UNKNOWN_ERROR') })}
+	</p>
+	{:else if notice}
+	<p class="absolute top-[470px] left-1/2 -translate-x-1/2 w-[400px] text-center text-black text-base font-semibold z-50">
+		{$t(notice)}
 	</p>
 	{/if}
 	<img
@@ -338,9 +372,10 @@
 		</div>
 		<button
 			type="submit"
+			disabled={!acceptTerms}
 			class="group absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
-				top-[130px] left-[calc(50%-175px)] relative w-[340px] h-[60px]
-				flex items-center justify-center"
+				top-[170px] left-[calc(50%-175px)] relative w-[340px] h-[60px]
+				flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
 			style="background: transparent !important; box-shadow: none !important;"
 		>
 			<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
@@ -351,20 +386,20 @@
 		<img
 			src={strace}
 			alt="logo"
-			class="absolute top-[435px] left-[calc(50%-130px)] -translate-x-1/2 w-[150px] h-[10px] -scale-x-100"
+			class="absolute top-[475px] left-[calc(50%-130px)] -translate-x-1/2 w-[150px] h-[10px] -scale-x-100"
 		/>
-		<p class="absolute top-[425px] left-[calc(50%-100px)] w-[200px] text-center text-black text-lg font-semibold">
+		<p class="absolute top-[465px] left-[calc(50%-100px)] w-[200px] text-center text-black text-lg font-semibold">
 			{$t('AUTH.OR')}
 		</p>
 		<img
 			src={strace}
 			alt="logo"
-			class="absolute top-[435px] left-[calc(50%+125px)] -translate-x-1/2 w-[150px] h-[10px]"
+			class="absolute top-[475px] left-[calc(50%+125px)] -translate-x-1/2 w-[150px] h-[10px]"
 		/>
 		<button
 			type="button"
 			class="group absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
-				top-[180px] left-[calc(50%-175px)] relative w-[340px] h-[60px]
+				top-[220px] left-[calc(50%-175px)] relative w-[340px] h-[60px]
 				flex items-center justify-center"
 			style="background: transparent !important; box-shadow: none !important;"
 			on:click={() => selectMode('login')}
@@ -387,6 +422,17 @@
 			alt="logo"
 			class="absolute top-[660px] left-[calc(50%+120px)] -translate-x-1/2 w-[90px] h-auto"
 		/>
+		<div class="absolute top-[342px] left-[calc(50%-170px)] w-[340px] flex flex-col items-center text-black text-xs">
+			<label class="flex items-start gap-2 text-left">
+				<input type="checkbox" bind:checked={acceptTerms} class="mt-0.5 accent-black" />
+				<span>{$t('REGISTER.ACCEPT_TERMS')}</span>
+			</label>
+			<p>
+				<a href="/privacy-policy" target="_blank" rel="noopener" class="underline">{$t('POLICY.TITLE')}</a>
+				·
+				<a href="/terms" target="_blank" rel="noopener" class="underline">{$t('TERMS.TITLE')}</a>
+			</p>
+		</div>
 	</form>
 
 	{:else if currentStep === '2fa'}
@@ -395,8 +441,8 @@
 		<div class="absolute inset-0 flex justify-center top-[75px] text-black" style="font-size: 40px;">
 			<p>{$t('AUTH.TWOFA_TITLE')}</p>
 		</div>
-		<div class="absolute inset-0 flex justify-center top-[130px] text-black" style="font-size: 15px;">
-			<p>{$t('AUTH.SUBTITLE')}</p>
+		<div class="absolute inset-0 flex justify-center top-[132px] text-black" style="font-size: 13px;">
+			<p class="w-[340px] text-center leading-tight">{$t('TWOFA.HINT')}</p>
 		</div>
 		<div class="relative w-[340px] h-[60px] top-[160px] left-[100px]">
 			<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
@@ -506,6 +552,15 @@
 			alt="logo"
 			class="absolute top-[660px] left-[calc(50%+120px)] -translate-x-1/2 w-[90px] h-auto"
 		/>
+		<button
+			type="button"
+			class="absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
+				top-[178px] left-[calc(50%-170px)] relative w-[340px] !text-sm !normal-case !tracking-normal !text-black underline"
+			style="background: transparent !important; box-shadow: none !important;"
+			on:click={resendCode}
+		>
+			{$t('TWOFA.RESEND')}
+		</button>
 	</form>
 	{/if}
 </main>

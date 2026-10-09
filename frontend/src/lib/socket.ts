@@ -1,7 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import { token } from "$lib/auth";
 import { get, writable } from 'svelte/store';
-import { friendManager } from "../utils/friend.svelte";
 
 
 let socket: Socket | null = null;
@@ -34,7 +33,7 @@ function connectSocket() {
         messageHandlers.forEach((handler) => handler(msg));
     });
     socket.on('friendRequest', () => {
-        friendManager.friendships_requests();
+        friendRequestHandlers.forEach((handler) => handler());
     });
     return socket;
 }
@@ -66,6 +65,13 @@ const messageHandlers = new Set<(m: ChatMessage) => void>();
 export function onNewMessage(handler: (m: ChatMessage) => void) {
     messageHandlers.add(handler);
     return () => messageHandlers.delete(handler);
+}
+
+const friendRequestHandlers = new Set<() => void>();
+
+export function onFriendRequest(handler: () => void) {
+    friendRequestHandlers.add(handler);
+    return () => friendRequestHandlers.delete(handler);
 }
 
 function disconnectSocket() {

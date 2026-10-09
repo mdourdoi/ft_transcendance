@@ -1,4 +1,5 @@
 import { Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
 import {
   ConnectedSocket,
@@ -20,6 +21,7 @@ import {
   releaseSocket,
   requireSocketUser,
 } from '../common/socket-auth.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 import {
   GameActionDto,
   PassTurnDto,
@@ -50,6 +52,7 @@ export class GameGateway
 
   constructor(
     private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
     private readonly gameService: GameService,
   ) {}
 
@@ -63,12 +66,32 @@ export class GameGateway
     clearInterval(this.tickInterval);
   }
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     try {
-      authenticateSocket(this.jwtService, client);
+      const userId = await authenticateSocket(
+        this.jwtService,
+        this.prisma,
+        client,
+      );
+      await client.join(`user:${userId}`);
     } catch {
       client.disconnect(true);
     }
+  }
+
+  @OnEvent('user.deleted')
+  async handleUserDeleted(userId: number) {
+    try {
+      const ended = await this.gameService.abandonForUser(userId);
+      for (const session of ended) {
+        this.broadcast(session);
+      }
+    } catch (error) {
+      this.logger.error(
+        `could not abandon the games of deleted user ${userId}: ${(error as Error).message}`,
+      );
+    }
+    this.server.in(`user:${userId}`).disconnectSockets(true);
   }
 
   async handleDisconnect(client: Socket) {
