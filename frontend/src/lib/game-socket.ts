@@ -5,10 +5,10 @@ import { authFetch, token } from '$lib/auth';
 export type QueueMode = 'RANKED' | 'UNRANKED' | 'BOT';
 export const BOT_ID = 0;
 export const BOT_LEVELS = [
-    { level: 1, name: 'Deshi', elo: 600, image: '/assets/game/pieces/black-student.png' },
-    { level: 2, name: 'Senpai', elo: 1100, image: '/assets/game/pieces/red-student.png' },
-    { level: 3, name: 'Sensei', elo: 1450, image: '/assets/game/pieces/black-master.png' },
-    { level: 4, name: 'Shihan', elo: 2000, image: '/assets/game/pieces/red-master.png' }
+    { level: 1, name: 'Deshi', elo: 600, image: '/assets/game/pieces/black-student.webp' },
+    { level: 2, name: 'Senpai', elo: 1100, image: '/assets/game/pieces/red-student.webp' },
+    { level: 3, name: 'Sensei', elo: 1450, image: '/assets/game/pieces/black-master.webp' },
+    { level: 4, name: 'Shihan', elo: 2000, image: '/assets/game/pieces/red-master.webp' }
 ];
 export const botLevel = writable(Number(localStorage.getItem('botLevel')) || BOT_LEVELS[0].level);
 botLevel.subscribe((level) => localStorage.setItem('botLevel', String(level)));

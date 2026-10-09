@@ -80,7 +80,7 @@ export class MatchesService {
         : match.playerOne) ?? {
         id: BOT_PLAYER_ID,
         username: BOT_USERNAME,
-        avatarUrl: null,
+        avatarUrl: DEFAULT_AVATAR_FILENAME,
       };
       return {
         id: match.id,
@@ -91,10 +91,7 @@ export class MatchesService {
         finishedAt: match.finishedAt,
         playerIndex,
         won: match.winnerId === userId,
-        opponent: {
-          ...opponent,
-          avatarUrl: opponent.avatarUrl ?? DEFAULT_AVATAR_FILENAME,
-        },
+        opponent,
         replay: match.replay ? decodeReplay(match.replay) : null,
       };
     });

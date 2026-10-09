@@ -25,7 +25,7 @@ class FakeFriendships {
 
 class FakeUsers {
   async findById(id: number) {
-    return { id, username: `user${id}`, avatarUrl: null };
+    return { id, username: `user${id}`, avatarUrl: 'default.png' };
   }
 }
 

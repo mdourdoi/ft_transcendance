@@ -7,7 +7,6 @@
     "CANCEL": "Cancel",
     "QUIT": "Leave",
     "BACK": "Back",
-    "SETTINGS": "Settings",
     "VICTORY": "Victory",
     "DEFEAT": "Defeat"
   },
@@ -35,11 +34,12 @@
     "MAIN": "Main navigation",
     "HOME": "Home",
     "HISTORY": "History",
-    "STATS": "Stats",
-    "PROFILE": "Profile"
+    "PROFILE": "Profile",
+    "SEARCH": "Search"
   },
   "HOME": {
     "PLAY": "Play",
+    "SELECT_MODE": "Select a game mode first.",
     "BOTS": {
       "TITLE": "Choose your opponent",
       "ELO": "≈ {elo} Elo"
@@ -98,7 +98,6 @@
       "MODE": "Mode",
       "DURATION": "Duration",
       "END": "End of game",
-      "XP": "XP earned",
       "RATING": "Rating change",
       "MOVES": "Number of moves",
       "UNKNOWN": "Not specified"
@@ -164,73 +163,17 @@
   "PROFILE": {
     "TITLE": "My Profile",
     "SUBTITLE": "Show your style and your patience",
-    "SECTIONS_LABEL": "Profile sections",
-    "SECTIONS": {
-      "OVERVIEW": "Overview",
-      "ACHIEVEMENTS": "Achievements",
-      "CUSTOMIZATION": "Customize",
-      "SETTINGS": "Settings"
-    },
     "QUOTE": "Self-mastery leads to victory.",
-    "IDENTITY": "Identity and level",
-    "AVATAR_ALT": "{name}’s avatar",
-    "CHANGE_PHOTO": "Change photo",
+    "IDENTITY": "Identity",
     "UPLOAD_AVATAR": "Confirm",
     "CHANGE_AVATAR": "Change avatar",
-    "EDIT_NAME": "Edit name",
-    "EDIT_TITLE": "Edit title",
+    "AVATAR_DROP": "Drop an image here or click to browse",
+    "AVATAR_HINT": "PNG, JPEG or WebP, 2 MB max.",
     "DEFAULT_TITLE": "Disciple of the wind",
     "DEFAULT_QUOTE": "Calm is my strength.",
-    "LEVEL": "LEVEL",
-    "LEVEL_PROGRESS": "Level progress",
-    "NEXT_LEVEL": "Next level: {level}",
-    "ACHIEVEMENTS": {
-      "HEADING": "Game achievements",
-      "UNLOCKED": "{count} / {total} unlocked",
-      "SEE_ALL": "See all",
-      "ITEMS": {
-        "FIRST_STEP": {
-          "TITLE": "First step",
-          "DESCRIPTION": "Win a game."
-        },
-        "TIGER_SPIRIT": {
-          "TITLE": "Spirit of the tiger",
-          "DESCRIPTION": "Win 10 games."
-        },
-        "TEMPLE_WAY": {
-          "TITLE": "Way of the temple",
-          "DESCRIPTION": "Win by the temple."
-        },
-        "PERFECT_STREAK": {
-          "TITLE": "Perfect streak",
-          "DESCRIPTION": "4 / 5 consecutive wins."
-        },
-        "HUNDRED_WINS": {
-          "TITLE": "A hundred wins",
-          "DESCRIPTION": "73 / 100 wins."
-        },
-        "DOJO_MASTER": {
-          "TITLE": "Master of the dojo",
-          "DESCRIPTION": "Reach level 50."
-        }
-      }
-    },
-    "CUSTOMIZATION": {
-      "HEADING": "Customization",
-      "AVATAR": "Avatar",
-      "AVATAR_HINT": "Change your profile avatar.",
-      "FRAME": "Frame",
-      "FRAME_HINT": "Choose a frame for your avatar.",
-      "TITLE": "Title",
-      "TITLE_HINT": "Display your favorite title.",
-      "CUSTOMIZE": "Customize",
-      "QUOTE": "Appearance follows the spirit."
-    },
     "SETTINGS": {
       "HEADING": "Settings",
       "DESCRIPTION": "Your account, your mood, your game",
-      "SUMMARY": "Account and security, music, sound effects and gameplay comfort.",
-      "OPEN": "Open settings",
       "ACCOUNT": "Account",
       "NICKNAME": "Nickname",
       "USERNAME": "Username",
@@ -255,7 +198,8 @@
       },
       "RESET": "Reset audio and game preferences",
       "RESET_HINT": "Account and security settings are kept."
-    }
+    },
+    "ELO": "{elo} Elo"
   },
   "FRIENDS": {
     "STATUS": {
@@ -266,12 +210,6 @@
     },
     "SEARCH_PLACEHOLDER": "Search for a friend...",
     "SEARCH": "Search",
-    "HEADING": "FRIENDS ({count})",
-    "OPTIONS": "Options",
-    "REQUESTS": "REQUESTS",
-    "NO_REQUESTS": "No pending requests",
-    "ACCEPT": "Accept",
-    "DENY": "Decline",
     "MESSAGES": "Messages",
     "ADD_FRIEND": "Add a friend",
     "LOGOUT": "Log out",
@@ -279,14 +217,13 @@
     "MESSAGING": "Messaging",
     "CHOOSE_FRIEND": "Choose a friend",
     "CHOOSE_CONTACT": "Choose a contact…",
-    "REFRESH": "Refresh",
-    "MESSAGE_HISTORY": "Message history",
     "YOUR_MESSAGE": "Your message",
     "MESSAGE_PLACEHOLDER": "Write your message…",
     "SEND": "Send",
     "SELECT_FRIEND": "Select a friend to open the conversation.",
-    "CONTACT_USERNAME": "Contact’s username",
-    "ADD": "Add"
+    "ADD": "Add",
+    "CHAT_EMPTY": "No messages yet. Start the conversation!",
+    "SCROLL_BOTTOM": "Jump to latest messages"
   },
   "GAME": {
     "HEAD_TITLE": "Onitama · Local game",
@@ -371,13 +308,8 @@
     },
     "NEW_GAME": "New game",
     "VIEW_BOARD": "View the board",
-    "SHOW_HINTS": "Show possible destinations",
-    "NEXT_DURATION": "Duration of the next game",
-    "DURATION_HINT": "The chosen duration will apply to the next game. The clocks keep running while menus are open.",
     "RESIGN_TEXT": "{name}, your opponent will win the game.",
     "CONFIRM_RESIGN": "Confirm resignation",
-    "NOT_SAVED": "The local game will not be saved.",
-    "BACK_TO_LAUNCHER": "Back to the launcher",
     "EXIT_PLAYING": "If you leave mid-game, you will forfeit it after 30 seconds.",
     "EXIT_IDLE": "You are about to leave the dojo."
   },
@@ -454,5 +386,28 @@
     "EMPTY_SOURCE_SQUARE": "There is no piece on this square",
     "DESTINATION_OCCUPIED": "This square is already occupied by one of your pieces",
     "POSITION_OUT_OF_BOUNDS": "This square is outside the board"
+  },
+  "SEARCH": {
+    "TITLE": "Search for a player",
+    "PLACEHOLDER": "Player username",
+    "HINT": "Type a username to search among all players.",
+    "EMPTY": "No player found.",
+    "SUBTITLE": "Find a player and view their card."
+  },
+  "PLAYER": {
+    "SUBTITLE": "Player card",
+    "TABS_LABEL": "Player sections",
+    "ADD_FRIEND": "Add friend",
+    "REQUEST_SENT": "Request sent",
+    "FRIEND": "Already friends"
+  },
+  "INVITES": {
+    "CHALLENGE": "Challenge to a game",
+    "RECEIVED": "{name} challenges you!",
+    "SENT": "Challenge sent",
+    "DECLINED": "{name} declined the challenge.",
+    "EXPIRES": "Expires in {seconds}s",
+    "ACCEPT": "Accept",
+    "DECLINE": "Decline"
   }
 }

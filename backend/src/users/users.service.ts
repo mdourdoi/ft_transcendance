@@ -13,7 +13,7 @@ import { join } from 'node:path';
 import { TwofaVerifierService } from '../auth/twofa-verifier.service.js';
 import { ErrorCode } from '../common/error-codes.js';
 import { MIME_TO_EXT } from '../common/mime-types.js';
-import { AVATAR_UPLOAD_DIR } from '../constants.js';
+import { AVATAR_UPLOAD_DIR, DEFAULT_AVATAR_FILENAME } from '../constants.js';
 import { Prisma } from '../generated/prisma/client.js';
 import { EmailTokenService } from '../mail/email-token.service.js';
 import { MailService } from '../mail/mail.service.js';
@@ -53,6 +53,28 @@ export class UsersService {
       throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
     }
     return row;
+  }
+
+  search(userId: number, query: string) {
+    return this.prisma.user.findMany({
+      where: {
+        username: { contains: query, mode: 'insensitive' },
+        id: { not: userId },
+      },
+      select: { id: true, username: true, avatarUrl: true, rating: true },
+      orderBy: { username: 'asc' },
+      take: 10,
+    });
+  }
+
+  async profile(userId: number) {
+    const row = await this.findById(userId);
+    return {
+      id: row.id,
+      username: row.username,
+      avatarUrl: row.avatarUrl,
+      rating: row.rating,
+    };
   }
 
   async update(userId: number, dto: UpdateUserDto) {
@@ -112,7 +134,7 @@ export class UsersService {
       where: { id: userId },
       data: { avatarUrl: filename },
     });
-    if (current.avatarUrl) {
+    if (current.avatarUrl !== DEFAULT_AVATAR_FILENAME) {
       await this.removeAvatarFile(current.avatarUrl);
     }
     return {
@@ -196,7 +218,7 @@ export class UsersService {
     if (!userId) throw new BadRequestException(ErrorCode.INVALID_TOKEN);
 
     const user = await this.prisma.user.delete({ where: { id: userId } });
-    if (user.avatarUrl) {
+    if (user.avatarUrl !== DEFAULT_AVATAR_FILENAME) {
       await this.removeAvatarFile(user.avatarUrl);
     }
     this.mail

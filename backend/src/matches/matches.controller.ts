@@ -23,6 +23,14 @@ export class MatchesController {
     return this.matchesService.findHistoryForUser(userId, cursor);
   }
 
+  @Get('user/:id')
+  historyOf(
+    @Param('id', ParseIntPipe) userId: number,
+    @Query('cursor', new ParseIntPipe({ optional: true })) cursor?: number,
+  ) {
+    return this.matchesService.findHistoryForUser(userId, cursor);
+  }
+
   @Get('current')
   async current(@CurrentUser('sub') userId: number) {
     return { match: await this.matchesService.findActiveForUser(userId) };

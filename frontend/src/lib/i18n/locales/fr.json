@@ -7,7 +7,6 @@
     "CANCEL": "Annuler",
     "QUIT": "Quitter",
     "BACK": "Retour",
-    "SETTINGS": "Paramètres",
     "VICTORY": "Victoire",
     "DEFEAT": "Défaite"
   },
@@ -35,11 +34,12 @@
     "MAIN": "Navigation principale",
     "HOME": "Accueil",
     "HISTORY": "Historique",
-    "STATS": "Stats",
-    "PROFILE": "Profil"
+    "PROFILE": "Profil",
+    "SEARCH": "Recherche"
   },
   "HOME": {
     "PLAY": "Jouer",
+    "SELECT_MODE": "Sélectionne d'abord un mode de jeu.",
     "BOTS": {
       "TITLE": "Choisis ton adversaire",
       "ELO": "≈ {elo} Elo"
@@ -98,7 +98,6 @@
       "MODE": "Mode",
       "DURATION": "Durée",
       "END": "Fin de partie",
-      "XP": "XP gagnés",
       "RATING": "Variation du classement",
       "MOVES": "Nombre de coups",
       "UNKNOWN": "Non renseigné"
@@ -164,73 +163,17 @@
   "PROFILE": {
     "TITLE": "Mon Profil",
     "SUBTITLE": "Montre ton style et ta patience",
-    "SECTIONS_LABEL": "Rubriques du profil",
-    "SECTIONS": {
-      "OVERVIEW": "Vue d’ensemble",
-      "ACHIEVEMENTS": "Succès",
-      "CUSTOMIZATION": "Personnaliser",
-      "SETTINGS": "Paramètres"
-    },
     "QUOTE": "La maîtrise de soi mène à la victoire.",
-    "IDENTITY": "Identité et niveau",
-    "AVATAR_ALT": "Avatar de {name}",
-    "CHANGE_PHOTO": "Changer la photo",
+    "IDENTITY": "Identité",
     "UPLOAD_AVATAR": "Valider",
     "CHANGE_AVATAR": "Changer l’avatar",
-    "EDIT_NAME": "Modifier le nom",
-    "EDIT_TITLE": "Modifier le titre",
+    "AVATAR_DROP": "Glisse une image ici ou clique pour parcourir",
+    "AVATAR_HINT": "PNG, JPEG ou WebP, 2 Mo max.",
     "DEFAULT_TITLE": "Disciple du vent",
     "DEFAULT_QUOTE": "Le calme est ma force.",
-    "LEVEL": "NIVEAU",
-    "LEVEL_PROGRESS": "Progression du niveau",
-    "NEXT_LEVEL": "Niveau suivant : {level}",
-    "ACHIEVEMENTS": {
-      "HEADING": "Succès de partie",
-      "UNLOCKED": "{count} / {total} débloqués",
-      "SEE_ALL": "Voir tous",
-      "ITEMS": {
-        "FIRST_STEP": {
-          "TITLE": "Premier pas",
-          "DESCRIPTION": "Remporter une partie."
-        },
-        "TIGER_SPIRIT": {
-          "TITLE": "Esprit du tigre",
-          "DESCRIPTION": "Gagner 10 parties."
-        },
-        "TEMPLE_WAY": {
-          "TITLE": "Voie du temple",
-          "DESCRIPTION": "Gagner par le temple."
-        },
-        "PERFECT_STREAK": {
-          "TITLE": "Série parfaite",
-          "DESCRIPTION": "4 / 5 victoires consécutives."
-        },
-        "HUNDRED_WINS": {
-          "TITLE": "Cent victoires",
-          "DESCRIPTION": "73 / 100 victoires."
-        },
-        "DOJO_MASTER": {
-          "TITLE": "Maître du dojo",
-          "DESCRIPTION": "Atteindre le niveau 50."
-        }
-      }
-    },
-    "CUSTOMIZATION": {
-      "HEADING": "Personnalisation",
-      "AVATAR": "Avatar",
-      "AVATAR_HINT": "Modifiez votre avatar de profil.",
-      "FRAME": "Cadre",
-      "FRAME_HINT": "Choisissez un cadre pour votre avatar.",
-      "TITLE": "Titre",
-      "TITLE_HINT": "Affichez votre titre favori.",
-      "CUSTOMIZE": "Personnaliser",
-      "QUOTE": "L’apparence suit l’esprit."
-    },
     "SETTINGS": {
       "HEADING": "Paramètres",
       "DESCRIPTION": "Ton compte, ton ambiance, ton jeu",
-      "SUMMARY": "Compte et sécurité, musique, bruitages et confort de jeu.",
-      "OPEN": "Ouvrir les paramètres",
       "ACCOUNT": "Compte",
       "NICKNAME": "Pseudo",
       "USERNAME": "Nom d’utilisateur",
@@ -255,7 +198,8 @@
       },
       "RESET": "Réinitialiser les préférences audio et jeu",
       "RESET_HINT": "Les réglages de compte et de sécurité sont conservés."
-    }
+    },
+    "ELO": "{elo} Elo"
   },
   "FRIENDS": {
     "STATUS": {
@@ -266,12 +210,6 @@
     },
     "SEARCH_PLACEHOLDER": "Rechercher un ami...",
     "SEARCH": "Rechercher",
-    "HEADING": "AMIS ({count})",
-    "OPTIONS": "Options",
-    "REQUESTS": "DEMANDES",
-    "NO_REQUESTS": "Aucune demande en attente",
-    "ACCEPT": "Accepter",
-    "DENY": "Refuser",
     "MESSAGES": "Messages",
     "ADD_FRIEND": "Ajouter un ami",
     "LOGOUT": "Déconnexion",
@@ -279,14 +217,13 @@
     "MESSAGING": "Messagerie",
     "CHOOSE_FRIEND": "Choisir un ami",
     "CHOOSE_CONTACT": "Choisis un contact…",
-    "REFRESH": "Actualiser",
-    "MESSAGE_HISTORY": "Historique des messages",
     "YOUR_MESSAGE": "Ton message",
     "MESSAGE_PLACEHOLDER": "Écris ton message…",
     "SEND": "Envoyer",
     "SELECT_FRIEND": "Sélectionne un ami pour ouvrir sa conversation.",
-    "CONTACT_USERNAME": "Pseudo du contact",
-    "ADD": "Ajouter"
+    "ADD": "Ajouter",
+    "CHAT_EMPTY": "Aucun message. Lance la conversation !",
+    "SCROLL_BOTTOM": "Aller aux derniers messages"
   },
   "GAME": {
     "HEAD_TITLE": "Onitama · Partie locale",
@@ -371,13 +308,8 @@
     },
     "NEW_GAME": "Nouvelle partie",
     "VIEW_BOARD": "Voir le plateau",
-    "SHOW_HINTS": "Afficher les destinations possibles",
-    "NEXT_DURATION": "Durée de la prochaine partie",
-    "DURATION_HINT": "La durée choisie s’appliquera à la prochaine partie. Les chronomètres continuent pendant l’ouverture des menus.",
     "RESIGN_TEXT": "{name}, ton adversaire remportera la partie.",
     "CONFIRM_RESIGN": "Confirmer l’abandon",
-    "NOT_SAVED": "La partie locale ne sera pas sauvegardée.",
-    "BACK_TO_LAUNCHER": "Retour au launcher",
     "EXIT_PLAYING": "Si tu quittes en pleine partie, tu la perdras par forfait au bout de 30 secondes.",
     "EXIT_IDLE": "Tu vas quitter le dojo."
   },
@@ -454,5 +386,28 @@
     "EMPTY_SOURCE_SQUARE": "Il n'y a aucune pièce sur cette case",
     "DESTINATION_OCCUPIED": "Cette case est déjà occupée par l'une de vos pièces",
     "POSITION_OUT_OF_BOUNDS": "Cette case est en dehors du plateau"
+  },
+  "SEARCH": {
+    "TITLE": "Rechercher un joueur",
+    "PLACEHOLDER": "Pseudo du joueur",
+    "HINT": "Tape un pseudo pour chercher parmi tous les joueurs.",
+    "EMPTY": "Aucun joueur trouvé.",
+    "SUBTITLE": "Trouve un joueur et consulte sa fiche."
+  },
+  "PLAYER": {
+    "SUBTITLE": "Fiche du joueur",
+    "TABS_LABEL": "Sections du joueur",
+    "ADD_FRIEND": "Ajouter en ami",
+    "REQUEST_SENT": "Invitation envoyée",
+    "FRIEND": "Déjà ami"
+  },
+  "INVITES": {
+    "CHALLENGE": "Défier en partie",
+    "RECEIVED": "{name} te défie !",
+    "SENT": "Défi envoyé",
+    "DECLINED": "{name} a refusé le défi.",
+    "EXPIRES": "Expire dans {seconds} s",
+    "ACCEPT": "Accepter",
+    "DECLINE": "Refuser"
   }
 }

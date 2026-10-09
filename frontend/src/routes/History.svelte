@@ -1,17 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import Ellipsis from '@lucide/svelte/icons/ellipsis';
-	import History_Details, { type Game } from './History_Details.svelte';
-	import History_Replay from './History_Replay.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import { Badge } from '$lib/components/ui/badge';
-	import * as Avatar from '$lib/components/ui/avatar';
-	import * as Card from '$lib/components/ui/card';
-	import * as Table from '$lib/components/ui/table';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import { InkQuote, PageShell, SideNav } from '$lib/components/onitama';
-	import { historyManager } from '../utils/history.svelte';
-	import { t, locale } from '$lib/i18n';
+	import HistoryTable from '$lib/components/history/history-table.svelte';
+	import { historyManager } from '$lib/stores/history.svelte';
+	import { t } from '$lib/i18n';
 
 	const filters = $derived([
 		{ value: 'all', label: $t('HISTORY.FILTERS.ALL') },
@@ -19,16 +12,7 @@
 		{ value: 'Normal', label: $t('HISTORY.FILTERS.NORMAL') },
 	]);
 
-	const modeIcons: Record<string, string> = { Ranked: '♛', Normal: '⚔' };
-	const dateFormat = $derived(new Intl.DateTimeFormat($locale ?? undefined, { dateStyle: 'short', timeStyle: 'short' }));
-
 	let historyFilter = $state('all');
-	let gameOption: Game | null = $state(null);
-	let replayGame: Game | null = $state(null);
-
-	const games = $derived(
-		historyFilter === 'all' ? historyManager.games : historyManager.games.filter((game) => game.mode === historyFilter)
-	);
 
 	onMount(() => {
 		historyManager.load();
@@ -42,80 +26,6 @@
 			<InkQuote class="mt-auto" quote={$t('HISTORY.QUOTE')} author="" stamp />
 		{/snippet}
 
-		<Card.Root class="shrink-0 bg-card/80 py-0 backdrop-blur-sm">
-			<Table.Root>
-				<Table.Header class="bg-secondary [&_th]:text-secondary-foreground">
-					<Table.Row class="hover:bg-secondary">
-						<Table.Head class="pl-4 tracking-widest">{$t('HISTORY.COLUMNS.RESULT')}</Table.Head>
-						<Table.Head class="tracking-widest">{$t('HISTORY.COLUMNS.MODE')}</Table.Head>
-						<Table.Head class="tracking-widest">{$t('HISTORY.COLUMNS.OPPONENT')}</Table.Head>
-						<Table.Head class="tracking-widest">{$t('HISTORY.COLUMNS.DURATION')}</Table.Head>
-						<Table.Head class="tracking-widest">{$t('HISTORY.COLUMNS.DATE')}</Table.Head>
-						<Table.Head class="w-12"></Table.Head>
-					</Table.Row>
-				</Table.Header>
-				<Table.Body>
-					{#each games as game (game.id)}
-						{@const mode = { label: $t(`HISTORY.MODES.${game.mode.toUpperCase()}`, { default: game.mode }), icon: modeIcons[game.mode] ?? '' }}
-						<Table.Row class="hover:bg-accent/60">
-							<Table.Cell class="pl-4">
-								<div class="flex items-center gap-2">
-									<img class="size-6" src={`../assets/home/icone/${game.result === 'Victory' ? 'victoire' : 'defaite'}.png`} alt="" />
-									<Badge variant={game.result === 'Victory' ? 'default' : 'secondary'}>
-										{$t(game.result === 'Victory' ? 'COMMON.VICTORY' : 'COMMON.DEFEAT')}
-									</Badge>
-								</div>
-							</Table.Cell>
-							<Table.Cell>
-								<span class="flex items-center gap-2"><span class="text-muted-foreground">{mode.icon}</span>{mode.label}</span>
-							</Table.Cell>
-							<Table.Cell>
-								<span class="flex items-center gap-2">
-									<Avatar.Root class="size-7">
-										<Avatar.Image src={game.avatar} alt={game.opponent} />
-										<Avatar.Fallback>{game.opponent.slice(0, 2)}</Avatar.Fallback>
-									</Avatar.Root>
-									{game.opponent}
-								</span>
-							</Table.Cell>
-							<Table.Cell class="text-muted-foreground">{game.duration}</Table.Cell>
-							<Table.Cell class="text-muted-foreground">{dateFormat.format(new Date(game.date))}</Table.Cell>
-							<Table.Cell>
-								<Button variant="ghost" size="icon-sm" aria-label={$t('HISTORY.OPTIONS', { values: { opponent: game.opponent } })} onclick={() => (gameOption = game)}>
-									<Ellipsis />
-								</Button>
-							</Table.Cell>
-						</Table.Row>
-					{:else}
-						<Table.Row class="hover:bg-transparent">
-							<Table.Cell colspan={6} class="py-8 text-center text-muted-foreground">
-								{historyManager.loading ? $t('COMMON.LOADING') : historyManager.error ? $t(`ERRORS.${historyManager.error}`, { default: historyManager.error }) : $t('HISTORY.EMPTY')}
-							</Table.Cell>
-						</Table.Row>
-					{/each}
-				</Table.Body>
-			</Table.Root>
-		</Card.Root>
-
-		{#if historyManager.nextCursor !== null}
-			<Button variant="outline" class="shrink-0 self-center" disabled={historyManager.loading} onclick={() => historyManager.loadMore()}>
-				{historyManager.loading ? $t('COMMON.LOADING') : $t('COMMON.LOAD_MORE')}
-			</Button>
-		{/if}
+		<HistoryTable manager={historyManager} filter={historyFilter} />
 	</PageShell>
 </Tabs.Root>
-
-{#if gameOption}
-	<History_Details
-		game={gameOption}
-		onclose={() => (gameOption = null)}
-		onreplay={() => {
-			replayGame = gameOption;
-			gameOption = null;
-		}}
-	/>
-{/if}
-
-{#if replayGame}
-	<History_Replay game={replayGame} onclose={() => (replayGame = null)} />
-{/if}
