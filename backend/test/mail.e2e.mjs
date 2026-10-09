@@ -35,6 +35,8 @@ import { generate } from 'otplib';
 const API = process.env.API_URL ?? 'https://localhost:8443/api';
 const BACKEND = process.env.BACKEND_CONTAINER ?? 'transcendance-backend';
 const DB = process.env.DB_CONTAINER ?? 'transcendance-db';
+const DB_USER = process.env.DB_USER ?? 'transcendence';
+const DB_NAME = process.env.DB_NAME ?? 'transcendence';
 const VERBOSE = !!process.env.VERBOSE;
 const RUN = Date.now().toString(36);
 const PASSWORD = 'Passw0rd!';
@@ -180,8 +182,10 @@ function sql(query) {
     DB,
     'sh',
     '-c',
-    'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1 -tAc "$1"',
+    'psql -U "$1" -d "$2" -v ON_ERROR_STOP=1 -tAc "$3"',
     'sh',
+    DB_USER,
+    DB_NAME,
     query,
   ]);
   if (r.code !== 0) throw new Error(`psql : ${r.out.trim()}`);
@@ -262,7 +266,7 @@ const userRow = (user, column) =>
 // ─── Helpers métier ───────────────────────────────────────────────────────────
 
 async function makeUser(name) {
-  const username = `m${RUN}_${name}`;
+  const username = `m${RUN}${name}`;
   const email = `${username}@test.local`;
   const reg = await call(null, 'POST', '/auth/register', {
     email,
@@ -273,7 +277,7 @@ async function makeUser(name) {
     throw new Error(`register ${name} → ${reg.status} ${fmt(reg.body)}`);
 
   const login = await call(null, 'POST', '/auth/login', {
-    username,
+    email,
     password: PASSWORD,
   });
   if (login.status !== 200)
@@ -293,7 +297,7 @@ async function makeUser(name) {
 }
 
 const loginBody = (user, password, code) => ({
-  username: user.username,
+  email: user.email,
   password,
   ...(code ? { code } : {}),
 });
