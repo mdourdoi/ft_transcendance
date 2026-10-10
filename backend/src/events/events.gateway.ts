@@ -139,6 +139,64 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       .emit('friendRequest', payload.from);
   }
 
+  @OnEvent('friendship.accepted')
+  handleFriendshipAccepted(payload: {
+    targetId: number;
+    from: { id: number; username: string; avatarUrl: string };
+  }) {
+    this.server
+      .to(`user:${payload.targetId}`)
+      .emit('friendAccepted', payload.from);
+    this.server.to(`user:${payload.targetId}`).emit('presence', {
+      userId: payload.from.id,
+      onlineStatus: this.onlineUsers.has(payload.from.id),
+    });
+    this.server.to(`user:${payload.from.id}`).emit('presence', {
+      userId: payload.targetId,
+      onlineStatus: this.onlineUsers.has(payload.targetId),
+    });
+  }
+
+  @OnEvent('friendship.denied')
+  handleFriendshipDenied(payload: {
+    targetId: number;
+    from: { id: number; username: string; avatarUrl: string };
+  }) {
+    this.server
+      .to(`user:${payload.targetId}`)
+      .emit('friendDenied', payload.from);
+  }
+
+  @OnEvent('friendship.cancelled')
+  handleFriendshipCancelled(payload: {
+    targetId: number;
+    from: { id: number; username: string; avatarUrl: string };
+  }) {
+    this.server
+      .to(`user:${payload.targetId}`)
+      .emit('friendCancelled', payload.from);
+  }
+
+  @OnEvent('friendship.removed')
+  handleFriendshipRemoved(payload: {
+    targetId: number;
+    from: { id: number; username: string; avatarUrl: string };
+  }) {
+    this.server
+      .to(`user:${payload.targetId}`)
+      .emit('friendRemoved', payload.from);
+  }
+
+  @OnEvent('friendship.blocked')
+  handleFriendshipBlocked(payload: {
+    targetId: number;
+    from: { id: number; username: string; avatarUrl: string };
+  }) {
+    this.server
+      .to(`user:${payload.targetId}`)
+      .emit('friendBlocked', payload.from);
+  }
+
   @OnEvent('gameInvite.sent')
   handleGameInviteSent(payload: {
     targetId: number;

@@ -107,20 +107,7 @@ export class FriendshipsService {
           status: FriendshipStatus.PENDING,
         },
       });
-      const expeditor = await this.prisma.user.findUnique({
-        where: { id: userId },
-        select: { id: true, username: true, avatarUrl: true },
-      });
-      if (expeditor) {
-        this.eventEmitter.emit('friendship.requested', {
-          targetId,
-          from: {
-            id: expeditor.id,
-            username: expeditor.username,
-            avatarUrl: expeditor.avatarUrl,
-          },
-        });
-      }
+      await this.emitFriendshipEvent_('friendship.requested', targetId, userId);
       return;
     }
 
@@ -135,6 +122,11 @@ export class FriendshipsService {
       throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
     await this.deleteFriendship_(userId, dto.targetId);
+    await this.emitFriendshipEvent_(
+      'friendship.cancelled',
+      dto.targetId,
+      userId,
+    );
   }
 
   public async acceptRequest(userId: number, dto: AcceptRequestDto) {
@@ -149,6 +141,7 @@ export class FriendshipsService {
       throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
     await this.deleteFriendship_(userId, dto.targetId);
+    await this.emitFriendshipEvent_('friendship.denied', dto.targetId, userId);
   }
 
   public async removeFriend(userId: number, dto: RemoveFriendDto) {
@@ -156,6 +149,7 @@ export class FriendshipsService {
       throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
     await this.deleteFriendship_(userId, dto.targetId);
+    await this.emitFriendshipEvent_('friendship.removed', dto.targetId, userId);
   }
 
   public async blockUser(userId: number, dto: BlockUserDto) {
@@ -181,6 +175,11 @@ export class FriendshipsService {
           status: FriendshipStatus.BLOCKED,
         },
       });
+      await this.emitFriendshipEvent_(
+        'friendship.blocked',
+        dto.targetId,
+        userId,
+      );
     } else {
       await this.messagesService.deleteConversationForFriendship(currentFs?.id);
       await this.prisma.friendship.updateMany({
@@ -196,6 +195,13 @@ export class FriendshipsService {
           status: FriendshipStatus.BLOCKED,
         },
       });
+      await this.emitFriendshipEvent_(
+        currentFs.status === FriendshipStatus.ACCEPTED
+          ? 'friendship.removed'
+          : 'friendship.blocked',
+        dto.targetId,
+        userId,
+      );
     }
   }
 
@@ -216,6 +222,28 @@ export class FriendshipsService {
     if (!friendship) throw new NotFoundException(ErrorCode.IMPOSSIBLE_REQUEST);
 
     await this.messagesService.createConversationForFriendship(friendship.id);
+    await this.emitFriendshipEvent_('friendship.accepted', B, A);
+  }
+
+  private async emitFriendshipEvent_(
+    event: string,
+    targetId: number,
+    fromId: number,
+  ) {
+    const expeditor = await this.prisma.user.findUnique({
+      where: { id: fromId },
+      select: { id: true, username: true, avatarUrl: true },
+    });
+    if (expeditor) {
+      this.eventEmitter.emit(event, {
+        targetId,
+        from: {
+          id: expeditor.id,
+          username: expeditor.username,
+          avatarUrl: expeditor.avatarUrl,
+        },
+      });
+    }
   }
 
   private getFriendship_(A: number, B: number): Promise<Friendship | null> {
