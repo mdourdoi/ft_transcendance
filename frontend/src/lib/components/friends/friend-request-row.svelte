@@ -3,6 +3,7 @@
   import X from "@lucide/svelte/icons/x";
   import { Button } from "$lib/components/ui/button";
   import * as Avatar from "$lib/components/ui/avatar";
+  import { t } from "$lib/i18n";
 
   let {
     user,
@@ -31,7 +32,8 @@
       variant="ghost"
       size="icon"
       class="size-7 bg-white font-extrabold text-emerald-500 hover:bg-emerald-500/20 hover:text-emerald-400"
-      title="Accepter"
+      title={$t("FRIENDS.ACTIONS.ACCEPT_REQUEST")}
+      aria-label={$t("FRIENDS.ACTIONS.ACCEPT_REQUEST")}
       onclick={onaccept}
     >
       <Check class="size-4" />
@@ -40,7 +42,8 @@
       variant="ghost"
       size="icon"
       class="size-7 bg-white font-extrabold text-destructive hover:bg-destructive/20 hover:text-destructive"
-      title="Refuser"
+      title={$t("FRIENDS.ACTIONS.DECLINE_REQUEST")}
+      aria-label={$t("FRIENDS.ACTIONS.DECLINE_REQUEST")}
       onclick={ondeny}
     >
       <X class="size-4" />

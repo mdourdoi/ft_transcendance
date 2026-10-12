@@ -1,6 +1,7 @@
 <script lang="ts">
 	import hide from '../../../../assets/Icone/hide.png';
 	import show from '../../../../assets/Icone/not_hide.png';
+	import { t } from '$lib/i18n';
 
 	let {
 		hidden = $bindable(true),
@@ -18,7 +19,8 @@
 	type="button"
 	class="absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100 left-[390px] {className}"
 	style="background: transparent !important; box-shadow: none !important;"
+	aria-label={$t(hidden ? 'AUTH.SHOW_PASSWORD' : 'AUTH.HIDE_PASSWORD')}
 	onclick={toggle}
 >
-	<img src={hidden ? show : hide} alt="description" class="w-[40px] h-[40px] object-contain" />
+	<img src={hidden ? show : hide} alt="" class="w-[40px] h-[40px] object-contain" />
 </button>

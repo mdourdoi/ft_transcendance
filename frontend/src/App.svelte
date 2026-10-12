@@ -1,11 +1,11 @@
 <script lang="ts">
   import { path, resolve, type Routes } from "$lib/router";
-  import Home_main from "./routes/Home_main.svelte";
+  import Home from "./routes/Home.svelte";
   import Game from "./routes/Game.svelte";
   import NotFound from "./routes/NotFound.svelte";
-  import Log from "./routes/Log.svelte";
-  import LocaleSwitcher from "$lib/components/LocaleSwitcher.svelte";
-  import PageTransition from "$lib/components/PageTransition.svelte";
+  import Login from "./routes/Login.svelte";
+  import LocaleSwitcher from "$lib/components/locale-switcher.svelte";
+  import PageTransition from "$lib/components/page-transition.svelte";
   import { token } from "$lib/auth";
   import { navigate } from "$lib/router";
   import "$lib/socket";
@@ -21,10 +21,10 @@ $effect(() => {
 });
 
   const routes: Routes = {
-    "/": Log,
+    "/": Login,
     "/game": Game,
     "/game/:mode": Game,
-    "/home": Home_main,
+    "/home": Home,
   };
 
   const route = $derived(resolve(routes, $path));

@@ -28,7 +28,9 @@
     "CODE": "Código",
     "LOGIN": "Iniciar sesión",
     "REGISTER": "Crear una cuenta",
-    "OR": "o"
+    "OR": "o",
+    "SHOW_PASSWORD": "Mostrar la contraseña",
+    "HIDE_PASSWORD": "Ocultar la contraseña"
   },
   "NAV": {
     "MAIN": "Navegación principal",
@@ -65,7 +67,7 @@
     "MODES": {
       "RANKED": "Partidas clasificatorias",
       "NORMAL": "Partidas normales",
-      "TRAINING": "Desafíos"
+      "TRAINING": "Entrenamiento"
     },
     "QUOTE": "Un pequeño paso mueve un gran destino."
   },
@@ -199,7 +201,8 @@
       "RESET": "Restablecer las preferencias de audio y juego",
       "RESET_HINT": "Los ajustes de cuenta y seguridad se conservan."
     },
-    "ELO": "{elo} Elo"
+    "ELO": "{elo} Elo",
+    "AVATAR_ALT": "Avatar de {name}"
   },
   "FRIENDS": {
     "STATUS": {
@@ -208,7 +211,7 @@
       "AWAY": "Ausente",
       "OFFLINE": "Desconectado"
     },
-    "SEARCH_PLACEHOLDER": "Buscar un amigo...",
+    "SEARCH_PLACEHOLDER": "Buscar un amigo…",
     "SEARCH": "Buscar",
     "MESSAGES": "Mensajes",
     "ADD_FRIEND": "Añadir un amigo",
@@ -223,7 +226,29 @@
     "SELECT_FRIEND": "Selecciona un amigo para abrir su conversación.",
     "ADD": "Añadir",
     "CHAT_EMPTY": "Aún no hay mensajes. ¡Empieza la conversación!",
-    "SCROLL_BOTTOM": "Ir a los últimos mensajes"
+    "SCROLL_BOTTOM": "Ir a los últimos mensajes",
+    "CONTACT_USERNAME": "Nombre del contacto",
+    "SECTIONS": {
+      "REQUESTS": "SOLICITUDES",
+      "FRIENDS": "AMIGOS",
+      "BLOCKED": "BLOQUEADOS",
+      "SENT": "SOLICITUDES ENVIADAS"
+    },
+    "EMPTY": {
+      "REQUESTS": "Ninguna solicitud pendiente",
+      "FRIENDS": "Ningún amigo por ahora",
+      "BLOCKED": "Ningún usuario bloqueado",
+      "SENT": "Ninguna solicitud enviada"
+    },
+    "ACTIONS": {
+      "MESSAGE": "Enviar un mensaje",
+      "BLOCK": "Bloquear",
+      "REMOVE": "Eliminar de amigos",
+      "UNBLOCK": "Desbloquear",
+      "CANCEL_REQUEST": "Cancelar la solicitud",
+      "ACCEPT_REQUEST": "Aceptar",
+      "DECLINE_REQUEST": "Rechazar"
+    }
   },
   "GAME": {
     "HEAD_TITLE": "Onitama · Partida local",
@@ -385,7 +410,8 @@
     "NOT_YOUR_ENTITY": "Esta pieza no te pertenece",
     "EMPTY_SOURCE_SQUARE": "No hay ninguna pieza en esta casilla",
     "DESTINATION_OCCUPIED": "Esta casilla ya está ocupada por una de tus piezas",
-    "POSITION_OUT_OF_BOUNDS": "Esta casilla está fuera del tablero"
+    "POSITION_OUT_OF_BOUNDS": "Esta casilla está fuera del tablero",
+    "INVALID_PASSWORD": "Contraseña no válida"
   },
   "SEARCH": {
     "TITLE": "Buscar un jugador",

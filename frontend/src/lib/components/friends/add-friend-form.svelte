@@ -7,7 +7,7 @@
 </script>
 
 <form class="flex flex-col gap-2" onsubmit={friendManager.add_friend}>
-  <Label for="contact_login">Pseudo du contact</Label>
+  <Label for="contact_login">{$t("FRIENDS.CONTACT_USERNAME")}</Label>
   <Input
     id="contact_login"
     maxlength={40}

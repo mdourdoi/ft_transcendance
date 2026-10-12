@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import { InkQuote, PageShell, SideNav } from '$lib/components/onitama';
-	import HistoryTable from '$lib/components/history/history-table.svelte';
+	import { HistoryTable } from '$lib/components/history';
 	import { historyManager } from '$lib/stores/history.svelte';
 	import { t } from '$lib/i18n';
 

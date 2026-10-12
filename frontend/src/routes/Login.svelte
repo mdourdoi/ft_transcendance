@@ -120,17 +120,17 @@
 	{/if}
 	<img
 		src={logo}
-		alt="logo"
+		alt="Onitama"
 		class="absolute top-[100px] left-1/2 -translate-x-1/2 w-[500px] h-auto"
 	/>
 	<img
 		src={strace}
-		alt="logo"
+		alt=""
 		class="absolute top-[450px] left-[calc(50%-140px)] -translate-x-1/2 w-[150px] h-auto -scale-x-100"
 	/>
 	<img
 		src={strace}
-		alt="logo"
+		alt=""
 		class="absolute top-[450px] left-[calc(50%+140px)] -translate-x-1/2 w-[150px] h-auto"
 	/>
 

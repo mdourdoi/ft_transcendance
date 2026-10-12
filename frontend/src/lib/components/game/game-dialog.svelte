@@ -68,12 +68,8 @@
         <p>{$t('GAME.RESIGN_TEXT', { values: { name: resignName } })}</p>
         <button class="ink-banner mt-5 bg-red-800 px-5 py-2" onclick={onresign}>{$t('GAME.CONFIRM_RESIGN')}</button>
     {:else}
-        {#if online}
-            <p>{$t(playing ? 'GAME.EXIT_PLAYING' : 'GAME.EXIT_IDLE')}</p>
-            <button class="ink-banner mt-5 px-5 py-2" onclick={onquit}>{$t('COMMON.QUIT')}</button>
-        {:else}
-            <p>Route retour a faire</p>
-        {/if}
+        <p>{$t(online && playing ? 'GAME.EXIT_PLAYING' : 'GAME.EXIT_IDLE')}</p>
+        <button class="ink-banner mt-5 px-5 py-2" onclick={onquit}>{$t('COMMON.QUIT')}</button>
     {/if}
 </dialog>
 

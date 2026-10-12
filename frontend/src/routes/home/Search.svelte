@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { InkQuote, PageShell } from '$lib/components/onitama';
-	import PlayerSearch, { type FoundPlayer } from '$lib/components/players/player-search.svelte';
+	import { PlayerSearch, type FoundPlayer } from '$lib/components/players';
 	import Player from './Player.svelte';
 	import { t } from '$lib/i18n';
 

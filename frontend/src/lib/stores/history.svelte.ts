@@ -1,5 +1,5 @@
 import { authFetch } from '$lib/auth';
-import type { Game, ReplayData } from '$lib/components/history/history-details.svelte';
+import type { Game, ReplayData } from '$lib/components/history';
 
 type ApiMatch = {
 	id: number;

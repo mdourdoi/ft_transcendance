@@ -7,7 +7,7 @@
 
 <img
 	src={strace}
-	alt="logo"
+	alt=""
 	class="absolute left-[calc(50%-130px)] -translate-x-1/2 w-[150px] h-[10px] -scale-x-100 {lineClass}"
 />
 <p class="absolute left-[calc(50%-100px)] w-[200px] text-center text-black text-lg font-semibold {textClass}">
@@ -15,6 +15,6 @@
 </p>
 <img
 	src={strace}
-	alt="logo"
+	alt=""
 	class="absolute left-[calc(50%+125px)] -translate-x-1/2 w-[150px] h-[10px] {lineClass}"
 />

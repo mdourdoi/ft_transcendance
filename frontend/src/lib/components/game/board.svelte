@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Cell from '$lib/components/game/cell.svelte';
+	import Cell from './cell.svelte';
 	import { GameMap, Position } from '$lib/game/index';
 	import { t } from '$lib/i18n';
 
