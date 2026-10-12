@@ -4,6 +4,8 @@ export class StatManager {
     error = $state('');
     matches = $state<any[]>([]);
 
+    constructor(private readonly playerId?: number) {}
+
     wins = $derived(this.matches.filter(m => m.won === true).length);
     ranked = $derived(this.matches.filter(m => m.mode === 'RANKED').length);
     normal = $derived(this.matches.filter(m => m.mode === 'UNRANKED').length);
@@ -12,6 +14,7 @@ export class StatManager {
     cardCounts = $derived.by(() => {
         const counts: Record<string, number> = {};
         for (const m of this.matches) {
+            if (!m.replay) continue;
             const { hands, neutral, moves } = m.replay;
             const h: string[][] = hands.map((x: string[]) => [...x]);
             let neu: string = neutral;
@@ -63,15 +66,25 @@ export class StatManager {
 
     async getstat() {
         try {
-            const res = await authFetch('/api/matches');
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message);
-            this.matches = data.matches;
+            const path = this.playerId === undefined
+                ? '/api/matches'
+                : `/api/matches/user/${this.playerId}`;
+            const matches = [];
+            let cursor: number | undefined;
+
+            do {
+                const url = cursor === undefined ? path : `${path}?cursor=${cursor}`;
+                const res = await authFetch(url);
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message);
+                matches.push(...data.matches);
+                cursor = data.nextCursor ?? undefined;
+            } while (cursor !== undefined);
+
+            this.matches = matches;
         } catch (err) {
             console.error('getstat error:', err);
             this.error = err instanceof Error ? err.message : String(err);
         }
     }
 }
-
-export const statManager = new StatManager();

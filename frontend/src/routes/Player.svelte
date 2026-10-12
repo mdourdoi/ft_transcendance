@@ -38,7 +38,7 @@
 			</IdentityCard>
 			<CollapsibleCard title={$t('STATS.TITLE')} description={$t('STATS.SUBTITLE')}>
 				<Card.Content class="flex flex-col gap-4">
-					<StatsPanel />
+					<StatsPanel playerId={player.id} />
 				</Card.Content>
 			</CollapsibleCard>
 		{:else}

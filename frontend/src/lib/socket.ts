@@ -63,7 +63,8 @@ function connectSocket() {
         friendManager.get_friends();
     });
     socket.on('friendBlocked', () => {
-        friendManager.get_friends();
+        friendManager.friendships_requests();
+        friendManager.sented_requests();
     });
     return socket;
 }

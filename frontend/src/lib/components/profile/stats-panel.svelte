@@ -4,11 +4,15 @@
 	import * as Card from "$lib/components/ui/card";
 	import * as Chart from "$lib/components/ui/chart";
 	import * as NativeSelect from "$lib/components/ui/native-select";
-	import { InkQuote, PageShell } from "$lib/components/onitama";
+	import { InkQuote } from "$lib/components/onitama";
 	import { cn } from "$lib/utils";
 	import { t, locale } from "$lib/i18n";
-	import { statManager } from "$lib/stores/stat.svelte";
+	import { StatManager } from "$lib/stores/stat.svelte";
 	import { onMount } from "svelte";
+
+	let { playerId }: { playerId?: number } = $props();
+	const statManager = new StatManager(playerId);
+
 	onMount(() => {
 		statManager.getstat();
 	});
@@ -80,11 +84,6 @@
 	{ title: $t("STATS.FREQUENT_OPPONENTS"), rows: statManager.frequentOpponents },
 ]);
 </script>
-
-<PageShell title={$t("STATS.TITLE")} subtitle={$t("STATS.SUBTITLE")}>
-	{#snippet sidebar()}
-		<div class="min-h-0 flex-1 rounded-xl bg-[url(/assets/home/background/samourai3.png)] bg-cover bg-top"></div>
-	{/snippet}
 
 	<section class="grid grid-cols-4 gap-4">
 		{#each summary as item (item.label)}
@@ -211,4 +210,3 @@
 			<InkQuote quote={$t("STATS.QUOTE")} stamp />
 		</div>
 	</section>
-</PageShell>
