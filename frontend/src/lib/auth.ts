@@ -1,7 +1,8 @@
 import { writable, get } from "svelte/store";
 import { navigate } from "$lib/router";
 
-const saved = typeof localStorage !== "undefined" ? localStorage.getItem("token") : null;
+const saved =
+  typeof localStorage !== "undefined" ? localStorage.getItem("token") : null;
 export const token = writable<string>(saved ?? "");
 
 token.subscribe((value) => {
@@ -11,7 +12,24 @@ token.subscribe((value) => {
 
 export const logout = () => {
   token.set("");
-  navigate("/");
+  navigate("/", { replace: true });
+};
+
+export const isTokenExpired = (value = get(token)): boolean => {
+  if (!value) return true;
+
+  try {
+    const payload = value.split(".")[1];
+    const decoded = JSON.parse(
+      atob(payload.replace(/-/g, "+").replace(/_/g, "/")),
+    ) as {
+      exp?: number;
+    };
+
+    return typeof decoded.exp !== "number" || decoded.exp * 1000 <= Date.now();
+  } catch {
+    return true;
+  }
 };
 
 export const authFetch = async (url: string, options: RequestInit = {}) => {
@@ -26,8 +44,7 @@ export const authFetch = async (url: string, options: RequestInit = {}) => {
       if (data.message === "INVALID_TOKEN") {
         logout();
       }
-    } catch {
-    }
+    } catch {}
   }
 
   return res;
