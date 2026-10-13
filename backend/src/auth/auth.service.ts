@@ -28,6 +28,7 @@ export class AuthService {
           email: dto.email,
           username: dto.username,
           passwordHash: passwordHash,
+          consentedAt: new Date(),
         },
       });
       return { id: row.id, username: row.username, createdAt: row.createdAt };

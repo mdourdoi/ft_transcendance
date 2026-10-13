@@ -4,7 +4,7 @@
 	import strace from '../../../../assets/Icone/strace.webp';
 	import { t } from '$lib/i18n';
 
-	let { title, onsubmit, children }: { title: string; onsubmit: () => void; children: Snippet } = $props();
+	let { title, hint, onsubmit, children }: { title: string; hint?: string; onsubmit: () => void; children: Snippet } = $props();
 
 	function submit(event: SubmitEvent) {
 		event.preventDefault();
@@ -17,9 +17,15 @@
 	<div class="absolute inset-0 flex justify-center top-[75px] text-black" style="font-size: 40px;">
 		<p>{title}</p>
 	</div>
+	{#if hint}
+	<div class="absolute inset-0 flex justify-center top-[132px] text-black" style="font-size: 13px;">
+		<p class="w-[340px] text-center leading-tight">{hint}</p>
+	</div>
+	{:else}
 	<div class="absolute inset-0 flex justify-center top-[130px] text-black" style="font-size: 15px;">
 		<p>{$t('AUTH.SUBTITLE')}</p>
 	</div>
+	{/if}
 	{@render children()}
 	<img
 		src={strace}

@@ -1,6 +1,11 @@
 #!/bin/sh
 set -e
 
+secrets="$(node /app/scripts/vault-env.mjs)"
+eval "$secrets"
+
+export DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public"
+
 echo "Waiting for database..."
 until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$POSTGRES_USER" >/dev/null 2>&1; do
   sleep 1
