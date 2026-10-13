@@ -71,7 +71,7 @@ export interface OnlineGame {
 
 export function currentUserId(): number | null {
     try {
-        const payload = get(token).split('.')[1];
+        const payload = (get(token) ?? '').split('.')[1];
         return JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/'))).sub ?? null;
     } catch {
         return null;

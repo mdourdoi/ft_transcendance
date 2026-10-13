@@ -1,5 +1,5 @@
 <script lang="ts">
-	import background from "../../../../assets/Login_background.png";
+	import background from "../../../../assets/Login_background.webp";
 	import { Button } from "$lib/components/ui/button";
 	import * as Card from "$lib/components/ui/card";
 	import { navigate } from "$lib/router";

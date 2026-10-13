@@ -3,6 +3,7 @@
   import * as Avatar from "$lib/components/ui/avatar";
   import * as ContextMenu from "$lib/components/ui/context-menu";
   import { cn } from "$lib/utils";
+  import { t } from "$lib/i18n";
 
   let {
     user,
@@ -38,7 +39,7 @@
       <strong class="truncate text-sm">{user.username}</strong>
       {#if status !== undefined}
         <span class={cn("text-xs", status?.text ?? "text-muted-foreground")}>
-          {status?.label ?? "Hors ligne"}
+          {status?.label ?? $t("FRIENDS.STATUS.OFFLINE")}
         </span>
       {/if}
     </span>

@@ -8,8 +8,7 @@
 	import Play from '@lucide/svelte/icons/play';
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import Plateau from '$lib/components/game/plateau.svelte';
-	import MoveCard from '$lib/components/game/move-card.svelte';
+	import { Board, MoveCard } from '$lib/components/game';
 	import { card, Position } from '$lib/game/index';
 	import { createGame, passTurn, playMove } from '$lib/game/engine';
 	import type { GameState, Player } from '$lib/game/engine';
@@ -150,7 +149,7 @@
 
 		<div class="grid gap-4 sm:grid-cols-[minmax(0,1fr)_11rem]">
 			<div class="mx-auto w-full max-w-[26rem]">
-				<Plateau
+				<Board
 					assetBase={ASSETS}
 					map={shown.map}
 					{flipped}

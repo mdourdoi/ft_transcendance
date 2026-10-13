@@ -22,7 +22,7 @@
 </script>
 
 <div class="relative w-[340px] h-[60px] left-[100px] {className}">
-	<img src={cadre} alt="cadre" class="absolute inset-0 w-full h-full" />
+	<img src={cadre} alt="" class="absolute inset-0 w-full h-full" />
 	<input
 		{type}
 		bind:value
@@ -31,6 +31,6 @@
 	/>
 </div>
 <div>
-	<img src={icon} alt="logo" class="absolute left-[110px] {iconClass}" />
+	<img src={icon} alt="" class="absolute left-[110px] {iconClass}" />
 	{@render children?.()}
 </div>

@@ -46,7 +46,7 @@
         <Avatar.Root
           class="size-24 border-4 border-secondary shadow-[0_0_0_2px_var(--accent)]"
         >
-          <Avatar.Image src={avatarSrc} alt={`Avatar de ${player.name}`} />
+          <Avatar.Image src={avatarSrc} alt={$t("PROFILE.AVATAR_ALT", { values: { name: player.name } })} />
           <Avatar.Fallback>{player.name.slice(0, 2)}</Avatar.Fallback>
         </Avatar.Root>
         {#if editable}

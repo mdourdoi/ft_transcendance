@@ -28,7 +28,9 @@
     "CODE": "Code",
     "LOGIN": "Log in",
     "REGISTER": "Create an account",
-    "OR": "or"
+    "OR": "or",
+    "SHOW_PASSWORD": "Show password",
+    "HIDE_PASSWORD": "Hide password"
   },
   "NAV": {
     "MAIN": "Main navigation",
@@ -127,6 +129,7 @@
     }
   },
   "STATS": {
+    "ELO": "Elo",
     "TITLE": "Overall statistics",
     "SUBTITLE": "A path of discipline, an endless progression.",
     "SUMMARY": {
@@ -199,7 +202,8 @@
       "RESET": "Reset audio and game preferences",
       "RESET_HINT": "Account and security settings are kept."
     },
-    "ELO": "{elo} Elo"
+    "ELO": "{elo} Elo",
+    "AVATAR_ALT": "{name}’s avatar"
   },
   "FRIENDS": {
     "STATUS": {
@@ -208,7 +212,7 @@
       "AWAY": "Away",
       "OFFLINE": "Offline"
     },
-    "SEARCH_PLACEHOLDER": "Search for a friend...",
+    "SEARCH_PLACEHOLDER": "Search for a friend…",
     "SEARCH": "Search",
     "MESSAGES": "Messages",
     "ADD_FRIEND": "Add a friend",
@@ -223,7 +227,29 @@
     "SELECT_FRIEND": "Select a friend to open the conversation.",
     "ADD": "Add",
     "CHAT_EMPTY": "No messages yet. Start the conversation!",
-    "SCROLL_BOTTOM": "Jump to latest messages"
+    "SCROLL_BOTTOM": "Jump to latest messages",
+    "CONTACT_USERNAME": "Contact username",
+    "SECTIONS": {
+      "REQUESTS": "REQUESTS",
+      "FRIENDS": "FRIENDS",
+      "BLOCKED": "BLOCKED",
+      "SENT": "SENT REQUESTS"
+    },
+    "EMPTY": {
+      "REQUESTS": "No pending requests",
+      "FRIENDS": "No friends yet",
+      "BLOCKED": "No blocked users",
+      "SENT": "No sent requests"
+    },
+    "ACTIONS": {
+      "MESSAGE": "Send a message",
+      "BLOCK": "Block",
+      "REMOVE": "Remove friend",
+      "UNBLOCK": "Unblock",
+      "CANCEL_REQUEST": "Cancel request",
+      "ACCEPT_REQUEST": "Accept",
+      "DECLINE_REQUEST": "Decline"
+    }
   },
   "GAME": {
     "HEAD_TITLE": "Onitama · Local game",
@@ -454,6 +480,7 @@
     "EMPTY_SOURCE_SQUARE": "There is no piece on this square",
     "DESTINATION_OCCUPIED": "This square is already occupied by one of your pieces",
     "POSITION_OUT_OF_BOUNDS": "This square is outside the board",
+    "INVALID_PASSWORD": "Invalid password",
     "CONSENT_REQUIRED": "You must accept the Privacy Policy and the Terms of Use"
   },
   "SEARCH": {

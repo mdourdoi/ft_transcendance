@@ -93,9 +93,9 @@
         {/if}
 
         <FriendsSection
-          label="DEMANDES"
+          label={$t("FRIENDS.SECTIONS.REQUESTS")}
           count={friendManager.friend_requests.length}
-          empty="Aucune demande en attente"
+          empty={$t("FRIENDS.EMPTY.REQUESTS")}
           class="pl-2 pt-1"
         >
           {#each friendManager.friend_requests as req (req.user.id)}
@@ -108,9 +108,9 @@
         </FriendsSection>
 
         <FriendsSection
-          label="AMIS"
+          label={$t("FRIENDS.SECTIONS.FRIENDS")}
           count={friendManager.friends.length}
-          empty="Aucun ami pour le moment"
+          empty={$t("FRIENDS.EMPTY.FRIENDS")}
         >
           {#each sortedFriends as f (f.user.id)}
             <FriendRow
@@ -124,45 +124,45 @@
                   chatting = true;
                 }}
               >
-                Envoyer un message
+                {$t("FRIENDS.ACTIONS.MESSAGE")}
               </ContextMenu.Item>
               <ContextMenu.Separator />
               <ContextMenu.Item
                 class="text-destructive"
                 onclick={() => friendManager.block_friend(f.user.id)}
               >
-                Bloquer
+                {$t("FRIENDS.ACTIONS.BLOCK")}
               </ContextMenu.Item>
               <ContextMenu.Item
                 class="text-destructive"
                 onclick={() => friendManager.remove_friend(f.user.id)}
               >
-                Retirer des amis
+                {$t("FRIENDS.ACTIONS.REMOVE")}
               </ContextMenu.Item>
             </FriendRow>
           {/each}
         </FriendsSection>
 
         <FriendsSection
-          label="BLOQUÉS"
+          label={$t("FRIENDS.SECTIONS.BLOCKED")}
           count={friendManager.blocked.length}
-          empty="Aucun utilisateur bloqué"
+          empty={$t("FRIENDS.EMPTY.BLOCKED")}
         >
           {#each friendManager.blocked as f (f.user.id)}
             <FriendRow user={f.user}>
               <ContextMenu.Item
                 onclick={() => friendManager.unblock_friend(f.user.id)}
               >
-                Débloquer
+                {$t("FRIENDS.ACTIONS.UNBLOCK")}
               </ContextMenu.Item>
             </FriendRow>
           {/each}
         </FriendsSection>
 
         <FriendsSection
-          label="INVITATIONS ENVOYÉES"
+          label={$t("FRIENDS.SECTIONS.SENT")}
           count={friendManager.sent.length}
-          empty="Aucune invitation envoyée"
+          empty={$t("FRIENDS.EMPTY.SENT")}
         >
           {#each friendManager.sent as f (f.user.id)}
             <FriendRow user={f.user}>
@@ -170,7 +170,7 @@
                 class="text-destructive"
                 onclick={() => friendManager.cancel_invitation(f.user.id)}
               >
-                Annuler l'invitation
+                {$t("FRIENDS.ACTIONS.CANCEL_REQUEST")}
               </ContextMenu.Item>
             </FriendRow>
           {/each}

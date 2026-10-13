@@ -1,8 +1,10 @@
+import { SvelteMap } from 'svelte/reactivity';
 import { authFetch } from '$lib/auth';
+import type { ApiMatch } from './history.svelte';
 
 export class StatManager {
     error = $state('');
-    matches = $state<any[]>([]);
+    matches = $state<ApiMatch[]>([]);
 
     constructor(private readonly playerId?: number) {}
 
@@ -47,7 +49,7 @@ export class StatManager {
     );
 
     frequentOpponents = $derived.by(() => {
-        const map = new Map<number, { name: string; image: string; games: number }>();
+        const map = new SvelteMap<number, { name: string; image: string; games: number }>();
         for (const m of this.matches) {
             const o = m.opponent;
             const e = map.get(o.id) ?? {
@@ -69,7 +71,7 @@ export class StatManager {
             const path = this.playerId === undefined
                 ? '/api/matches'
                 : `/api/matches/user/${this.playerId}`;
-            const matches = [];
+            const matches: ApiMatch[] = [];
             let cursor: number | undefined;
 
             do {

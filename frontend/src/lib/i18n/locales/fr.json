@@ -21,14 +21,16 @@
     "LOGIN_TITLE": "Connexion",
     "REGISTER_TITLE": "Créer un compte",
     "TWOFA_TITLE": "Validation 2FA",
-    "SUBTITLE": "Retrouvez votre chemin sur le tatami.",
+    "SUBTITLE": "Retrouve ton chemin sur le tatami.",
     "EMAIL": "Email",
     "PASSWORD": "Mot de passe",
     "USERNAME": "Nom d’utilisateur",
     "CODE": "Code",
     "LOGIN": "Se connecter",
     "REGISTER": "Créer un compte",
-    "OR": "ou"
+    "OR": "ou",
+    "SHOW_PASSWORD": "Afficher le mot de passe",
+    "HIDE_PASSWORD": "Masquer le mot de passe"
   },
   "NAV": {
     "MAIN": "Navigation principale",
@@ -39,7 +41,7 @@
   },
   "HOME": {
     "PLAY": "Jouer",
-    "SELECT_MODE": "Sélectionne d'abord un mode de jeu.",
+    "SELECT_MODE": "Sélectionne d’abord un mode de jeu.",
     "BOTS": {
       "TITLE": "Choisis ton adversaire",
       "ELO": "≈ {elo} Elo"
@@ -51,21 +53,21 @@
     "NEWS_ITEMS": {
       "SEASON": {
         "TITLE": "Nouvelle saison",
-        "TEXT": "De nouveaux défis vous attendent sur le chemin."
+        "TEXT": "De nouveaux défis t’attendent sur le chemin."
       },
       "TOURNAMENT": {
         "TITLE": "Tournoi du temple",
-        "TEXT": "Affrontez les meilleurs disciples du dojo."
+        "TEXT": "Affronte les meilleurs disciples du dojo."
       },
       "CARDS": {
         "TITLE": "Nouvelles cartes",
-        "TEXT": "Maîtrisez de nouveaux déplacements."
+        "TEXT": "Maîtrise de nouveaux déplacements."
       }
     },
     "MODES": {
       "RANKED": "Parties classées",
       "NORMAL": "Parties normales",
-      "TRAINING": "Défis"
+      "TRAINING": "Entraînement"
     },
     "QUOTE": "Un petit pas déplace un grand destin."
   },
@@ -127,6 +129,7 @@
     }
   },
   "STATS": {
+    "ELO": "Elo",
     "TITLE": "Statistiques globales",
     "SUBTITLE": "Un chemin de discipline, une progression sans fin.",
     "SUMMARY": {
@@ -161,7 +164,7 @@
     "QUOTE": "Chaque partie est une leçon."
   },
   "PROFILE": {
-    "TITLE": "Mon Profil",
+    "TITLE": "Mon profil",
     "SUBTITLE": "Montre ton style et ta patience",
     "QUOTE": "La maîtrise de soi mène à la victoire.",
     "IDENTITY": "Identité",
@@ -186,20 +189,21 @@
       "CHANGE_PASSWORD": "Changer le mot de passe",
       "TWOFA": {
         "HEADING": "Double authentification · 2FA",
-        "SCAN": "Scannez ce QR code avec votre application d’authentification :",
-        "QR_ALT": "Code QR pour la double authentification",
+        "SCAN": "Scanne ce QR code avec ton application d’authentification :",
+        "QR_ALT": "QR code pour la double authentification",
         "CODE": "Code 2FA",
         "VALIDATE": "Valider",
-        "PROTECT": "Protégez votre compte avec la 2FA.",
+        "PROTECT": "Protège ton compte avec la 2FA.",
         "ENABLE": "Activer",
-        "ENABLED": "La double authentification est activée sur votre compte.",
-        "DISABLE_LABEL": "Entrez votre code 2FA pour désactiver",
+        "ENABLED": "La double authentification est activée sur ton compte.",
+        "DISABLE_LABEL": "Entre ton code 2FA pour la désactiver",
         "DISABLE": "Désactiver"
       },
       "RESET": "Réinitialiser les préférences audio et jeu",
       "RESET_HINT": "Les réglages de compte et de sécurité sont conservés."
     },
-    "ELO": "{elo} Elo"
+    "ELO": "{elo} Elo",
+    "AVATAR_ALT": "Avatar de {name}"
   },
   "FRIENDS": {
     "STATUS": {
@@ -208,7 +212,7 @@
       "AWAY": "Absent",
       "OFFLINE": "Hors ligne"
     },
-    "SEARCH_PLACEHOLDER": "Rechercher un ami...",
+    "SEARCH_PLACEHOLDER": "Rechercher un ami…",
     "SEARCH": "Rechercher",
     "MESSAGES": "Messages",
     "ADD_FRIEND": "Ajouter un ami",
@@ -223,7 +227,29 @@
     "SELECT_FRIEND": "Sélectionne un ami pour ouvrir sa conversation.",
     "ADD": "Ajouter",
     "CHAT_EMPTY": "Aucun message. Lance la conversation !",
-    "SCROLL_BOTTOM": "Aller aux derniers messages"
+    "SCROLL_BOTTOM": "Aller aux derniers messages",
+    "CONTACT_USERNAME": "Pseudo du contact",
+    "SECTIONS": {
+      "REQUESTS": "DEMANDES",
+      "FRIENDS": "AMIS",
+      "BLOCKED": "BLOQUÉS",
+      "SENT": "INVITATIONS ENVOYÉES"
+    },
+    "EMPTY": {
+      "REQUESTS": "Aucune demande en attente",
+      "FRIENDS": "Aucun ami pour le moment",
+      "BLOCKED": "Aucun utilisateur bloqué",
+      "SENT": "Aucune invitation envoyée"
+    },
+    "ACTIONS": {
+      "MESSAGE": "Envoyer un message",
+      "BLOCK": "Bloquer",
+      "REMOVE": "Retirer des amis",
+      "UNBLOCK": "Débloquer",
+      "CANCEL_REQUEST": "Annuler l’invitation",
+      "ACCEPT_REQUEST": "Accepter",
+      "DECLINE_REQUEST": "Refuser"
+    }
   },
   "GAME": {
     "HEAD_TITLE": "Onitama · Partie locale",
@@ -329,63 +355,63 @@
     "CRANE": "Grue",
     "BOAR": "Sanglier",
     "EEL": "Anguille",
-    "COBRA": "Serpent"
+    "COBRA": "Cobra"
   },
   "REGISTER": {
-    "ACCEPT_TERMS": "J'ai lu et j'accepte la Politique de confidentialité et les Conditions d'utilisation"
+    "ACCEPT_TERMS": "J’ai lu et j’accepte la Politique de confidentialité et les Conditions d’utilisation"
   },
   "TWOFA": {
-    "HINT": "Entrez le code de votre application ou celui reçu par email.",
+    "HINT": "Entre le code de ton application ou celui reçu par email.",
     "RESEND": "Renvoyer le code par email",
-    "RESENT": "Si votre compte utilise les codes par email, un nouveau code vient d'être envoyé."
+    "RESENT": "Si ton compte utilise les codes par email, un nouveau code vient d’être envoyé."
   },
   "PRIVACY": {
     "TITLE": "Mes données",
-    "SUBTITLE": "Vos données vous appartiennent",
-    "LOGIN_REQUIRED": "Vous devez être connecté pour gérer vos données.",
+    "SUBTITLE": "Tes données t’appartiennent",
+    "LOGIN_REQUIRED": "Tu dois être connecté pour gérer tes données.",
     "EXPORT": "Télécharger mes données",
     "DELETE": "Supprimer mon compte",
-    "DELETE_WARNING": "La suppression de votre compte est immédiate et irréversible. Un lien de confirmation vous sera envoyé par email.",
+    "DELETE_WARNING": "La suppression de ton compte est immédiate et irréversible. Un lien de confirmation te sera envoyé par email.",
     "DELETE_CONFIRM": "Envoyer le lien de confirmation",
     "CANCEL": "Annuler",
-    "STATUS_EXPORTED": "Vos données ont été téléchargées. Un email de confirmation vous a été envoyé.",
-    "STATUS_SENT": "Un lien de confirmation vous a été envoyé par email.",
-    "STATUS_RATE": "Patientez une minute avant de réessayer.",
-    "STATUS_ERROR": "Une erreur est survenue, réessayez plus tard."
+    "STATUS_EXPORTED": "Tes données ont été téléchargées. Un email de confirmation t’a été envoyé.",
+    "STATUS_SENT": "Un lien de confirmation t’a été envoyé par email.",
+    "STATUS_RATE": "Patiente une minute avant de réessayer.",
+    "STATUS_ERROR": "Une erreur est survenue, réessaie plus tard."
   },
   "ACCOUNT_DELETE": {
     "TITLE": "Suppression du compte",
-    "DONE": "Votre compte et toutes ses données ont été supprimés.",
+    "DONE": "Ton compte et toutes ses données ont été supprimés.",
     "INVALID": "Ce lien est invalide ou a expiré."
   },
   "VERIFY_EMAIL": {
-    "TITLE": "Vérification de l'email",
-    "DONE": "Votre adresse email a été vérifiée.",
+    "TITLE": "Vérification de l’email",
+    "DONE": "Ton adresse email a été vérifiée.",
     "INVALID": "Ce lien est invalide ou a expiré."
   },
   "POLICY": {
     "TITLE": "Politique de confidentialité",
     "DATA_TITLE": "Données collectées",
-    "DATA_BODY": "Votre adresse email, votre pseudo et votre avatar, le hash de votre mot de passe, votre secret de double authentification chiffré, vos amitiés, vos messages, vos matchs et votre classement.",
+    "DATA_BODY": "Ton adresse email, ton pseudo et ton avatar, le hash de ton mot de passe, ton secret de double authentification chiffré, tes amitiés, tes messages, tes matchs et ton classement.",
     "PURPOSE_TITLE": "Pourquoi",
-    "PURPOSE_BODY": "Uniquement pour faire tourner le jeu : vous connecter, vous permettre de jouer, de discuter et de suivre votre progression. Vos données ne sont jamais vendues ni utilisées à des fins publicitaires.",
+    "PURPOSE_BODY": "Uniquement pour faire tourner le jeu : te connecter, te permettre de jouer, de discuter et de suivre ta progression. Tes données ne sont jamais vendues ni utilisées à des fins publicitaires.",
     "RETENTION_TITLE": "Durée de conservation",
-    "RETENTION_BODY": "Tant que votre compte existe. Lorsque vous supprimez votre compte, vos données sont effacées immédiatement et de façon irréversible.",
-    "RIGHTS_TITLE": "Vos droits",
-    "RIGHTS_BODY": "Vous pouvez télécharger toutes vos données au format JSON et supprimer votre compte depuis la page « Mes données ». Vous pouvez corriger vos informations depuis votre profil.",
+    "RETENTION_BODY": "Tant que ton compte existe. Lorsque tu supprimes ton compte, tes données sont effacées immédiatement et de façon irréversible.",
+    "RIGHTS_TITLE": "Tes droits",
+    "RIGHTS_BODY": "Tu peux télécharger toutes tes données au format JSON et supprimer ton compte depuis la page « Mes données ». Tu peux corriger tes informations depuis ton profil.",
     "CONTACT_TITLE": "Contact",
-    "CONTACT_BODY": "Pour toute question sur vos données, écrivez à onitama.transcendance@gmail.com."
+    "CONTACT_BODY": "Pour toute question sur tes données, écris à onitama.transcendance@gmail.com."
   },
   "TERMS": {
-    "TITLE": "Conditions d'utilisation",
+    "TITLE": "Conditions d’utilisation",
     "SERVICE_TITLE": "Le service",
-    "SERVICE_BODY": "Onitama est un jeu de plateau en ligne proposé gratuitement dans le cadre d'un projet étudiant. Il est fourni en l'état, sans garantie de disponibilité.",
-    "ACCOUNT_TITLE": "Votre compte",
-    "ACCOUNT_BODY": "Vous êtes responsable de votre compte et de la confidentialité de vos identifiants. Les informations que vous fournissez doivent être exactes.",
+    "SERVICE_BODY": "Onitama est un jeu de plateau en ligne proposé gratuitement dans le cadre d’un projet étudiant. Il est fourni en l’état, sans garantie de disponibilité.",
+    "ACCOUNT_TITLE": "Ton compte",
+    "ACCOUNT_BODY": "Tu es responsable de ton compte et de la confidentialité de tes identifiants. Les informations que tu fournis doivent être exactes.",
     "CONDUCT_TITLE": "Fair-play",
-    "CONDUCT_BODY": "Jouez loyalement et respectez les autres joueurs. La triche, le harcèlement et les messages injurieux sont interdits.",
+    "CONDUCT_BODY": "Joue loyalement et respecte les autres joueurs. La triche, le harcèlement et les messages injurieux sont interdits.",
     "TERMINATION_TITLE": "Fin de compte",
-    "TERMINATION_BODY": "Vous pouvez supprimer votre compte à tout moment depuis la page « Mes données ». Nous pouvons suspendre un compte qui ne respecte pas ces conditions.",
+    "TERMINATION_BODY": "Tu peux supprimer ton compte à tout moment depuis la page « Mes données ». Nous pouvons suspendre un compte qui ne respecte pas ces conditions.",
     "LIABILITY_TITLE": "Responsabilité",
     "LIABILITY_BODY": "Nous ne pouvons être tenus responsables des interruptions de service ni de la perte de données de jeu."
   },
@@ -394,40 +420,40 @@
   },
   "EMAIL_VERIFY": {
     "LABEL": "Adresse email",
-    "HINT": "Votre adresse n'est pas encore vérifiée. La vérifier permet d'utiliser la double authentification par email.",
+    "HINT": "Ton adresse n’est pas encore vérifiée. La vérifier permet d’utiliser la double authentification par email.",
     "SEND": "Envoyer le lien de vérification",
-    "SENT": "Un lien de vérification vous a été envoyé par email.",
+    "SENT": "Un lien de vérification t’a été envoyé par email.",
     "VERIFIED": "Adresse vérifiée"
   },
   "ERRORS": {
-    "EMPTY_FIELDS": "Veuillez remplir tous les champs",
-    "NETWORK_ERROR": "Impossible de joindre le serveur, réessayez plus tard",
+    "EMPTY_FIELDS": "Remplis tous les champs",
+    "NETWORK_ERROR": "Impossible de joindre le serveur, réessaie plus tard",
     "UNKNOWN_ERROR": "Une erreur est survenue",
     "INVALID_CREDENTIALS": "Identifiants incorrects",
-    "INVALID_TOKEN": "Session expirée, veuillez vous reconnecter",
-    "USERNAME_OR_EMAIL_ALREADY_TAKEN": "Ce nom d'utilisateur ou cet email est déjà pris",
+    "INVALID_TOKEN": "Session expirée, reconnecte-toi",
+    "USERNAME_OR_EMAIL_ALREADY_TAKEN": "Ce nom d’utilisateur ou cet email est déjà pris",
     "WEAK_PASSWORD": "Le mot de passe doit contenir 8 caractères min., majuscule, minuscule, chiffre et symbole",
-    "INVALID_USERNAME": "Le nom d'utilisateur doit faire 3 à 24 caractères, lettres et chiffres uniquement",
+    "INVALID_USERNAME": "Le nom d’utilisateur doit faire 3 à 24 caractères, lettres et chiffres uniquement",
     "INVALID_EMAIL": "Adresse email invalide",
     "NO_DATA_UPDATED": "Aucune modification à enregistrer",
-    "PASSWORD_UNCHANGED": "Le nouveau mot de passe doit être différent de l'ancien",
-    "SAME_USERNAME": "Le nouveau nom d'utilisateur est identique à l'ancien",
+    "PASSWORD_UNCHANGED": "Le nouveau mot de passe doit être différent de l’ancien",
+    "SAME_USERNAME": "Le nouveau nom d’utilisateur est identique à l’ancien",
     "NOTE_SAME_PASSWORD": "Les deux mots de passe ne correspondent pas",
-    "INVALID_FILE_TYPE": "L'image doit être au format PNG, JPEG ou WebP (2 Mo max)",
+    "INVALID_FILE_TYPE": "L’image doit être au format PNG, JPEG ou WebP (2 Mo max)",
     "MISSING_FILE": "Aucun fichier sélectionné",
     "FILE_TOO_LARGE": "Le fichier est trop volumineux (2 Mo max)",
     "TWOFA_CODE_REQUIRED": "Un code 2FA est requis",
     "INVALID_TWOFA_CODE": "Code 2FA incorrect",
     "TWOFA_ALREADY_ENABLED": "La 2FA est déjà activée",
-    "TWOFA_NOT_ENABLED": "La 2FA n'est pas activée",
-    "TWOFA_NOT_INITIALIZED": "Lancez d'abord la configuration de la 2FA",
-    "EMAIL_ALREADY_VERIFIED": "Cette adresse email est déjà vérifiée",
-    "EMAIL_NOT_VERIFIED": "Vérifiez d'abord votre adresse email",
-    "MAIL_RATE_LIMITED": "Un email vient d'être envoyé, patientez une minute avant d'en demander un autre",
-    "MAIL_SEND_FAILED": "L'email n'a pas pu être envoyé, réessayez plus tard",
-    "IMPOSSIBLE_REQUEST": "Cette action n'est pas possible",
+    "TWOFA_NOT_ENABLED": "La 2FA n’est pas activée",
+    "TWOFA_NOT_INITIALIZED": "Lance d’abord la configuration de la 2FA",
+    "EMAIL_ALREADY_VERIFIED": "Ton email est déjà vérifié",
+    "EMAIL_NOT_VERIFIED": "Tu dois d’abord vérifier ton email",
+    "MAIL_RATE_LIMITED": "Un email a déjà été envoyé récemment, patiente une minute avant de réessayer",
+    "MAIL_SEND_FAILED": "L’envoi de l’email a échoué, réessaie plus tard",
+    "IMPOSSIBLE_REQUEST": "Cette action n’est pas possible",
     "USER_NOT_FOUND": "Utilisateur introuvable",
-    "FORBIDDEN_CONVERSATION": "Vous n'avez pas accès à cette conversation",
+    "FORBIDDEN_CONVERSATION": "Tu n’as pas accès à cette conversation",
     "EMPTY_MESSAGE": "Le message ne peut pas être vide",
     "INVALID_MESSAGE": "Message invalide (1024 caractères max)",
     "INVALID_CONVERSATION_ID": "Conversation invalide",
@@ -443,18 +469,19 @@
     "FORBIDDEN_MOVE": "Déplacement interdit.",
     "SELECT_CARD": "Sélectionne une carte.",
     "MOVE_AVAILABLE": "Il reste un déplacement possible.",
-    "NOT_FRIENDS": "Vous n'êtes pas amis avec cet utilisateur",
+    "NOT_FRIENDS": "Tu n’es pas ami avec cet utilisateur",
     "GAME_INVITE_ALREADY_SENT": "Une invitation a déjà été envoyée à cet ami",
     "GAME_INVITE_NOT_FOUND": "Invitation introuvable ou expirée",
     "INVALID_QUEUE_MODE": "Mode de jeu invalide",
     "INVALID_GAME_PAYLOAD": "Requête de jeu invalide",
-    "CARD_NOT_IN_HAND": "Cette carte n'est pas dans votre main",
+    "CARD_NOT_IN_HAND": "Cette carte n’est pas dans ta main",
     "ILLEGAL_MOVE": "Coup interdit",
-    "NOT_YOUR_ENTITY": "Cette pièce ne vous appartient pas",
-    "EMPTY_SOURCE_SQUARE": "Il n'y a aucune pièce sur cette case",
-    "DESTINATION_OCCUPIED": "Cette case est déjà occupée par l'une de vos pièces",
+    "NOT_YOUR_ENTITY": "Cette pièce ne t’appartient pas",
+    "EMPTY_SOURCE_SQUARE": "Il n’y a aucune pièce sur cette case",
+    "DESTINATION_OCCUPIED": "Cette case est déjà occupée par l’une de tes pièces",
     "POSITION_OUT_OF_BOUNDS": "Cette case est en dehors du plateau",
-    "CONSENT_REQUIRED": "Vous devez accepter la Politique de confidentialité et les Conditions d'utilisation"
+    "INVALID_PASSWORD": "Mot de passe invalide",
+    "CONSENT_REQUIRED": "Tu dois accepter la Politique de confidentialité et les Conditions d’utilisation"
   },
   "SEARCH": {
     "TITLE": "Rechercher un joueur",

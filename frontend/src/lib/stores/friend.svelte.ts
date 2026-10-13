@@ -1,14 +1,21 @@
 import { authFetch, token } from '$lib/auth';
 
+export type Friendship = {
+	status: string;
+	isSender: boolean | null;
+	conversationId: number | null;
+	user: { id: number; username: string; avatarUrl: string };
+};
+
 export class FriendManager {
-	friends = $state<any[]>([]);
-	friend_requests = $state<any[]>([]);
+	friends = $state<Friendship[]>([]);
+	friend_requests = $state<Friendship[]>([]);
 	username = $state<string>('');
 	email = $state<string>('');
 	to_add = $state<string>('');
 	error = $state<string>('');
-	blocked = $state<any[]>([]);
-	sent = $state<any[]>([]);
+	blocked = $state<Friendship[]>([]);
+	sent = $state<Friendship[]>([]);
 	avatar = $state('');
 
 	async get_user() {
