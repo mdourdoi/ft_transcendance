@@ -357,60 +357,60 @@
     "COBRA": "Cobra"
   },
   "REGISTER": {
-    "ACCEPT_TERMS": "J'ai lu et j'accepte la Politique de confidentialité et les Conditions d'utilisation"
+    "ACCEPT_TERMS": "J’ai lu et j’accepte la Politique de confidentialité et les Conditions d’utilisation"
   },
   "TWOFA": {
-    "HINT": "Entrez le code de votre application ou celui reçu par email.",
+    "HINT": "Entre le code de ton application ou celui reçu par email.",
     "RESEND": "Renvoyer le code par email",
-    "RESENT": "Si votre compte utilise les codes par email, un nouveau code vient d'être envoyé."
+    "RESENT": "Si ton compte utilise les codes par email, un nouveau code vient d’être envoyé."
   },
   "PRIVACY": {
     "TITLE": "Mes données",
-    "SUBTITLE": "Vos données vous appartiennent",
-    "LOGIN_REQUIRED": "Vous devez être connecté pour gérer vos données.",
+    "SUBTITLE": "Tes données t’appartiennent",
+    "LOGIN_REQUIRED": "Tu dois être connecté pour gérer tes données.",
     "EXPORT": "Télécharger mes données",
     "DELETE": "Supprimer mon compte",
-    "DELETE_WARNING": "La suppression de votre compte est immédiate et irréversible. Un lien de confirmation vous sera envoyé par email.",
+    "DELETE_WARNING": "La suppression de ton compte est immédiate et irréversible. Un lien de confirmation te sera envoyé par email.",
     "DELETE_CONFIRM": "Envoyer le lien de confirmation",
     "CANCEL": "Annuler",
-    "STATUS_EXPORTED": "Vos données ont été téléchargées. Un email de confirmation vous a été envoyé.",
-    "STATUS_SENT": "Un lien de confirmation vous a été envoyé par email.",
-    "STATUS_RATE": "Patientez une minute avant de réessayer.",
-    "STATUS_ERROR": "Une erreur est survenue, réessayez plus tard."
+    "STATUS_EXPORTED": "Tes données ont été téléchargées. Un email de confirmation t’a été envoyé.",
+    "STATUS_SENT": "Un lien de confirmation t’a été envoyé par email.",
+    "STATUS_RATE": "Patiente une minute avant de réessayer.",
+    "STATUS_ERROR": "Une erreur est survenue, réessaie plus tard."
   },
   "ACCOUNT_DELETE": {
     "TITLE": "Suppression du compte",
-    "DONE": "Votre compte et toutes ses données ont été supprimés.",
+    "DONE": "Ton compte et toutes ses données ont été supprimés.",
     "INVALID": "Ce lien est invalide ou a expiré."
   },
   "VERIFY_EMAIL": {
-    "TITLE": "Vérification de l'email",
-    "DONE": "Votre adresse email a été vérifiée.",
+    "TITLE": "Vérification de l’email",
+    "DONE": "Ton adresse email a été vérifiée.",
     "INVALID": "Ce lien est invalide ou a expiré."
   },
   "POLICY": {
     "TITLE": "Politique de confidentialité",
     "DATA_TITLE": "Données collectées",
-    "DATA_BODY": "Votre adresse email, votre pseudo et votre avatar, le hash de votre mot de passe, votre secret de double authentification chiffré, vos amitiés, vos messages, vos matchs et votre classement.",
+    "DATA_BODY": "Ton adresse email, ton pseudo et ton avatar, le hash de ton mot de passe, ton secret de double authentification chiffré, tes amitiés, tes messages, tes matchs et ton classement.",
     "PURPOSE_TITLE": "Pourquoi",
-    "PURPOSE_BODY": "Uniquement pour faire tourner le jeu : vous connecter, vous permettre de jouer, de discuter et de suivre votre progression. Vos données ne sont jamais vendues ni utilisées à des fins publicitaires.",
+    "PURPOSE_BODY": "Uniquement pour faire tourner le jeu : te connecter, te permettre de jouer, de discuter et de suivre ta progression. Tes données ne sont jamais vendues ni utilisées à des fins publicitaires.",
     "RETENTION_TITLE": "Durée de conservation",
-    "RETENTION_BODY": "Tant que votre compte existe. Lorsque vous supprimez votre compte, vos données sont effacées immédiatement et de façon irréversible.",
-    "RIGHTS_TITLE": "Vos droits",
-    "RIGHTS_BODY": "Vous pouvez télécharger toutes vos données au format JSON et supprimer votre compte depuis la page « Mes données ». Vous pouvez corriger vos informations depuis votre profil.",
+    "RETENTION_BODY": "Tant que ton compte existe. Lorsque tu supprimes ton compte, tes données sont effacées immédiatement et de façon irréversible.",
+    "RIGHTS_TITLE": "Tes droits",
+    "RIGHTS_BODY": "Tu peux télécharger toutes tes données au format JSON et supprimer ton compte depuis la page « Mes données ». Tu peux corriger tes informations depuis ton profil.",
     "CONTACT_TITLE": "Contact",
-    "CONTACT_BODY": "Pour toute question sur vos données, écrivez à onitama.transcendance@gmail.com."
+    "CONTACT_BODY": "Pour toute question sur tes données, écris à onitama.transcendance@gmail.com."
   },
   "TERMS": {
-    "TITLE": "Conditions d'utilisation",
+    "TITLE": "Conditions d’utilisation",
     "SERVICE_TITLE": "Le service",
-    "SERVICE_BODY": "Onitama est un jeu de plateau en ligne proposé gratuitement dans le cadre d'un projet étudiant. Il est fourni en l'état, sans garantie de disponibilité.",
-    "ACCOUNT_TITLE": "Votre compte",
-    "ACCOUNT_BODY": "Vous êtes responsable de votre compte et de la confidentialité de vos identifiants. Les informations que vous fournissez doivent être exactes.",
+    "SERVICE_BODY": "Onitama est un jeu de plateau en ligne proposé gratuitement dans le cadre d’un projet étudiant. Il est fourni en l’état, sans garantie de disponibilité.",
+    "ACCOUNT_TITLE": "Ton compte",
+    "ACCOUNT_BODY": "Tu es responsable de ton compte et de la confidentialité de tes identifiants. Les informations que tu fournis doivent être exactes.",
     "CONDUCT_TITLE": "Fair-play",
-    "CONDUCT_BODY": "Jouez loyalement et respectez les autres joueurs. La triche, le harcèlement et les messages injurieux sont interdits.",
+    "CONDUCT_BODY": "Joue loyalement et respecte les autres joueurs. La triche, le harcèlement et les messages injurieux sont interdits.",
     "TERMINATION_TITLE": "Fin de compte",
-    "TERMINATION_BODY": "Vous pouvez supprimer votre compte à tout moment depuis la page « Mes données ». Nous pouvons suspendre un compte qui ne respecte pas ces conditions.",
+    "TERMINATION_BODY": "Tu peux supprimer ton compte à tout moment depuis la page « Mes données ». Nous pouvons suspendre un compte qui ne respecte pas ces conditions.",
     "LIABILITY_TITLE": "Responsabilité",
     "LIABILITY_BODY": "Nous ne pouvons être tenus responsables des interruptions de service ni de la perte de données de jeu."
   },
@@ -419,9 +419,9 @@
   },
   "EMAIL_VERIFY": {
     "LABEL": "Adresse email",
-    "HINT": "Votre adresse n'est pas encore vérifiée. La vérifier permet d'utiliser la double authentification par email.",
+    "HINT": "Ton adresse n’est pas encore vérifiée. La vérifier permet d’utiliser la double authentification par email.",
     "SEND": "Envoyer le lien de vérification",
-    "SENT": "Un lien de vérification vous a été envoyé par email.",
+    "SENT": "Un lien de vérification t’a été envoyé par email.",
     "VERIFIED": "Adresse vérifiée"
   },
   "ERRORS": {

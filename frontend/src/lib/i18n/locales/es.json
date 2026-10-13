@@ -356,6 +356,74 @@
     "EEL": "Anguila",
     "COBRA": "Cobra"
   },
+  "REGISTER": {
+    "ACCEPT_TERMS": "He leído y acepto la Política de privacidad y las Condiciones de uso"
+  },
+  "TWOFA": {
+    "HINT": "Introduce el código de tu aplicación o el que has recibido por correo.",
+    "RESEND": "Reenviar el código por correo",
+    "RESENT": "Si tu cuenta usa los códigos por correo, se acaba de enviar uno nuevo."
+  },
+  "PRIVACY": {
+    "TITLE": "Mis datos",
+    "SUBTITLE": "Tus datos te pertenecen",
+    "LOGIN_REQUIRED": "Debes iniciar sesión para gestionar tus datos.",
+    "EXPORT": "Descargar mis datos",
+    "DELETE": "Eliminar mi cuenta",
+    "DELETE_WARNING": "La eliminación de tu cuenta es inmediata e irreversible. Se te enviará un enlace de confirmación por correo.",
+    "DELETE_CONFIRM": "Enviar el enlace de confirmación",
+    "CANCEL": "Cancelar",
+    "STATUS_EXPORTED": "Tus datos se han descargado. Se te ha enviado un correo de confirmación.",
+    "STATUS_SENT": "Se te ha enviado un enlace de confirmación por correo.",
+    "STATUS_RATE": "Espera un minuto antes de volver a intentarlo.",
+    "STATUS_ERROR": "Se ha producido un error, inténtalo más tarde."
+  },
+  "ACCOUNT_DELETE": {
+    "TITLE": "Eliminación de la cuenta",
+    "DONE": "Tu cuenta y todos sus datos han sido eliminados.",
+    "INVALID": "Este enlace no es válido o ha caducado."
+  },
+  "VERIFY_EMAIL": {
+    "TITLE": "Verificación del correo",
+    "DONE": "Tu dirección de correo ha sido verificada.",
+    "INVALID": "Este enlace no es válido o ha caducado."
+  },
+  "POLICY": {
+    "TITLE": "Política de privacidad",
+    "DATA_TITLE": "Datos recopilados",
+    "DATA_BODY": "Tu dirección de correo, tu nombre de usuario y tu avatar, el hash de tu contraseña, tu secreto de doble autenticación cifrado, tus amistades, tus mensajes, tus partidas y tu clasificación.",
+    "PURPOSE_TITLE": "Por qué",
+    "PURPOSE_BODY": "Únicamente para hacer funcionar el juego: iniciar tu sesión, permitirte jugar, chatear y seguir tu progreso. Tus datos nunca se venden ni se usan con fines publicitarios.",
+    "RETENTION_TITLE": "Tiempo de conservación",
+    "RETENTION_BODY": "Mientras exista tu cuenta. Cuando eliminas tu cuenta, tus datos se borran de forma inmediata e irreversible.",
+    "RIGHTS_TITLE": "Tus derechos",
+    "RIGHTS_BODY": "Puedes descargar todos tus datos en formato JSON y eliminar tu cuenta desde la página «Mis datos». Puedes corregir tu información desde tu perfil.",
+    "CONTACT_TITLE": "Contacto",
+    "CONTACT_BODY": "Para cualquier pregunta sobre tus datos, escribe a onitama.transcendance@gmail.com."
+  },
+  "TERMS": {
+    "TITLE": "Condiciones de uso",
+    "SERVICE_TITLE": "El servicio",
+    "SERVICE_BODY": "Onitama es un juego de mesa en línea ofrecido gratuitamente en el marco de un proyecto estudiantil. Se proporciona tal cual, sin garantía de disponibilidad.",
+    "ACCOUNT_TITLE": "Tu cuenta",
+    "ACCOUNT_BODY": "Eres responsable de tu cuenta y de la confidencialidad de tus credenciales. La información que proporcionas debe ser exacta.",
+    "CONDUCT_TITLE": "Juego limpio",
+    "CONDUCT_BODY": "Juega limpio y respeta a los demás jugadores. Las trampas, el acoso y los mensajes ofensivos están prohibidos.",
+    "TERMINATION_TITLE": "Fin de la cuenta",
+    "TERMINATION_BODY": "Puedes eliminar tu cuenta en cualquier momento desde la página «Mis datos». Podemos suspender una cuenta que no respete estas condiciones.",
+    "LIABILITY_TITLE": "Responsabilidad",
+    "LIABILITY_BODY": "No podemos ser considerados responsables de las interrupciones del servicio ni de la pérdida de datos de juego."
+  },
+  "LEGAL": {
+    "UPDATED": "Última actualización: 6 de octubre de 2026"
+  },
+  "EMAIL_VERIFY": {
+    "LABEL": "Dirección de correo",
+    "HINT": "Tu dirección aún no está verificada. Verificarla permite usar la doble autenticación por correo.",
+    "SEND": "Enviar el enlace de verificación",
+    "SENT": "Se te ha enviado un enlace de verificación por correo.",
+    "VERIFIED": "Dirección verificada"
+  },
   "ERRORS": {
     "EMPTY_FIELDS": "Por favor, rellena todos los campos",
     "NETWORK_ERROR": "No se puede contactar con el servidor, inténtalo más tarde",
@@ -411,7 +479,8 @@
     "EMPTY_SOURCE_SQUARE": "No hay ninguna pieza en esta casilla",
     "DESTINATION_OCCUPIED": "Esta casilla ya está ocupada por una de tus piezas",
     "POSITION_OUT_OF_BOUNDS": "Esta casilla está fuera del tablero",
-    "INVALID_PASSWORD": "Contraseña no válida"
+    "INVALID_PASSWORD": "Contraseña no válida",
+    "CONSENT_REQUIRED": "Debes aceptar la Política de privacidad y las Condiciones de uso"
   },
   "SEARCH": {
     "TITLE": "Buscar un jugador",
