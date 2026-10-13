@@ -4,6 +4,7 @@
   import { Label } from "$lib/components/ui/label";
   import { Separator } from "$lib/components/ui/separator";
   import { t } from "$lib/i18n";
+  import { navigate } from "$lib/router";
   import { profilManager } from "$lib/stores/profil.svelte";
 
   function translateError(code: string): string {
@@ -18,6 +19,34 @@
   <h3 id="account-heading" class="font-display text-lg">
     {$t("PROFILE.SETTINGS.ACCOUNT")}
   </h3>
+  <div class="flex flex-col gap-2">
+    <span class="text-sm font-semibold">{$t("EMAIL_VERIFY.LABEL")}</span>
+    <p class="text-sm text-muted-foreground">{profilManager.email}</p>
+    {#if profilManager.email_verified}
+      <p class="text-sm font-medium text-emerald-600">
+        ✓ {$t("EMAIL_VERIFY.VERIFIED")}
+      </p>
+    {:else}
+      <p class="text-sm text-muted-foreground">{$t("EMAIL_VERIFY.HINT")}</p>
+      <Button
+        variant="secondary"
+        class="self-start"
+        onclick={() => profilManager.request_email_verification()}
+        >{$t("EMAIL_VERIFY.SEND")}</Button
+      >
+      {#if profilManager.email_status}
+        <p role="status" class="text-sm font-medium text-emerald-600">
+          {$t(`EMAIL_VERIFY.${profilManager.email_status}`)}
+        </p>
+      {/if}
+      {#if profilManager.error_email}
+        <p role="alert" class="text-sm text-destructive">
+          {translateError(profilManager.error_email)}
+        </p>
+      {/if}
+    {/if}
+  </div>
+  <Separator />
   <form
     class="flex flex-col gap-2"
     onsubmit={(e) => profilManager.change_username(e)}
@@ -109,4 +138,11 @@
       {/if}
     </fieldset>
   </form>
+  <Separator />
+  <Button
+    variant="outline"
+    class="self-start"
+    onclick={() => navigate("/privacy", { useAnimation: true })}
+    >{$t("PRIVACY.TITLE")}</Button
+  >
 </section>

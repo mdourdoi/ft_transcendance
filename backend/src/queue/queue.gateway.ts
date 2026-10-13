@@ -1,4 +1,5 @@
 import { Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
 import {
   ConnectedSocket,
@@ -20,6 +21,7 @@ import {
   requireSocketUser,
 } from '../common/socket-auth.js';
 import { MatchesService } from '../matches/matches.service.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 import { UsersService } from '../users/users.service.js';
 import { JoinQueueDto } from './dto/join-queue.dto.js';
 import { MatchmakingService } from './matchmaking.service.js';
@@ -44,6 +46,7 @@ export class QueueGateway
 
   constructor(
     private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
     private readonly usersService: UsersService,
     private readonly matchesService: MatchesService,
     private readonly queueService: QueueService,
@@ -60,12 +63,23 @@ export class QueueGateway
     clearInterval(this.tickInterval);
   }
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     try {
-      authenticateSocket(this.jwtService, client);
+      const userId = await authenticateSocket(
+        this.jwtService,
+        this.prisma,
+        client,
+      );
+      await client.join(`user:${userId}`);
     } catch {
       client.disconnect(true);
     }
+  }
+
+  @OnEvent('user.deleted')
+  async handleUserDeleted(userId: number) {
+    await this.queueService.leaveAllModes(userId);
+    this.server.in(`user:${userId}`).disconnectSockets(true);
   }
 
   async handleDisconnect(client: Socket) {

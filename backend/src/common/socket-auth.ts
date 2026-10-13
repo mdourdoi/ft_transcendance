@@ -2,17 +2,27 @@ import { JwtService } from '@nestjs/jwt';
 import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { JwtPayload } from '../auth/types/jwt-payload.interface.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 import { ErrorCode } from './error-codes.js';
 
 const expiryTimers = new Map<string, NodeJS.Timeout>();
 
-export function authenticateSocket(
+export async function authenticateSocket(
   jwtService: JwtService,
+  prisma: PrismaService,
   client: Socket,
-): number {
+): Promise<number> {
   const payload = jwtService.verify<JwtPayload>(extractSocketToken(client));
   client.data.userId = payload.sub;
-  if (payload.exp) {
+  const exists = await prisma.user.findUnique({
+    where: { id: payload.sub },
+    select: { id: true },
+  });
+  if (!exists) {
+    client.data.userId = undefined;
+    throw new WsException(ErrorCode.INVALID_TOKEN);
+  }
+  if (payload.exp && client.connected) {
     expiryTimers.set(
       client.id,
       setTimeout(

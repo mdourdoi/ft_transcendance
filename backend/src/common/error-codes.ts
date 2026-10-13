@@ -46,6 +46,7 @@ export const ErrorCode = {
   MAIL_SEND_FAILED: 'MAIL_SEND_FAILED',
   EMAIL_NOT_VERIFIED: 'EMAIL_NOT_VERIFIED',
   EMAIL_ALREADY_VERIFIED: 'EMAIL_ALREADY_VERIFIED',
+  CONSENT_REQUIRED: 'CONSENT_REQUIRED',
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
