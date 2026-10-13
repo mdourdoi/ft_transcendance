@@ -5,14 +5,16 @@
 	let {
 		type = 'button',
 		class: className = '',
+		disabled = false,
 		onclick,
 		children,
-	}: { type?: 'button' | 'submit'; class?: string; onclick?: () => void; children: Snippet } = $props();
+	}: { type?: 'button' | 'submit'; class?: string; disabled?: boolean; onclick?: () => void; children: Snippet } = $props();
 </script>
 
 <button
 	{type}
-	class="group absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100 left-[calc(50%-175px)] relative w-[340px] h-[60px] flex items-center justify-center {className}"
+	{disabled}
+	class="group absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100 left-[calc(50%-175px)] relative w-[340px] h-[60px] flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed {className}"
 	style="background: transparent !important; box-shadow: none !important;"
 	{onclick}
 >

@@ -22,6 +22,7 @@
  *   API_URL=https://localhost:8443/api   cible (défaut, à travers le waf)
  *   BACKEND_CONTAINER=transcendance-backend
  *   DB_CONTAINER=transcendance-db
+ *   REDIS_CONTAINER=transcendance-redis
  *   VERBOSE=1                            affiche le corps de chaque réponse et chaque mail capturé
  *
  * Légende de la sortie :
@@ -35,6 +36,7 @@ import { generate } from 'otplib';
 const API = process.env.API_URL ?? 'https://localhost:8443/api';
 const BACKEND = process.env.BACKEND_CONTAINER ?? 'transcendance-backend';
 const DB = process.env.DB_CONTAINER ?? 'transcendance-db';
+const REDIS = process.env.REDIS_CONTAINER ?? 'transcendance-redis';
 const VERBOSE = !!process.env.VERBOSE;
 const RUN = Date.now().toString(36);
 const PASSWORD = 'Passw0rd!';
@@ -238,6 +240,7 @@ function openSocket(namespace, token) {
     close: () => ws.close(),
   };
 }
+
 
 const START = new Date().toISOString();
 const stripAnsi = (s) => s.replace(/\x1b\[[0-9;]*m/g, '');
@@ -1155,7 +1158,7 @@ await test("L'ancien JWT de bob ne permet plus d'écrire", {
   as: bob,
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: alice.id },
+  body: { username: alice.username },
   status: 401,
 });
 const ghostChat = openSocket('', bob.token);

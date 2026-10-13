@@ -421,9 +421,9 @@
     "TWOFA_ALREADY_ENABLED": "2FA is already enabled",
     "TWOFA_NOT_ENABLED": "2FA is not enabled",
     "TWOFA_NOT_INITIALIZED": "Start the 2FA setup first",
-    "EMAIL_ALREADY_VERIFIED": "Your email is already verified",
-    "EMAIL_NOT_VERIFIED": "You must verify your email first",
-    "MAIL_RATE_LIMITED": "An email was sent recently. Please wait a minute before retrying",
+    "EMAIL_ALREADY_VERIFIED": "This email address is already verified",
+    "EMAIL_NOT_VERIFIED": "Verify your email address first",
+    "MAIL_RATE_LIMITED": "An email was just sent, please wait a minute before asking for another one",
     "MAIL_SEND_FAILED": "The email could not be sent, please try again later",
     "IMPOSSIBLE_REQUEST": "This action is not possible",
     "USER_NOT_FOUND": "User not found",
@@ -453,7 +453,8 @@
     "NOT_YOUR_ENTITY": "This piece does not belong to you",
     "EMPTY_SOURCE_SQUARE": "There is no piece on this square",
     "DESTINATION_OCCUPIED": "This square is already occupied by one of your pieces",
-    "POSITION_OUT_OF_BOUNDS": "This square is outside the board"
+    "POSITION_OUT_OF_BOUNDS": "This square is outside the board",
+    "CONSENT_REQUIRED": "You must accept the Privacy Policy and the Terms of Use"
   },
   "SEARCH": {
     "TITLE": "Search for a player",

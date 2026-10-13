@@ -18,6 +18,8 @@ export class ProfilManager {
     email_verified = $state(false);
     email_status = $state('');
     error_email = $state('');
+    avatarUrl = $state<string | null>(null);
+    rating = $state<number | null>(null);
 
     able_two_fa() {
         this.is_2fa_enabled = true;
@@ -66,6 +68,7 @@ export class ProfilManager {
             }
             this.username = data.username;
             this.email = data.email;
+            this.email_verified = Boolean(data.emailVerifiedAt);
             this.avatarUrl = data.avatarUrl;
             this.rating = data.rating;
             const is2fa = data.isTwoFactorEnabled ?? data.isTwoFactorAuthEnabled ?? data.twoFactorEnabled;

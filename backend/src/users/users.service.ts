@@ -221,6 +221,7 @@ export class UsersService {
     if (!userId) throw new BadRequestException(ErrorCode.INVALID_TOKEN);
 
     const user = await this.prisma.user.delete({ where: { id: userId } });
+    this.events.emit('user.deleted', user.id);
     if (user.avatarUrl !== DEFAULT_AVATAR_FILENAME) {
       await this.removeAvatarFile(user.avatarUrl);
     }
@@ -335,7 +336,7 @@ export class UsersService {
       matches: [
         ...row.matchesAsPlayerOne.map((m) => ({
           ...m,
-          opponent: m.playerTwo.username,
+          opponent: m.playerTwo?.username ?? null,
         })),
         ...row.matchesAsPlayerTwo.map((m) => ({
           ...m,

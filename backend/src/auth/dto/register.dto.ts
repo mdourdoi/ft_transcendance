@@ -1,6 +1,7 @@
 import { Transform } from 'class-transformer';
 import {
   Equals,
+  IsAlphanumeric,
   IsBoolean,
   IsEmail,
   IsString,

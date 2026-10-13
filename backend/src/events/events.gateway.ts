@@ -10,15 +10,17 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 import { Socket, Server } from 'socket.io';
+import { resolveCorsOrigin } from '../common/cors.js';
+import { authenticateSocket, releaseSocket } from '../common/socket-auth.js';
 import { FriendshipsService } from '../friendships/friendships.service.js';
 import { FriendshipStatus } from '../generated/prisma/client.js';
 import { MessageDto } from '../messages/dto/message.dto.js';
-import { plainToInstance } from 'class-transformer';
-import { validate } from 'class-validator';
-import { OnEvent } from '@nestjs/event-emitter';
-import { resolveCorsOrigin } from '../common/cors.js';
-import { authenticateSocket, releaseSocket } from '../common/socket-auth.js';
+import { MessagesService } from '../messages/messages.service.js';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { SendMessageDto } from './dto/send-message.dto.js';
 
 @WebSocketGateway({ cors: { origin: resolveCorsOrigin } })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -130,6 +132,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       throw e;
     }
     return { ok: true, message };
+  }
+
+  @OnEvent('user.deleted')
+  handleUserDeleted(userId: number) {
+    this.server.in(`user:${userId}`).disconnectSockets(true);
   }
 
   @OnEvent('friendship.requested')

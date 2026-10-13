@@ -22,12 +22,12 @@
 	let username = $state('');
 	let error = $state('');
 	let loading = false;
-	let acceptTerms = false;
-	let notice = '';
+	let acceptTerms = $state(false);
+	let notice = $state('');
 
 	const passwordType = $derived(hidden ? 'password' : 'text');
 
-	async function post(path: string, body: Record<string, string>) {
+	async function post(path: string, body: Record<string, string | boolean>) {
 		try {
 			const res = await fetch(path, {
 				method: 'POST',
@@ -64,30 +64,14 @@
             return;
         }
 		if (!/^[a-zA-Z0-9]{3,24}$/.test(username)) {
-		error = 'INVALID_USERNAME';
-		return;
-	}
+			error = 'INVALID_USERNAME';
+			return;
+		}
 		if (!acceptTerms) {
 			error = 'CONSENT_REQUIRED';
 			return;
 		}
-		try {
-			const res = await fetch('/api/auth/register', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ email: email, username: username, password: password, acceptTerms: true })
-			});
-			const data = await res.json();
-			if (!res.ok) {
-				const errorCode = Array.isArray(data.message) ? data.message[0]: data.message ?? 'UNKNOWN_ERROR';
-				error = errorCode;
-				return ;
-			}
-			selectMode('login');
-		} catch (err) {
-			error = 'NETWORK_ERROR';
-		}
-		if (await post('/api/auth/register', { email, username, password }))
+		if (await post('/api/auth/register', { email, username, password, acceptTerms: true }))
 			selectMode('login');
 	}
 
@@ -96,26 +80,11 @@
 			error = 'EMPTY_FIELDS';
 			return;
 		}
-		try {
-			const res = await fetch('/api/auth/login', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ email: email, password: password })
-			});
-			const data = await res.json();
-			if (!res.ok) {
-				const errorCode = Array.isArray(data.message) ? data.message[0]: data.message ?? 'UNKNOWN_ERROR';
-				error = errorCode;
-				if (error === 'TWOFA_CODE_REQUIRED' || error === 'MAIL_RATE_LIMITED') selectMode('2fa');
-				return ;
-			}
-			password = '';
-			email = '';
-			token.set(data.accessToken);
-			home();
-		} catch (err) {
-			error = 'NETWORK_ERROR';
-		}
+		const data = await post('/api/auth/login', { email, password });
+		if (data)
+			enter(data.accessToken);
+		else if (error === 'TWOFA_CODE_REQUIRED' || error === 'MAIL_RATE_LIMITED')
+			selectMode('2fa');
 	}
 
 	async function connectTwoFa() {
@@ -153,7 +122,7 @@
 		}
 	}
 
-	function selectMode(mode: string) {
+	function selectMode(mode: Step) {
 		currentStep = mode;
 		error = '';
 		notice = '';
@@ -225,13 +194,24 @@
 	<AuthField type={passwordType} bind:value={password2} placeholder={$t('AUTH.PASSWORD')} icon={logopassword} class="top-[115px]" iconClass="top-[352px]">
 		<PasswordToggle bind:hidden class="top-[65px]" ontoggle={() => (error = '')} />
 	</AuthField>
-	<AuthButton type="submit" class="top-[70px]">{$t('AUTH.REGISTER')}</AuthButton>
-	<AuthDivider lineClass="top-[475px]" textClass="top-[465px]" />
-	<AuthButton class="top-[100px]" onclick={() => selectMode('login')}>{$t('AUTH.LOGIN')}</AuthButton>
+	<AuthButton type="submit" class="top-[110px]" disabled={!acceptTerms}>{$t('AUTH.REGISTER')}</AuthButton>
+	<AuthDivider lineClass="top-[515px]" textClass="top-[505px]" />
+	<AuthButton class="top-[140px]" onclick={() => selectMode('login')}>{$t('AUTH.LOGIN')}</AuthButton>
+	<div class="absolute top-[402px] left-[calc(50%-170px)] w-[340px] flex flex-col items-center text-black text-xs">
+		<label class="flex items-start gap-2 text-left">
+			<input type="checkbox" bind:checked={acceptTerms} class="mt-0.5 accent-black" />
+			<span>{$t('REGISTER.ACCEPT_TERMS')}</span>
+		</label>
+		<p>
+			<a href="/privacy-policy" target="_blank" rel="noopener" class="underline">{$t('POLICY.TITLE')}</a>
+			·
+			<a href="/terms" target="_blank" rel="noopener" class="underline">{$t('TERMS.TITLE')}</a>
+		</p>
+	</div>
 </AuthForm>
 
 	{:else}
-	<AuthForm title={$t('AUTH.TWOFA_TITLE')} onsubmit={handleSubmit}>
+	<AuthForm title={$t('AUTH.TWOFA_TITLE')} hint={$t('TWOFA.HINT')} onsubmit={handleSubmit}>
 		<AuthField bind:value={twofa} placeholder={$t('AUTH.CODE')} icon={logopassword} class="top-[160px]" iconClass="top-[170px]" />
 		<AuthField type="email" bind:value={email} placeholder={$t('AUTH.EMAIL')} icon={logomail} class="top-[160px]" iconClass="top-[235px]" />
 		<AuthField type={passwordType} bind:value={password} placeholder={$t('AUTH.PASSWORD')} icon={logopassword} class="top-[160px]" iconClass="top-[292px]">
@@ -240,6 +220,15 @@
 		<AuthButton type="submit" class="top-[130px]">{$t('AUTH.LOGIN')}</AuthButton>
 		<AuthDivider lineClass="top-[435px]" textClass="top-[425px]" />
 		<AuthButton class="top-[180px]" onclick={() => selectMode('login')}>{$t('COMMON.BACK')}</AuthButton>
+		<button
+			type="button"
+			class="absolute !bg-transparent !border-none !p-0 !shadow-none !outline-none hover:!bg-transparent hover:!scale-100
+				top-[178px] left-[calc(50%-170px)] relative w-[340px] !text-sm !normal-case !tracking-normal !text-black underline"
+			style="background: transparent !important; box-shadow: none !important;"
+			onclick={resendCode}
+		>
+			{$t('TWOFA.RESEND')}
+		</button>
 	</AuthForm>
 	{/if}
 </main>

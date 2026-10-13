@@ -5,7 +5,7 @@
  * Tape sur une API qui tourne vraiment (pas de mock) et crée ses propres comptes à
  * chaque exécution, donc relançable à volonté. Les comptes créés restent en base.
  *
- * Lancer (Node >= 18, pour fetch) :
+ * Lancer (Node >= 22, pour fetch et WebSocket) :
  *   docker compose up -d --build
  *   node backend/test/api.e2e.mjs
  *
@@ -375,7 +375,7 @@ await test('Lister ses amis avec un jeton forgé', {
 await test('Envoyer une demande sans jeton', {
   method: 'POST',
   path: '/friendships/send',
-  body: { targetId: bob.id },
+  body: { username: bob.username },
   status: 401,
 });
 await test('Lire une conversation sans jeton', {
@@ -725,7 +725,7 @@ await test('Conversation inexistante', {
   path: `/conversations/${NOPE}/messages`,
   status: 403,
 });
-await test("conversationId non numérique dans l'URL", {
+await test("conversationId non numérique dans l’URL", {
   as: alice,
   path: '/conversations/abc/messages',
   status: 400,
@@ -839,7 +839,7 @@ const initial = before.body?.items?.length ?? 0;
     if (!ack?.ok) bad.push(ack?.error);
   }
   report(
-    `bob envoie 25 messages d'affilée (${initial} déjà présents)`,
+    `bob envoie 25 messages d’affilée (${initial} déjà présents)`,
     `WS sendMessage · bob · ×25`,
     [{ label: '25 × accepté', ok: bad.length === 0, got: bad.join(',') }],
   );
@@ -974,7 +974,7 @@ report(
     { label: 'message créé', ok: foreign?.ok === true, got: foreign?.error },
   ],
 );
-await test("Curseur d'une autre conversation → ignoré, retombe sur la page 1", {
+await test("Curseur d’une autre conversation → ignoré, retombe sur la page 1", {
   as: bob,
   path: `/conversations/${convAB}/messages?cursor=${foreign?.message?.id}`,
   status: 200,
@@ -1008,7 +1008,7 @@ await test('bob (bloqué) tente de lire → refusé', {
   status: 403,
 });
 await test(
-  "alice n'a plus accès non plus (historique supprimé, choix assumé §5)",
+  "alice n’a plus accès non plus (historique supprimé, choix assumé §5)",
   {
     as: alice,
     path: `/conversations/${convAB}/messages`,

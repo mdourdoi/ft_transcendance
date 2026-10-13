@@ -18,7 +18,6 @@ import { QueueModule } from './queue/queue.module.js';
 import { RedisModule } from './redis/redis.module.js';
 import { TwofaModule } from './twofa/twofa.module.js';
 import { UsersModule } from './users/users.module.js';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -42,7 +41,6 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     GameInvitesModule,
     BotsModule,
     EventsModule,
-    EventEmitterModule.forRoot(),
   ],
 })
 export class AppModule {}

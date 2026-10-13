@@ -3,6 +3,7 @@
   import Home_main from "./routes/Home_main.svelte";
   import Game from "./routes/Game.svelte";
   import NotFound from "./routes/NotFound.svelte";
+  import Log from "./routes/Log.svelte";
   import LocaleSwitcher from "$lib/components/LocaleSwitcher.svelte";
   import LegalFooter from "$lib/components/LegalFooter.svelte";
   import PageTransition from "$lib/components/PageTransition.svelte";
@@ -15,10 +16,10 @@
   import VerifyEmail from "./routes/VerifyEmail.svelte";
   import Terms from "./routes/Terms.svelte";
 
-const publicPaths = ["/", "/account/delete", "/verify-email", "/privacy-policy", "/terms"];
+  const publicPaths = ["/", "/account/delete", "/verify-email", "/privacy-policy", "/terms"];
 
   $effect(() => {
-    const connected = $token !== "";
+    const connected = !!$token;
     const expired = connected && isTokenExpired($token);
     const isPublic = publicPaths.includes($path);
 

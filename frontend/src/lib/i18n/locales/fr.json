@@ -421,10 +421,10 @@
     "TWOFA_ALREADY_ENABLED": "La 2FA est déjà activée",
     "TWOFA_NOT_ENABLED": "La 2FA n'est pas activée",
     "TWOFA_NOT_INITIALIZED": "Lancez d'abord la configuration de la 2FA",
-    "EMAIL_ALREADY_VERIFIED": "Votre email est déjà vérifié",
-    "EMAIL_NOT_VERIFIED": "Vous devez d'abord vérifier votre email",
-    "MAIL_RATE_LIMITED": "Un email a déjà été envoyé récemment, patientez une minute avant de réessayer",
-    "MAIL_SEND_FAILED": "L'envoi de l'email a échoué, réessayez plus tard",
+    "EMAIL_ALREADY_VERIFIED": "Cette adresse email est déjà vérifiée",
+    "EMAIL_NOT_VERIFIED": "Vérifiez d'abord votre adresse email",
+    "MAIL_RATE_LIMITED": "Un email vient d'être envoyé, patientez une minute avant d'en demander un autre",
+    "MAIL_SEND_FAILED": "L'email n'a pas pu être envoyé, réessayez plus tard",
     "IMPOSSIBLE_REQUEST": "Cette action n'est pas possible",
     "USER_NOT_FOUND": "Utilisateur introuvable",
     "FORBIDDEN_CONVERSATION": "Vous n'avez pas accès à cette conversation",
@@ -453,7 +453,8 @@
     "NOT_YOUR_ENTITY": "Cette pièce ne vous appartient pas",
     "EMPTY_SOURCE_SQUARE": "Il n'y a aucune pièce sur cette case",
     "DESTINATION_OCCUPIED": "Cette case est déjà occupée par l'une de vos pièces",
-    "POSITION_OUT_OF_BOUNDS": "Cette case est en dehors du plateau"
+    "POSITION_OUT_OF_BOUNDS": "Cette case est en dehors du plateau",
+    "CONSENT_REQUIRED": "Vous devez accepter la Politique de confidentialité et les Conditions d'utilisation"
   },
   "SEARCH": {
     "TITLE": "Rechercher un joueur",

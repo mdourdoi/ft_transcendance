@@ -49,6 +49,15 @@ export class FriendManager {
 		}
 	}
 
+	async refresh() {
+		await Promise.all([
+			this.get_friends(),
+			this.friendships_requests(),
+			this.get_blocked(),
+			this.sented_requests()
+		]);
+	}
+
 	async get_blocked() {
 		this.error = '';
 		try {
@@ -134,7 +143,7 @@ export class FriendManager {
 			await this.friendships_requests();
 		} catch (err) {
 			this.error = err instanceof Error ? err.message : String(err);
-			await this.friendships_requests();
+			await this.refresh();
 		}
 	}
 
@@ -155,7 +164,7 @@ export class FriendManager {
 			await this.friendships_requests();
 		} catch (err) {
 			this.error = err instanceof Error ? err.message : String(err);
-			await this.friendships_requests();
+			await this.refresh();
 		}
 	}
 
@@ -244,14 +253,24 @@ export class FriendManager {
 
 export const friendManager = new FriendManager();
 
+import { get } from 'svelte/store';
+
+// Socket events cover most changes; polling picks up anything missed.
+const REFRESH_INTERVAL_MS = 30_000;
+let refreshTimer: ReturnType<typeof setInterval> | null = null;
+
 token.subscribe((value) => {
+	if (refreshTimer) clearInterval(refreshTimer);
+	refreshTimer = null;
 	if (!value) {
 		friendManager.reset();
 	} else {
 		friendManager.get_user();
-		friendManager.get_friends();
-		friendManager.friendships_requests();
-		friendManager.get_blocked();
-		friendManager.sented_requests();
+		friendManager.refresh();
+		refreshTimer = setInterval(() => friendManager.refresh(), REFRESH_INTERVAL_MS);
 	}
+});
+
+document.addEventListener('visibilitychange', () => {
+	if (document.visibilityState === 'visible' && get(token)) friendManager.refresh();
 });
