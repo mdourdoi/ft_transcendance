@@ -18,7 +18,7 @@ services:
     networks:
       - transcendance
     secrets:
-      - env
+      - smtp_password
 
   vault:
     image: hashicorp/vault:1.18
@@ -147,5 +147,5 @@ networks:
     driver: bridge
 
 secrets:
-  env:
-    file: ./.env
+  smtp_password:
+    file: ./secrets/smtp_password.txt

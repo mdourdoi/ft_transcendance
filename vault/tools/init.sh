@@ -21,9 +21,9 @@ if ! vault secrets list | grep -q "^secret/"; then
 	vault secrets enable -path=secret kv-v2 > /dev/null
 fi
 
-SMTP_PASS=$(sed -n 's/^SMTP_PASS=//p' /run/secrets/env)
+SMTP_PASS=$(tr -d '\r\n' < /run/secrets/smtp_password)
 if [ -z "$SMTP_PASS" ]; then
-	echo "SMTP_PASS is missing in .env" >&2
+	echo "SMTP password is missing in secrets/smtp_password.txt" >&2
 	exit 1
 fi
 printf '%s' "$SMTP_PASS" | vault kv put secret/smtp SMTP_PASS=- > /dev/null
