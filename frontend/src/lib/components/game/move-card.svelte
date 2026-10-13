@@ -32,8 +32,8 @@
 	</span>
 	<img src={imageSrc} alt="" draggable="false" class="pointer-events-none h-[40%] min-h-0 w-[95%] shrink-0 object-contain"/>
 	<span class="grid aspect-square w-[68%] shrink-0 grid-cols-5 gap-[2px]" aria-label={$t('GAME.CARD_MOVES')}>
-		{#each Array(5) as _, r}
-			{#each Array(5) as _, c}
+		{#each Array(5) as _, r (r)}
+			{#each Array(5) as _, c (c)}
 				{@const move = moves.some(([dr, dc]) => dr === r - 2 && dc === c - 2)}
 				<span class="aspect-square border border-[#aa8f6e]/60" style:background={r === 2 && c === 2 ? '#3e3125' : move ? '#cb3c2e' : '#ffffff25'}></span>
 			{/each}

@@ -129,6 +129,7 @@
     }
   },
   "STATS": {
+    "ELO": "Elo",
     "TITLE": "Statistiques globales",
     "SUBTITLE": "Un chemin de discipline, une progression sans fin.",
     "SUMMARY": {

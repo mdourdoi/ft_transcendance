@@ -115,7 +115,7 @@
 			const errorCode = Array.isArray(data.message) ? data.message[0] : data.message ?? 'UNKNOWN_ERROR';
 			if (errorCode === 'TWOFA_CODE_REQUIRED') notice = 'TWOFA.RESENT';
 			else error = errorCode;
-		} catch (err) {
+		} catch {
 			error = 'NETWORK_ERROR';
 		} finally {
 			loading = false;

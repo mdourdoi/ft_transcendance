@@ -129,6 +129,7 @@
     }
   },
   "STATS": {
+    "ELO": "Elo",
     "TITLE": "Overall statistics",
     "SUBTITLE": "A path of discipline, an endless progression.",
     "SUMMARY": {

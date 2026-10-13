@@ -1,7 +1,7 @@
 import { authFetch } from '$lib/auth';
 import type { Game, ReplayData } from '$lib/components/history';
 
-type ApiMatch = {
+export type ApiMatch = {
 	id: number;
 	mode: 'RANKED' | 'UNRANKED' | 'BOT';
 	endReason: string | null;

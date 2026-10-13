@@ -90,10 +90,12 @@
 
     const rankedMatches = statManager.matches
       .filter(
-        (match) =>
+        (
+          match,
+        ): match is typeof match & { ratingDelta: number; finishedAt: string } =>
           match.mode === "RANKED" &&
           typeof match.ratingDelta === "number" &&
-          match.finishedAt,
+          !!match.finishedAt,
       )
       .toSorted(
         (a, b) =>
