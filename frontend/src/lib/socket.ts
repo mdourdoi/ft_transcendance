@@ -49,6 +49,23 @@ function connectSocket() {
     socket.on('gameInviteCancelled', ({ userId }: { userId: number }) => {
         inviteManager.withdrawn(userId);
     });
+    socket.on('friendDenied', () => {
+        friendManager.sented_requests();
+    });
+    socket.on('friendAccepted', () => {
+        friendManager.get_friends();
+        friendManager.sented_requests();
+    });
+    socket.on('friendCancelled', () => {
+        friendManager.friendships_requests();
+    });
+    socket.on('friendRemoved', () => {
+        friendManager.get_friends();
+    });
+    socket.on('friendBlocked', () => {
+        friendManager.friendships_requests();
+        friendManager.sented_requests();
+    });
     return socket;
 }
 

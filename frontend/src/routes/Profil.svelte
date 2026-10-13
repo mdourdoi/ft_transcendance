@@ -32,7 +32,7 @@
 
   <CollapsibleCard title={$t("STATS.TITLE")} description={$t("STATS.SUBTITLE")}>
     <Card.Content class="flex flex-col gap-4">
-      <StatsPanel />
+      <StatsPanel currentRating={profilManager.rating} />
     </Card.Content>
   </CollapsibleCard>
 

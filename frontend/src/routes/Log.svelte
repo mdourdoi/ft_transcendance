@@ -17,6 +17,7 @@
 	let hidden = $state(true);
 	let twofa = $state('');
 	let email = $state('');
+	let password2 = $state('');
 	let password = $state('');
 	let username = $state('');
 	let error = $state('');
@@ -52,10 +53,14 @@
 	}
 
 	async function addUser() {
-		if (!email.trim() || !password.trim() || !username.trim()) {
+		if (!email.trim() || !password.trim() || !username.trim() || !password2.trim()) {
 			error = 'EMPTY_FIELDS';
 			return;
 		}
+		if (password !== password2) {
+            error = 'NOTE_SAME_PASSWORD';
+            return;
+        }
 		if (!/^[a-zA-Z0-9]{3,24}$/.test(username)) {
 			error = 'INVALID_USERNAME';
 			return;
@@ -146,16 +151,19 @@
 	</AuthForm>
 
 	{:else if currentStep === 'signin'}
-	<AuthForm title={$t('AUTH.REGISTER_TITLE')} onsubmit={handleSubmit}>
-		<AuthField bind:value={username} placeholder={$t('AUTH.USERNAME')} icon={user} class="top-[160px]" iconClass="top-[170px]" />
-		<AuthField type="email" bind:value={email} placeholder={$t('AUTH.EMAIL')} icon={logomail} class="top-[160px]" iconClass="top-[235px]" />
-		<AuthField type={passwordType} bind:value={password} placeholder={$t('AUTH.PASSWORD')} icon={logopassword} class="top-[160px]" iconClass="top-[292px]">
-			<PasswordToggle bind:hidden class="top-[112px]" ontoggle={() => (error = '')} />
-		</AuthField>
-		<AuthButton type="submit" class="top-[130px]">{$t('AUTH.REGISTER')}</AuthButton>
-		<AuthDivider lineClass="top-[435px]" textClass="top-[425px]" />
-		<AuthButton class="top-[180px]" onclick={() => selectMode('login')}>{$t('AUTH.LOGIN')}</AuthButton>
-	</AuthForm>
+<AuthForm title={$t('AUTH.REGISTER_TITLE')} onsubmit={handleSubmit}>
+	<AuthField bind:value={username} placeholder={$t('AUTH.USERNAME')} icon={user} class="top-[160px]" iconClass="top-[170px]" />
+	<AuthField type="email" bind:value={email} placeholder={$t('AUTH.EMAIL')} icon={logomail} class="top-[160px]" iconClass="top-[231px]" />
+	<AuthField type={passwordType} bind:value={password} placeholder={$t('AUTH.PASSWORD')} icon={logopassword} class="top-[160px]" iconClass="top-[292px]">
+		<PasswordToggle bind:hidden class="top-[112px]" ontoggle={() => (error = '')} />
+	</AuthField>
+	<AuthField type={passwordType} bind:value={password2} placeholder={$t('AUTH.PASSWORD')} icon={logopassword} class="top-[115px]" iconClass="top-[352px]">
+		<PasswordToggle bind:hidden class="top-[65px]" ontoggle={() => (error = '')} />
+	</AuthField>
+	<AuthButton type="submit" class="top-[70px]">{$t('AUTH.REGISTER')}</AuthButton>
+	<AuthDivider lineClass="top-[475px]" textClass="top-[465px]" />
+	<AuthButton class="top-[100px]" onclick={() => selectMode('login')}>{$t('AUTH.LOGIN')}</AuthButton>
+</AuthForm>
 
 	{:else}
 	<AuthForm title={$t('AUTH.TWOFA_TITLE')} onsubmit={handleSubmit}>

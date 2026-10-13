@@ -73,7 +73,7 @@ export class FriendManager {
 		}
 	}
 
-	async get_sent_requests() {
+	async sented_requests() {
 		this.error = '';
 		try {
 			const res = await authFetch('/api/friendships/pending');
@@ -102,7 +102,7 @@ export class FriendManager {
 			}
 			await this.get_friends();
 			await this.friendships_requests();
-			await this.get_sent_requests();
+			await this.sented_requests();
 			return '';
 		} catch (err) {
 			return err instanceof Error ? err.message : String(err);
@@ -235,7 +235,7 @@ export class FriendManager {
 				this.error = errorCode;
 				return;
 			}
-			await this.get_sent_requests();
+			await this.sented_requests();
 		} catch (err) {
 			this.error = err instanceof Error ? err.message : String(err);
 		}
@@ -252,6 +252,6 @@ token.subscribe((value) => {
 		friendManager.get_friends();
 		friendManager.friendships_requests();
 		friendManager.get_blocked();
-		friendManager.get_sent_requests();
+		friendManager.sented_requests();
 	}
 });
