@@ -9,6 +9,7 @@ import {
   JOIN_TIMEOUT_MS,
   PLAYER_CLOCK_MS,
 } from '../src/game/game.service.js';
+import { BotPool } from '../src/bots/bot-pool.service.js';
 import { decodeReplay } from '../src/game/domain/index.js';
 import { GameSession } from '../src/game/types/game-session.interface.js';
 import { MatchesService } from '../src/matches/matches.service.js';
@@ -74,6 +75,7 @@ describe('GameService', () => {
     service = new GameService(
       redis as unknown as Redis,
       matches as unknown as MatchesService,
+      new BotPool(),
     );
   });
 
