@@ -194,7 +194,7 @@
       "PASSWORD": "Contraseña",
       "CURRENT_PASSWORD": "Contraseña actual",
       "NEW_PASSWORD": "Nueva contraseña",
-      "PASSWORD_HINT": "De 12 a 128 caracteres. Las reglas del servidor siguen aplicándose.",
+      "PASSWORD_HINT": "De 8 a 128 caracteres, con una mayúscula, una minúscula, un número y un símbolo.",
       "CONFIRM_PASSWORD": "Confirmar la nueva contraseña",
       "CHANGE_PASSWORD": "Cambiar la contraseña",
       "TWOFA": {
