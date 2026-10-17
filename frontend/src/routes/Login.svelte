@@ -9,7 +9,6 @@
 	import { navigate } from '$lib/router';
 	import { token } from '$lib/auth';
 	import { t } from '$lib/i18n';
-	import { profilManager } from '$lib/stores/profil.svelte';
 
 	type Step = 'login' | 'signin' | '2fa';
 
@@ -93,10 +92,9 @@
 			error = 'EMPTY_FIELDS';
 			return;
 		}
-		const data = await post('/api/auth/login', { email: email.trim(), password: password.trim(), code });
+		const data = await post('/api/auth/login', { email: email.trim(), password, code });
 		if (!data)
 			return;
-		profilManager.able_two_fa();
 		enter(data.accessToken);
 	}
 
@@ -109,7 +107,7 @@
 			const res = await fetch('/api/auth/login', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ email: email.trim(), password: password.trim() })
+				body: JSON.stringify({ email: email.trim(), password })
 			});
 			const data = await res.json();
 			const errorCode = Array.isArray(data.message) ? data.message[0] : data.message ?? 'UNKNOWN_ERROR';

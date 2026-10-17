@@ -69,7 +69,17 @@
       "NORMAL": "Parties normales",
       "TRAINING": "Entraînement"
     },
-    "QUOTE": "Un petit pas déplace un grand destin."
+    "QUOTE": "Un petit pas déplace un grand destin.",
+    "RESUME": "Reprendre",
+    "ONGOING": {
+      "RANKED": "Partie classée en cours",
+      "UNRANKED": "Partie normale en cours",
+      "BOT": "Partie d’entraînement en cours"
+    },
+    "FORFEIT_IN": "Défaite par abandon dans {time}",
+    "CANCEL_IN": "Annulée dans {time}",
+    "MODE_ONGOING": "En cours",
+    "MODE_LOCKED": "Termine ta partie en cours d’abord."
   },
   "HISTORY": {
     "TITLE": "Historique des parties",
@@ -184,7 +194,7 @@
       "PASSWORD": "Mot de passe",
       "CURRENT_PASSWORD": "Mot de passe actuel",
       "NEW_PASSWORD": "Nouveau mot de passe",
-      "PASSWORD_HINT": "12 à 128 caractères. Les règles du serveur restent applicables.",
+      "PASSWORD_HINT": "8 à 128 caractères, avec une majuscule, une minuscule, un chiffre et un symbole.",
       "CONFIRM_PASSWORD": "Confirmer le nouveau mot de passe",
       "CHANGE_PASSWORD": "Changer le mot de passe",
       "TWOFA": {
@@ -252,10 +262,9 @@
     }
   },
   "GAME": {
-    "HEAD_TITLE": "Onitama · Partie locale",
-    "HEAD_DESCRIPTION": "Onitama : une partie locale à deux, dans un dojo à l’encre japonaise.",
+    "HEAD_TITLE": "Onitama · Partie",
+    "HEAD_DESCRIPTION": "Onitama : une partie en ligne dans un dojo à l’encre japonaise.",
     "TITLES": {
-      "LOCAL": "PARTIE LOCALE",
       "RANKED": "PARTIE CLASSÉE",
       "NORMAL": "PARTIE NORMALE",
       "TRAINING": "ENTRAÎNEMENT"
@@ -289,7 +298,6 @@
     "VALID_MOVE": "Déplacement valide",
     "CAPTURE": "Capture possible",
     "OPPONENT_AWAY": "Adversaire déconnecté — forfait dans 30 s s’il ne revient pas.",
-    "CLOCK_STARTS": "Le chrono démarre au premier coup.",
     "PASS": "Passer et échanger",
     "RESIGN": "Abandonner",
     "FOOTER": "Onitama — Un chemin de discipline, une victoire d’esprit",

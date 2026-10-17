@@ -9,4 +9,5 @@ export const BOT_LEVELS: BotLevel[] = [
   { depth: 5, temperature: 15 },
   { depth: 8, temperature: 0 },
 ];
-export const DEFAULT_BOT_LEVEL = BOT_LEVELS.length;
+export const DEFAULT_BOT_LEVEL = 1;
+export const BOT_WORKERS = 2;

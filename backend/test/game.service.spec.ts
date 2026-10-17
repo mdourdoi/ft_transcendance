@@ -9,6 +9,7 @@ import {
   JOIN_TIMEOUT_MS,
   PLAYER_CLOCK_MS,
 } from '../src/game/game.service.js';
+import { BotPool } from '../src/bots/bot-pool.service.js';
 import { decodeReplay } from '../src/game/domain/index.js';
 import { GameSession } from '../src/game/types/game-session.interface.js';
 import { MatchesService } from '../src/matches/matches.service.js';
@@ -23,9 +24,16 @@ class FakeMatches {
   cancelled: number[] = [];
   replays: Uint8Array[] = [];
   failing = false;
+  active = true;
 
   async findById(id: number) {
     return id === MATCH_ID ? match() : null;
+  }
+
+  async findActiveForUser(userId: number) {
+    return this.active && [PLAYER_ONE, PLAYER_TWO].includes(userId)
+      ? match()
+      : null;
   }
 
   async finishMatch(
@@ -74,6 +82,7 @@ describe('GameService', () => {
     service = new GameService(
       redis as unknown as Redis,
       matches as unknown as MatchesService,
+      new BotPool(),
     );
   });
 
@@ -383,5 +392,49 @@ describe('GameService', () => {
     assert.deepEqual(matches.finished, [
       { matchId: MATCH_ID, winnerId: PLAYER_TWO, endReason: 'RESIGNATION' },
     ]);
+  });
+
+  it('reports no current game for a player outside any match', async () => {
+    matches.active = false;
+
+    assert.equal(await service.current(PLAYER_ONE), null);
+  });
+
+  it('gives the join deadline of a player who has not joined yet', async () => {
+    await service.createSession(match());
+
+    assert.deepEqual(await service.current(PLAYER_ONE), {
+      matchId: MATCH_ID,
+      mode: 'UNRANKED',
+      status: 'WAITING',
+      botLevel: null,
+      forfeitAt: Date.now() + JOIN_TIMEOUT_MS,
+    });
+  });
+
+  it('gives no deadline to a player seated in a running game', async () => {
+    await startedGame();
+
+    assert.equal((await service.current(PLAYER_ONE))?.forfeitAt, null);
+  });
+
+  it('gives the forfeit deadline of a player who left a running game', async () => {
+    await startedGame();
+
+    await service.markDisconnected(MATCH_ID, PLAYER_ONE);
+
+    assert.equal(
+      (await service.current(PLAYER_ONE))?.forfeitAt,
+      Date.now() + DISCONNECT_FORFEIT_MS,
+    );
+    assert.equal((await service.current(PLAYER_TWO))?.forfeitAt, null);
+  });
+
+  it('forgets a game that is already over', async () => {
+    await startedGame();
+
+    await service.resign(MATCH_ID, PLAYER_ONE);
+
+    assert.equal(await service.current(PLAYER_ONE), null);
   });
 });

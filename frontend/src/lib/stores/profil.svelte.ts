@@ -1,4 +1,4 @@
-import { authFetch } from '$lib/auth';
+import { authFetch, token } from '$lib/auth';
 import { friendManager } from './friend.svelte';
 
 export class ProfilManager {
@@ -8,6 +8,7 @@ export class ProfilManager {
     oldpassword = $state('');
     newpassword1 = $state('');
     newpassword2 = $state('');
+    password_code = $state('');
     error_username = $state('');
     error_password = $state('');
     error_avatar = $state('');
@@ -20,6 +21,28 @@ export class ProfilManager {
     error_email = $state('');
     avatarUrl = $state<string | null>(null);
     rating = $state<number | null>(null);
+
+    reset() {
+        this.username = '';
+        this.newusername = '';
+        this.email = '';
+        this.oldpassword = '';
+        this.newpassword1 = '';
+        this.newpassword2 = '';
+        this.password_code = '';
+        this.error_username = '';
+        this.error_password = '';
+        this.error_avatar = '';
+        this.two_fa = '';
+        this.qr_image = '';
+        this.qr_code = '';
+        this.is_2fa_enabled = false;
+        this.email_verified = false;
+        this.email_status = '';
+        this.error_email = '';
+        this.avatarUrl = null;
+        this.rating = null;
+    }
 
     able_two_fa() {
         this.is_2fa_enabled = true;
@@ -71,10 +94,7 @@ export class ProfilManager {
             this.email_verified = Boolean(data.emailVerifiedAt);
             this.avatarUrl = data.avatarUrl;
             this.rating = data.rating;
-            const is2fa = data.isTwoFactorEnabled ?? data.isTwoFactorAuthEnabled ?? data.twoFactorEnabled;
-            if (typeof is2fa !== 'undefined') {
-                this.is_2fa_enabled = Boolean(is2fa);
-            }
+            this.is_2fa_enabled = Boolean(data.twoFactorEnabled);
         } catch (err) {
             this.error_username = err instanceof Error ? err.message : String(err);
         }
@@ -136,8 +156,9 @@ export class ProfilManager {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    oldPassword: this.oldpassword.trim(),
-                    newPassword: this.newpassword1.trim()
+                    oldPassword: this.oldpassword,
+                    newPassword: this.newpassword1,
+                    ...(this.is_2fa_enabled && { code: this.password_code.trim() })
                 }),
             });
             const data = await res.json();
@@ -149,6 +170,7 @@ export class ProfilManager {
             this.oldpassword = '';
             this.newpassword1 = '';
             this.newpassword2 = '';
+            this.password_code = '';
             await this.get_user();
         } catch (err) {
             this.error_password = err instanceof Error ? err.message : String(err);
@@ -227,3 +249,7 @@ export class ProfilManager {
 }
 
 export const profilManager = new ProfilManager();
+
+token.subscribe((value) => {
+    if (!value) profilManager.reset();
+});
