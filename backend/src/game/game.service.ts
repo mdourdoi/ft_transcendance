@@ -7,7 +7,7 @@ import {
   BOT_PLAYER_INDEX,
   DEFAULT_BOT_LEVEL,
 } from '../bots/bots.constants.js';
-import { chooseTurn } from '../bots/calculator/choose-play.js';
+import { BotPool } from '../bots/bot-pool.service.js';
 import { ErrorCode } from '../common/error-codes.js';
 import { acquireLock, releaseLock } from '../common/redis-lock.js';
 import {
@@ -57,10 +57,12 @@ export interface JoinResult {
 @Injectable()
 export class GameService {
   private readonly logger = new Logger(GameService.name);
+  private readonly thinking = new Set<number>();
 
   constructor(
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
     private readonly matchesService: MatchesService,
+    private readonly botPool: BotPool,
   ) {}
 
   async createSession(
@@ -213,23 +215,23 @@ export class GameService {
     if (
       session.mode !== QueueMode.BOT ||
       session.status !== 'PLAYING' ||
-      session.game.currentPlayer !== BOT_PLAYER_INDEX
+      session.game.currentPlayer !== BOT_PLAYER_INDEX ||
+      this.thinking.has(session.matchId)
     ) {
       return null;
     }
-    const botId = session.playerIds[BOT_PLAYER_INDEX];
-    const level = BOT_LEVELS[(session.botLevel ?? DEFAULT_BOT_LEVEL) - 1];
-    const { card, play } = chooseTurn(Game.restore(session.game), level);
-    if (!play) {
-      return this.pass(session.matchId, botId, card);
+    this.thinking.add(session.matchId);
+    try {
+      const botId = session.playerIds[BOT_PLAYER_INDEX];
+      const level = BOT_LEVELS[(session.botLevel ?? DEFAULT_BOT_LEVEL) - 1];
+      const { card, play } = await this.botPool.choose(session.game, level);
+      if (!play) {
+        return await this.pass(session.matchId, botId, card);
+      }
+      return await this.play(session.matchId, botId, card, play.from, play.to);
+    } finally {
+      this.thinking.delete(session.matchId);
     }
-    return this.play(
-      session.matchId,
-      botId,
-      play.card,
-      { row: play.from.row, col: play.from.col },
-      { row: play.to.row, col: play.to.col },
-    );
   }
 
   async resign(matchId: number, userId: number): Promise<GameSession> {
