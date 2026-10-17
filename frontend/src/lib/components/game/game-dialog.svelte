@@ -9,7 +9,6 @@
         outcome,
         reason,
         resignName,
-        online,
         playing,
         onclose,
         onrestart,
@@ -21,7 +20,6 @@
         outcome: string;
         reason: string | null;
         resignName: string;
-        online: boolean;
         playing: boolean;
         onclose: () => void;
         onrestart: () => void;
@@ -60,15 +58,13 @@
         <div class="mt-6 flex flex-wrap gap-3">
             <button class="ink-banner bg-red-800 px-5 py-2" onclick={onrestart}>{$t('GAME.NEW_GAME')}</button>
             <button class="ink-banner px-5 py-2" onclick={onclose}>{$t('GAME.VIEW_BOARD')}</button>
-            {#if online}
-                <button class="ink-banner px-5 py-2" onclick={onquit}>{$t('COMMON.QUIT')}</button>
-            {/if}
+            <button class="ink-banner px-5 py-2" onclick={onquit}>{$t('COMMON.QUIT')}</button>
         </div>
     {:else if modal==='resign'}
         <p>{$t('GAME.RESIGN_TEXT', { values: { name: resignName } })}</p>
         <button class="ink-banner mt-5 bg-red-800 px-5 py-2" onclick={onresign}>{$t('GAME.CONFIRM_RESIGN')}</button>
     {:else}
-        <p>{$t(online && playing ? 'GAME.EXIT_PLAYING' : 'GAME.EXIT_IDLE')}</p>
+        <p>{$t(playing ? 'GAME.EXIT_PLAYING' : 'GAME.EXIT_IDLE')}</p>
         <button class="ink-banner mt-5 px-5 py-2" onclick={onquit}>{$t('COMMON.QUIT')}</button>
     {/if}
 </dialog>
