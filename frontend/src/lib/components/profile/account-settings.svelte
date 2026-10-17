@@ -105,7 +105,7 @@
         id="new-password"
         type="password"
         autocomplete="new-password"
-        minlength={12}
+        minlength={8}
         maxlength={128}
         required
         aria-describedby="password-hint"
@@ -122,12 +122,27 @@
         id="confirm-password"
         type="password"
         autocomplete="new-password"
-        minlength={12}
+        minlength={8}
         maxlength={128}
         required
         class="bg-card"
         bind:value={profilManager.newpassword2}
       />
+      {#if profilManager.is_2fa_enabled}
+        <Label for="password-twofa-code"
+          >{$t("PROFILE.SETTINGS.TWOFA.CODE")}</Label
+        >
+        <Input
+          id="password-twofa-code"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          pattern={"[0-9]{6}"}
+          maxlength={6}
+          required
+          class="bg-card"
+          bind:value={profilManager.password_code}
+        />
+      {/if}
       <Button type="submit" variant="secondary" class="self-start"
         >{$t("PROFILE.SETTINGS.CHANGE_PASSWORD")}</Button
       >

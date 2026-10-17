@@ -194,7 +194,7 @@
       "PASSWORD": "Password",
       "CURRENT_PASSWORD": "Current password",
       "NEW_PASSWORD": "New password",
-      "PASSWORD_HINT": "12 to 128 characters. Server rules still apply.",
+      "PASSWORD_HINT": "8 to 128 characters, with an uppercase letter, a lowercase letter, a number and a symbol.",
       "CONFIRM_PASSWORD": "Confirm the new password",
       "CHANGE_PASSWORD": "Change password",
       "TWOFA": {
