@@ -31,6 +31,7 @@ import {
 } from './domain/index.js';
 import {
   CardView,
+  CurrentGameView,
   GameEndReason,
   GameSession,
   GameStateView,
@@ -150,6 +151,33 @@ export class GameService {
 
   find(matchId: number): Promise<GameSession | null> {
     return this.load(matchId);
+  }
+
+  async current(userId: number): Promise<CurrentGameView | null> {
+    const match = await this.matchesService.findActiveForUser(userId);
+    if (!match) {
+      return null;
+    }
+    const session = await this.load(match.id);
+    if (session?.status === 'OVER') {
+      return null;
+    }
+    const index = session ? session.playerIds.indexOf(userId) : -1;
+    let forfeitAt: number | null = null;
+    if (session && index !== -1) {
+      if (session.status === 'PLAYING') {
+        forfeitAt = session.disconnectDeadlines[index];
+      } else if (!session.joined[index]) {
+        forfeitAt = session.joinDeadline;
+      }
+    }
+    return {
+      matchId: match.id,
+      mode: match.mode,
+      status: session?.status ?? 'WAITING',
+      botLevel: session?.botLevel ?? null,
+      forfeitAt,
+    };
   }
 
   async markDisconnected(
@@ -330,6 +358,7 @@ export class GameService {
     return {
       matchId: session.matchId,
       mode: session.mode,
+      botLevel: session.botLevel,
       status: session.status,
       playerIds: session.playerIds,
       board: session.game.board,

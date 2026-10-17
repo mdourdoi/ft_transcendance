@@ -69,7 +69,17 @@
       "NORMAL": "Normal games",
       "TRAINING": "Training games"
     },
-    "QUOTE": "A small step moves a great destiny."
+    "QUOTE": "A small step moves a great destiny.",
+    "RESUME": "Resume",
+    "ONGOING": {
+      "RANKED": "Ranked game in progress",
+      "UNRANKED": "Normal game in progress",
+      "BOT": "Training game in progress"
+    },
+    "FORFEIT_IN": "Forfeit in {time}",
+    "CANCEL_IN": "Cancelled in {time}",
+    "MODE_ONGOING": "In progress",
+    "MODE_LOCKED": "Finish your current game first."
   },
   "HISTORY": {
     "TITLE": "Match history",
@@ -252,10 +262,9 @@
     }
   },
   "GAME": {
-    "HEAD_TITLE": "Onitama · Local game",
-    "HEAD_DESCRIPTION": "Onitama: a local two-player game in a Japanese ink dojo.",
+    "HEAD_TITLE": "Onitama · Game",
+    "HEAD_DESCRIPTION": "Onitama: an online game in a Japanese ink dojo.",
     "TITLES": {
-      "LOCAL": "LOCAL GAME",
       "RANKED": "RANKED GAME",
       "NORMAL": "NORMAL GAME",
       "TRAINING": "TRAINING"
@@ -289,7 +298,6 @@
     "VALID_MOVE": "Valid move",
     "CAPTURE": "Possible capture",
     "OPPONENT_AWAY": "Opponent disconnected — forfeit in 30 s if they do not come back.",
-    "CLOCK_STARTS": "The clock starts on the first move.",
     "PASS": "Pass and exchange",
     "RESIGN": "Resign",
     "FOOTER": "Onitama — A path of discipline, a victory of the mind",

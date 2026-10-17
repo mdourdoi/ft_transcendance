@@ -126,6 +126,7 @@ describe('BotsService', () => {
     const { session } = await game.join(MATCH_ID, ALICE);
 
     assert.equal(session.botLevel, 2);
+    assert.equal(game.toView(session).botLevel, 2);
   });
 
   it('starts the game as soon as the player joins', async () => {
