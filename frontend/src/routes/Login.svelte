@@ -12,7 +12,7 @@
 
 	type Step = 'login' | 'signin' | '2fa';
 
-	let currentStep = $state<Step>('signin');
+	let currentStep = $state<Step>('login');
 	let hidden = $state(true);
 	let twofa = $state('');
 	let email = $state('');
