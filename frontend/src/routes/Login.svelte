@@ -12,7 +12,7 @@
 
 	type Step = 'login' | 'signin' | '2fa';
 
-	let currentStep = $state<Step>('login');
+	let currentStep = $state<Step>('signin');
 	let hidden = $state(true);
 	let twofa = $state('');
 	let email = $state('');
@@ -144,31 +144,33 @@
 		}
 	}
 </script>
-
-<main class="auth-screen relative flex h-screen w-screen items-center justify-center bg-[url('../../assets/Login_background.webp')] bg-cover bg-center bg-no-repeat">
+<div
+	class="fixed inset-0 -z-10 bg-[url('../../assets/Login_background.webp')] bg-cover bg-top bg-no-repeat"
+></div>
+<main class="auth-screen relative flex min-h-[1250px] w-full justify-center overflow-x-hidden">
 	{#if error}
-	<p class="absolute top-[470px] left-1/2 -translate-x-1/2 w-[400px] text-center text-red-600 text-base font-semibold z-50">
+	<p class="auth-feedback absolute top-[470px] left-1/2 -translate-x-1/2 w-[400px] text-center text-red-600 text-base font-semibold z-50">
 		{$t(`ERRORS.${error}`, { default: $t('ERRORS.UNKNOWN_ERROR') })}
 	</p>
 	{:else if notice}
-	<p class="absolute top-[470px] left-1/2 -translate-x-1/2 w-[400px] text-center text-black text-base font-semibold z-50">
+	<p class="auth-feedback absolute top-[470px] left-1/2 -translate-x-1/2 w-[400px] text-center text-black text-base font-semibold z-50">
 		{$t(notice)}
 	</p>
 	{/if}
 	<img
 		src={logo}
 		alt="Onitama"
-		class="absolute top-[100px] left-1/2 -translate-x-1/2 w-[500px] h-auto"
+		class="auth-logo absolute top-[100px] left-1/2 -translate-x-1/2 w-[500px] h-auto"
 	/>
 	<img
 		src={strace}
 		alt=""
-		class="absolute top-[450px] left-[calc(50%-140px)] -translate-x-1/2 w-[150px] h-auto -scale-x-100"
+		class="auth-decoration absolute top-[450px] left-[calc(50%-140px)] -translate-x-1/2 w-[150px] h-auto -scale-x-100"
 	/>
 	<img
 		src={strace}
 		alt=""
-		class="absolute top-[450px] left-[calc(50%+140px)] -translate-x-1/2 w-[150px] h-auto"
+		class="auth-decoration absolute top-[450px] left-[calc(50%+140px)] -translate-x-1/2 w-[150px] h-auto"
 	/>
 
 	{#if currentStep === 'login'}
@@ -184,18 +186,18 @@
 
 	{:else if currentStep === 'signin'}
 <AuthForm title={$t('AUTH.REGISTER_TITLE')} onsubmit={handleSubmit}>
-	<AuthField bind:value={username} placeholder={$t('AUTH.USERNAME')} icon={user} class="top-[160px]" iconClass="top-[170px]" />
-	<AuthField type="email" bind:value={email} placeholder={$t('AUTH.EMAIL')} icon={logomail} class="top-[160px]" iconClass="top-[231px]" />
-	<AuthField type={passwordType} bind:value={password} placeholder={$t('AUTH.PASSWORD')} icon={logopassword} class="top-[160px]" iconClass="top-[292px]">
-		<PasswordToggle bind:hidden class="top-[112px]" ontoggle={() => (error = '')} />
+	<AuthField bind:value={username} placeholder={$t('AUTH.USERNAME')} icon={user} class="top-[140px]" iconClass="top-[150px]" />
+	<AuthField type="email" bind:value={email} placeholder={$t('AUTH.EMAIL')} icon={logomail} class="top-[140px]" iconClass="top-[211px]" />
+	<AuthField type={passwordType} bind:value={password} placeholder={$t('AUTH.PASSWORD')} icon={logopassword} class="top-[140px]" iconClass="top-[272px]">
+		<PasswordToggle bind:hidden class="top-[92px]" ontoggle={() => (error = '')} />
 	</AuthField>
-	<AuthField type={passwordType} bind:value={password2} placeholder={$t('AUTH.PASSWORD')} icon={logopassword} class="top-[115px]" iconClass="top-[352px]">
-		<PasswordToggle bind:hidden class="top-[65px]" ontoggle={() => (error = '')} />
+	<AuthField type={passwordType} bind:value={password2} placeholder={$t('AUTH.PASSWORD')} icon={logopassword} class="top-[95px]" iconClass="top-[332px]">
+		<PasswordToggle bind:hidden class="top-[45px]" ontoggle={() => (error = '')} />
 	</AuthField>
-	<AuthButton type="submit" class="top-[110px]" disabled={!acceptTerms}>{$t('AUTH.REGISTER')}</AuthButton>
-	<AuthDivider lineClass="top-[515px]" textClass="top-[505px]" />
-	<AuthButton class="top-[140px]" onclick={() => selectMode('login')}>{$t('AUTH.LOGIN')}</AuthButton>
-	<div class="absolute top-[402px] left-[calc(50%-170px)] w-[340px] flex flex-col items-center text-black text-xs">
+	<AuthButton type="submit" class="top-[100px]" disabled={!acceptTerms}>{$t('AUTH.REGISTER')}</AuthButton>
+	<AuthDivider lineClass="top-[495px]" textClass="top-[485px]" />
+	<AuthButton class="top-[120px]" onclick={() => selectMode('login')}>{$t('AUTH.LOGIN')}</AuthButton>
+	<div class="absolute top-[381px] left-[calc(50%-170px)] w-[340px] flex flex-col items-center text-black text-xs">
 		<label class="flex items-start gap-2 text-left">
 			<input type="checkbox" bind:checked={acceptTerms} class="mt-0.5 accent-black" />
 			<span>{$t('REGISTER.ACCEPT_TERMS')}</span>
