@@ -88,7 +88,8 @@
     "FILTERS": {
       "ALL": "Todas",
       "RANKED": "Clasificatorias",
-      "NORMAL": "Normales"
+      "NORMAL": "Normales",
+      "TRAINING": "Entrenamiento"
     },
     "MODES": {
       "RANKED": "Clasificatoria",
@@ -151,7 +152,7 @@
     "MODES": {
       "RANKED": "Clasificatorias",
       "NORMAL": "Normales",
-      "CHALLENGE": "Desafíos",
+      "TRAINING": "Entrenamiento",
       "EVENT": "Eventos"
     },
     "BY_MODE": "Reparto por modo de juego",

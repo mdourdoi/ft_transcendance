@@ -7,7 +7,7 @@
 		player = 0,
 		selected = false,
 		disabled = false,
-		assetBase = '../assets/games',
+		assetBase = '../assets/game',
 		onclick = () => {}
 	}: {
 		card: Card;

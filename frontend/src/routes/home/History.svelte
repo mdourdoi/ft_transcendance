@@ -10,6 +10,7 @@
 		{ value: 'all', label: $t('HISTORY.FILTERS.ALL') },
 		{ value: 'Ranked', label: $t('HISTORY.FILTERS.RANKED') },
 		{ value: 'Normal', label: $t('HISTORY.FILTERS.NORMAL') },
+		{ value: 'Training', label: $t('HISTORY.FILTERS.TRAINING') },
 	]);
 
 	let historyFilter = $state('all');

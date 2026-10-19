@@ -23,7 +23,7 @@
   const summary = $derived([
     {
       label: $t("STATS.SUMMARY.GAMES"),
-      value: statManager.matches.length,
+      value: statManager.competitive.length,
       icon: "⚔",
     },
     {
@@ -34,14 +34,14 @@
     },
     {
       label: $t("STATS.SUMMARY.LOSSES"),
-      value: statManager.matches.length - statManager.wins,
+      value: statManager.competitive.length - statManager.wins,
       icon: "☠",
     },
     {
       label: $t("STATS.SUMMARY.WINRATE"),
       value: `${
-        statManager.matches.length
-          ? Math.round((statManager.wins * 100) / statManager.matches.length)
+        statManager.competitive.length
+          ? Math.round((statManager.wins * 100) / statManager.competitive.length)
           : 0
       }%`,
       icon: "★",
@@ -51,7 +51,7 @@
   const modesConfig = $derived({
     ranked: { label: $t("STATS.MODES.RANKED"), color: "var(--chart-1)" },
     normal: { label: $t("STATS.MODES.NORMAL"), color: "var(--chart-2)" },
-    challenge: { label: $t("STATS.MODES.CHALLENGE"), color: "var(--chart-3)" },
+    training: { label: $t("STATS.MODES.TRAINING"), color: "var(--chart-3)" },
   } satisfies Chart.ChartConfig);
 
   const statsModes = $derived([
@@ -70,11 +70,11 @@
       color: "var(--color-normal)",
     },
     {
-      mode: "challenge",
+      mode: "training",
       value: statManager.matches.length
-        ? Math.round((statManager.defis * 100) / statManager.matches.length)
+        ? Math.round((statManager.training * 100) / statManager.matches.length)
         : 0,
-      color: "var(--color-challenge)",
+      color: "var(--color-training)",
     },
   ] as const);
 
@@ -161,7 +161,7 @@
       return { date, wins: 0, games: 0 };
     });
 
-    for (const match of statManager.matches) {
+    for (const match of statManager.competitive) {
       const finishedAt = match.finishedAt ?? match.createdAt;
       if (!finishedAt) continue;
       const matchDate = new SvelteDate(finishedAt);
