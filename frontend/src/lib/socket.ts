@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client';
-import { token } from "$lib/auth";
+import { isTokenExpired, logout, token, tokenUserId } from "$lib/auth";
 import { get, writable } from 'svelte/store';
 import { friendManager } from "$lib/stores/friend.svelte";
 import { inviteManager, type InviteSender } from "$lib/stores/invites.svelte";
@@ -8,13 +8,14 @@ import { inviteManager, type InviteSender } from "$lib/stores/invites.svelte";
 let socket: Socket | null = null;
 export const onlineFriends = writable<Record<number, boolean>>({});
 
-let currentToken: string | null = null;
+let currentUser: number | null = null;
 
 token.subscribe((value) => {
-    if (value === currentToken) return;
-    currentToken = value;
+    const user = tokenUserId(value);
+    if (user === currentUser) return;
+    currentUser = user;
     disconnectSocket();
-    if (value) {
+    if (user !== null) {
         connectSocket();
     }
 });
@@ -22,6 +23,12 @@ token.subscribe((value) => {
 function connectSocket() {
     if (socket) return socket;
     socket = io({auth: (cb) => cb({ token: get(token) })});
+    socket.on('auth.renewed', ({ token: renewed }: { token: string }) => {
+        token.set(renewed);
+    });
+    socket.on('disconnect', (reason) => {
+        if (reason === 'io server disconnect' && isTokenExpired()) logout();
+    });
     socket.on('connect', () => {
         socket?.emit('getOnlineFriends', (friends: { userId: number; onlineStatus: boolean }[]) => {
             const res = Object.fromEntries(friends.map((f) => [f.userId, f.onlineStatus]));

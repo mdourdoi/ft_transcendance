@@ -14,7 +14,12 @@ import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { Socket, Server } from 'socket.io';
 import { resolveCorsOrigin } from '../common/cors.js';
-import { authenticateSocket, releaseSocket } from '../common/socket-auth.js';
+import { JwtPayload } from '../auth/types/jwt-payload.interface.js';
+import {
+  authenticateSocket,
+  extendUserSockets,
+  releaseSocket,
+} from '../common/socket-auth.js';
 import { FriendshipsService } from '../friendships/friendships.service.js';
 import { FriendshipStatus } from '../generated/prisma/client.js';
 import { MessageDto } from '../messages/dto/message.dto.js';
@@ -22,9 +27,12 @@ import { MessagesService } from '../messages/messages.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { SendMessageDto } from './dto/send-message.dto.js';
 
+const RENEW_BEFORE_EXPIRY_MS = 5 * 60_000;
+
 @WebSocketGateway({ cors: { origin: resolveCorsOrigin } })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private onlineUsers: Map<number, Set<string>> = new Map();
+  private renewTimers: Map<string, NodeJS.Timeout> = new Map();
   private readonly logger = new Logger(EventsGateway.name);
   @WebSocketServer()
   server: Server;
@@ -60,6 +68,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
     client.join(`user:${userId}`);
+    this.scheduleRenewal(client, userId);
     const sockets = this.onlineUsers.get(userId);
     if (!sockets) {
       this.onlineUsers.set(userId, new Set([client.id]));
@@ -72,6 +81,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(client: Socket) {
     releaseSocket(client);
+    clearTimeout(this.renewTimers.get(client.id));
+    this.renewTimers.delete(client.id);
     const sockets = this.onlineUsers.get(client.data.userId);
     if (!sockets) {
       return;
@@ -82,6 +93,43 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       void this.notifyPresence(client.data.userId, false);
     }
     this.logger.log(`user ${client.data.userId} disconnected (${client.id})`);
+  }
+
+  private scheduleRenewal(client: Socket, userId: number) {
+    const exp = client.data.exp as number | undefined;
+    if (exp === undefined) {
+      return;
+    }
+    this.renewTimers.set(
+      client.id,
+      setTimeout(
+        () => void this.renewToken(client, userId),
+        exp * 1000 - Date.now() - RENEW_BEFORE_EXPIRY_MS,
+      ),
+    );
+  }
+
+  private async renewToken(client: Socket, userId: number) {
+    this.renewTimers.delete(client.id);
+    try {
+      const exists = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true },
+      });
+      if (!exists || client.disconnected) {
+        return;
+      }
+      const payload: JwtPayload = { sub: userId };
+      const token = this.jwt.sign(payload);
+      const { exp } = this.jwt.decode<Required<JwtPayload>>(token);
+      extendUserSockets(userId, exp);
+      client.emit('auth.renewed', { token });
+      this.scheduleRenewal(client, userId);
+    } catch (error) {
+      this.logger.error(
+        `could not renew the token of user ${userId}: ${(error as Error).message}`,
+      );
+    }
   }
 
   @SubscribeMessage('getOnlineFriends')

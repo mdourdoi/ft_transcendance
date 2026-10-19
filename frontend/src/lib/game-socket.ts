@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import { get, writable } from 'svelte/store';
-import { authFetch, token } from '$lib/auth';
+import { authFetch, logout, token, tokenUserId } from '$lib/auth';
 
 export type QueueMode = 'RANKED' | 'UNRANKED' | 'BOT';
 export const BOT_ID = 0;
@@ -95,12 +95,7 @@ export interface OnlineGame {
 }
 
 export function currentUserId(): number | null {
-    try {
-        const payload = (get(token) ?? '').split('.')[1];
-        return JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/'))).sub ?? null;
-    } catch {
-        return null;
-    }
+    return tokenUserId();
 }
 
 function connect(namespace: string, handlers: OnlineGameHandlers): Socket {
@@ -108,7 +103,7 @@ function connect(namespace: string, handlers: OnlineGameHandlers): Socket {
     socket.on('exception', (error: { message?: string }) => {
         handlers.onError(error?.message ?? 'UNKNOWN_ERROR');
     });
-    socket.on('auth.expired', () => handlers.onError('INVALID_TOKEN'));
+    socket.on('auth.expired', () => logout());
     return socket;
 }
 

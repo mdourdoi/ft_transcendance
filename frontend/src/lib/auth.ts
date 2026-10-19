@@ -25,21 +25,27 @@ export const logout = () => {
   navigate("/", { replace: true });
 };
 
-export const isTokenExpired = (value = get(token)): boolean => {
-  if (!value) return true;
+const decodeToken = (
+  value: string | null,
+): { sub?: number; exp?: number } | null => {
+  if (!value) return null;
 
   try {
     const payload = value.split(".")[1];
-    const decoded = JSON.parse(
-      atob(payload.replace(/-/g, "+").replace(/_/g, "/")),
-    ) as {
-      exp?: number;
-    };
-
-    return typeof decoded.exp !== "number" || decoded.exp * 1000 <= Date.now();
+    return JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
   } catch {
-    return true;
+    return null;
   }
+};
+
+export const isTokenExpired = (value = get(token)): boolean => {
+  const exp = decodeToken(value)?.exp;
+  return typeof exp !== "number" || exp * 1000 <= Date.now();
+};
+
+export const tokenUserId = (value = get(token)): number | null => {
+  const sub = decodeToken(value)?.sub;
+  return typeof sub === "number" ? sub : null;
 };
 
 export const authFetch = async (url: string, options: RequestInit = {}) => {
