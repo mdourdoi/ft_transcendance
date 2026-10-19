@@ -122,7 +122,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const payload: JwtPayload = { sub: userId };
       const token = this.jwt.sign(payload);
       const { exp } = this.jwt.decode<Required<JwtPayload>>(token);
-      extendUserSockets(userId, exp);
+      extendUserSockets(userId, client.data.exp as number, exp);
       client.emit('auth.renewed', { token });
       this.scheduleRenewal(client, userId);
     } catch (error) {
@@ -277,6 +277,15 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       matchId: payload.matchId,
       opponentId: payload.opponentId,
     });
+  }
+
+  @OnEvent('game.ended')
+  handleGameEnded(payload: { matchId: number; playerIds: number[] }) {
+    for (const playerId of payload.playerIds) {
+      this.server
+        .to(`user:${playerId}`)
+        .emit('gameEnded', { matchId: payload.matchId });
+    }
   }
 
   @OnEvent('gameInvite.declined')

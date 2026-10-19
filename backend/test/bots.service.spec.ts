@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { HttpException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Redis } from 'ioredis';
 import { BotPool } from '../src/bots/bot-pool.service.js';
 import { BotsService } from '../src/bots/bots.service.js';
@@ -80,6 +81,7 @@ describe('BotsService', () => {
       new FakeRedis() as unknown as Redis,
       matches as unknown as MatchesService,
       pool,
+      { emit: () => true } as unknown as EventEmitter2,
     );
     service = new BotsService(
       matches as unknown as MatchesService,

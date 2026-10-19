@@ -75,6 +75,18 @@ export interface CurrentGame {
     forfeitAt: number | null;
 }
 
+let resuming = false;
+
+export function requestResume() {
+    resuming = true;
+}
+
+export function takeResumeRequest(): boolean {
+    const requested = resuming;
+    resuming = false;
+    return requested;
+}
+
 export async function fetchCurrentGame(): Promise<CurrentGame | null> {
     const res = await authFetch('/api/games/current');
     if (!res.ok) throw new Error('NETWORK_ERROR');

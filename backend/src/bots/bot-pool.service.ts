@@ -62,10 +62,17 @@ export class BotPool implements OnModuleDestroy {
     });
     worker.on('error', (error) => {
       this.logger.error(`bot worker crashed: ${error.message}`);
-      this.slots.splice(this.slots.indexOf(slot), 1);
+    });
+    worker.on('exit', (code) => {
+      const index = this.slots.indexOf(slot);
+      if (index !== -1) {
+        this.slots.splice(index, 1);
+      }
+      const error = new Error(`bot worker exited with code ${code}`);
       for (const pending of slot.pending.values()) {
         pending.reject(error);
       }
+      slot.pending.clear();
     });
     this.slots.push(slot);
     return slot;

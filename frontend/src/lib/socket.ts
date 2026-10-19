@@ -73,6 +73,9 @@ function connectSocket() {
         friendManager.friendships_requests();
         friendManager.sented_requests();
     });
+    socket.on('gameEnded', ({ matchId }: { matchId: number }) => {
+        gameEndedHandlers.forEach((handler) => handler(matchId));
+    });
     return socket;
 }
 
@@ -103,6 +106,13 @@ const messageHandlers = new Set<(m: ChatMessage) => void>();
 export function onNewMessage(handler: (m: ChatMessage) => void) {
     messageHandlers.add(handler);
     return () => messageHandlers.delete(handler);
+}
+
+const gameEndedHandlers = new Set<(matchId: number) => void>();
+
+export function onGameEnded(handler: (matchId: number) => void) {
+    gameEndedHandlers.add(handler);
+    return () => gameEndedHandlers.delete(handler);
 }
 
 function disconnectSocket() {

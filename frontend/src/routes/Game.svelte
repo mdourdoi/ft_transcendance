@@ -6,7 +6,7 @@
     import { createGame, legalMoves, canMove } from '$lib/game/engine';
     import type { GameState } from '$lib/game/engine';
     import { liveClocks, toGameState } from '$lib/game/online';
-    import { BOT_ID, MODE_SLUGS, botLevel, botOfLevel, currentUserId, fetchCurrentGame, modeOfSlug, playOnline } from '$lib/game-socket';
+    import { BOT_ID, MODE_SLUGS, botLevel, botOfLevel, currentUserId, fetchCurrentGame, modeOfSlug, playOnline, requestResume, takeResumeRequest } from '$lib/game-socket';
     import type { CurrentGame, GameStateView, OnlineGame } from '$lib/game-socket';
     import { authFetch } from '$lib/auth';
     import { navigate } from '$lib/router';
@@ -152,6 +152,7 @@
         }, ongoing);
     }
     async function enter() {
+        const resuming = takeResumeRequest();
         let current: CurrentGame | null = null;
         try {
             current = await fetchCurrentGame();
@@ -160,9 +161,12 @@
         }
         if (destroyed)
             return;
-        if (current && MODE_SLUGS[current.mode] !== mode)
+        if (current && MODE_SLUGS[current.mode] !== mode) {
+            if (resuming)
+                requestResume();
             return navigate(`/game/${MODE_SLUGS[current.mode]}`, { replace: true });
-        if (!queueMode)
+        }
+        if (!queueMode || (resuming && !current))
             return navigate('/home', { replace: true });
         ready = true;
         startOnline(current?.matchId ?? null);

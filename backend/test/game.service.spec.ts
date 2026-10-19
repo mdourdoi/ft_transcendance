@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it, mock } from 'node:test';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { WsException } from '@nestjs/websockets';
 import { Redis } from 'ioredis';
 import {
@@ -55,6 +56,15 @@ class FakeMatches {
   }
 }
 
+class FakeEmitter {
+  events: { name: string; payload: Record<string, unknown> }[] = [];
+
+  emit(name: string, payload: Record<string, unknown>) {
+    this.events.push({ name, payload });
+    return true;
+  }
+}
+
 function match() {
   return {
     id: MATCH_ID,
@@ -73,16 +83,19 @@ function errorCode(error: unknown): string {
 describe('GameService', () => {
   let redis: FakeRedis;
   let matches: FakeMatches;
+  let emitter: FakeEmitter;
   let service: GameService;
 
   beforeEach(() => {
     mock.timers.enable({ apis: ['Date'], now: 1_000_000 });
     redis = new FakeRedis();
     matches = new FakeMatches();
+    emitter = new FakeEmitter();
     service = new GameService(
       redis as unknown as Redis,
       matches as unknown as MatchesService,
       new BotPool(),
+      emitter as unknown as EventEmitter2,
     );
   });
 
@@ -391,6 +404,24 @@ describe('GameService', () => {
     assert.deepEqual(await redis.smembers('game:unrecorded'), []);
     assert.deepEqual(matches.finished, [
       { matchId: MATCH_ID, winnerId: PLAYER_TWO, endReason: 'RESIGNATION' },
+    ]);
+  });
+
+  it('announces the end of a game once its result is recorded', async () => {
+    await startedGame();
+    matches.failing = true;
+
+    await service.resign(MATCH_ID, PLAYER_ONE);
+    assert.deepEqual(emitter.events, []);
+
+    matches.failing = false;
+    await service.retryUnrecorded();
+
+    assert.deepEqual(emitter.events, [
+      {
+        name: 'game.ended',
+        payload: { matchId: MATCH_ID, playerIds: [PLAYER_ONE, PLAYER_TWO] },
+      },
     ]);
   });
 

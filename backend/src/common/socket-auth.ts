@@ -31,10 +31,14 @@ export async function authenticateSocket(
   return payload.sub;
 }
 
-export function extendUserSockets(userId: number, exp: number): void {
+export function extendUserSockets(
+  userId: number,
+  fromExp: number,
+  toExp: number,
+): void {
   for (const { client } of expiryTimers.values()) {
-    if (client.data.userId === userId) {
-      armExpiry(client, exp);
+    if (client.data.userId === userId && client.data.exp === fromExp) {
+      armExpiry(client, toExp);
     }
   }
 }

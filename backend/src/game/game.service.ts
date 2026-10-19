@@ -1,4 +1,5 @@
 import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { WsException } from '@nestjs/websockets';
 import { Redis } from 'ioredis';
 import {
@@ -64,6 +65,7 @@ export class GameService {
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
     private readonly matchesService: MatchesService,
     private readonly botPool: BotPool,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async createSession(
@@ -297,6 +299,7 @@ export class GameService {
       });
       if (session) {
         ended.push(session);
+        this.announceEnd(session);
       }
     }
     return ended;
@@ -544,12 +547,22 @@ export class GameService {
           `result of match ${session.matchId} conflicts with the database: ${error.message}`,
         );
         await this.redis.srem(UNRECORDED_KEY, String(session.matchId));
+        this.announceEnd(session);
         return;
       }
       this.logger.warn(
         `could not record result of match ${session.matchId}, will retry: ${(error as Error).message}`,
       );
+      return;
     }
+    this.announceEnd(session);
+  }
+
+  private announceEnd(session: GameSession): void {
+    this.eventEmitter.emit('game.ended', {
+      matchId: session.matchId,
+      playerIds: session.playerIds.filter((id) => id !== BOT_PLAYER_ID),
+    });
   }
 
   private playerIndex(session: GameSession, userId: number): number {

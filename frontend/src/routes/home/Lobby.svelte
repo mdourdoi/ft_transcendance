@@ -8,7 +8,8 @@
 	import { cn } from '$lib/utils';
 	import { navigate } from '$lib/router';
 	import { onMount } from 'svelte';
-	import { BOT_LEVELS, MODE_SLUGS, botLevel, fetchCurrentGame, type CurrentGame } from '$lib/game-socket';
+	import { BOT_LEVELS, MODE_SLUGS, botLevel, fetchCurrentGame, requestResume, type CurrentGame } from '$lib/game-socket';
+	import { onGameEnded } from '$lib/socket';
 	import { t } from '$lib/i18n';
 
 	const news = [
@@ -49,11 +50,17 @@
 
 	onMount(() => {
 		void refresh();
+		const stopListening = onGameEnded((matchId) => {
+			if (ongoing?.matchId === matchId) ongoing = null;
+		});
 		const id = setInterval(() => {
 			now = Date.now();
 			if (ongoing?.forfeitAt && now >= ongoing.forfeitAt + 1500) void refresh();
 		}, 1000);
-		return () => clearInterval(id);
+		return () => {
+			clearInterval(id);
+			stopListening();
+		};
 	});
 
 	function select(id: string) {
@@ -64,6 +71,7 @@
 
 	function play() {
 		if (ongoingSlug) {
+			requestResume();
 			navigate(`/game/${ongoingSlug}`, { useAnimation: true });
 			return;
 		}
