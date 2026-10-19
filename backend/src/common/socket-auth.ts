@@ -5,7 +5,10 @@ import { JwtPayload } from '../auth/types/jwt-payload.interface.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ErrorCode } from './error-codes.js';
 
-const expiryTimers = new Map<string, NodeJS.Timeout>();
+const expiryTimers = new Map<
+  string,
+  { client: Socket; timer: NodeJS.Timeout }
+>();
 
 export async function authenticateSocket(
   jwtService: JwtService,
@@ -23,24 +26,40 @@ export async function authenticateSocket(
     throw new WsException(ErrorCode.INVALID_TOKEN);
   }
   if (payload.exp && client.connected) {
-    expiryTimers.set(
-      client.id,
-      setTimeout(
-        () => {
-          expiryTimers.delete(client.id);
-          client.emit('auth.expired');
-          client.disconnect(true);
-        },
-        payload.exp * 1000 - Date.now(),
-      ),
-    );
+    armExpiry(client, payload.exp);
   }
   return payload.sub;
 }
 
+export function extendUserSockets(
+  userId: number,
+  fromExp: number,
+  toExp: number,
+): void {
+  for (const { client } of expiryTimers.values()) {
+    if (client.data.userId === userId && client.data.exp === fromExp) {
+      armExpiry(client, toExp);
+    }
+  }
+}
+
 export function releaseSocket(client: Socket): void {
-  clearTimeout(expiryTimers.get(client.id));
+  clearTimeout(expiryTimers.get(client.id)?.timer);
   expiryTimers.delete(client.id);
+}
+
+function armExpiry(client: Socket, exp: number): void {
+  clearTimeout(expiryTimers.get(client.id)?.timer);
+  client.data.exp = exp;
+  const timer = setTimeout(
+    () => {
+      expiryTimers.delete(client.id);
+      client.emit('auth.expired');
+      client.disconnect(true);
+    },
+    exp * 1000 - Date.now(),
+  );
+  expiryTimers.set(client.id, { client, timer });
 }
 
 export function requireSocketUser(client: Socket): number {

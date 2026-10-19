@@ -7,7 +7,9 @@
 	import { InkQuote, PlayButton, Stamp } from '$lib/components/onitama';
 	import { cn } from '$lib/utils';
 	import { navigate } from '$lib/router';
-	import { BOT_LEVELS, botLevel } from '$lib/game-socket';
+	import { onMount } from 'svelte';
+	import { BOT_LEVELS, MODE_SLUGS, botLevel, fetchCurrentGame, requestResume, type CurrentGame } from '$lib/game-socket';
+	import { onGameEnded } from '$lib/socket';
 	import { t } from '$lib/i18n';
 
 	const news = [
@@ -29,12 +31,50 @@
 	let notice = $state(false);
 	let noticeTimer: ReturnType<typeof setTimeout>;
 
+	let ongoing = $state<CurrentGame | null>(null);
+	let now = $state(Date.now());
+	const ongoingSlug = $derived(ongoing ? MODE_SLUGS[ongoing.mode] : null);
+	const remaining = $derived(ongoing?.forfeitAt ? Math.max(0, Math.ceil((ongoing.forfeitAt - now) / 1000)) : null);
+
+	async function refresh() {
+		try {
+			ongoing = await fetchCurrentGame();
+		} catch {
+			ongoing = null;
+		}
+	}
+
+	function countdown(seconds: number) {
+		return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+	}
+
+	onMount(() => {
+		void refresh();
+		const stopListening = onGameEnded((matchId) => {
+			if (ongoing?.matchId === matchId) ongoing = null;
+		});
+		const id = setInterval(() => {
+			now = Date.now();
+			if (ongoing?.forfeitAt && now >= ongoing.forfeitAt + 1500) void refresh();
+		}, 1000);
+		return () => {
+			clearInterval(id);
+			stopListening();
+		};
+	});
+
 	function select(id: string) {
+		if (ongoing) return;
 		selectedMode = id;
 		notice = false;
 	}
 
 	function play() {
+		if (ongoingSlug) {
+			requestResume();
+			navigate(`/game/${ongoingSlug}`, { useAnimation: true });
+			return;
+		}
 		if (!selectedMode) {
 			notice = true;
 			clearTimeout(noticeTimer);
@@ -72,7 +112,21 @@
 			</p>
 		{/if}
 		<div class="absolute top-[75%] left-[69%] w-[clamp(300px,32vw,520px)] -translate-x-1/2 -translate-y-1/2">
-			<PlayButton class="w-full" onclick={play}>{$t('HOME.PLAY')}</PlayButton>
+			{#if ongoing}
+				<div class="absolute inset-x-0 bottom-full mb-3 flex flex-col items-center gap-0.5 rounded-lg bg-secondary/90 px-4 py-2 text-center text-secondary-foreground shadow-lg ring-1 ring-foreground/15">
+					<span class="font-display text-sm tracking-widest">{$t(`HOME.ONGOING.${ongoing.mode}`)}</span>
+					{#if remaining !== null}
+						<span class="text-xs tabular-nums text-secondary-foreground/80">{$t(ongoing.status === 'PLAYING' ? 'HOME.FORFEIT_IN' : 'HOME.CANCEL_IN', { values: { time: countdown(remaining) } })}</span>
+					{/if}
+				</div>
+			{/if}
+			<PlayButton class="w-full" onclick={play}>
+				{#if ongoing}
+					<span class="text-[15cqw]">{$t('HOME.RESUME')}</span>
+				{:else}
+					{$t('HOME.PLAY')}
+				{/if}
+			</PlayButton>
 		</div>
 	</section>
 
@@ -109,19 +163,27 @@
 
 		<div class="grid min-h-0 grid-cols-3 grid-rows-[minmax(0,1fr)_auto] gap-3">
 			{#each modes as mode (mode.id)}
-				{@const selected = selectedMode === mode.id}
+				{@const isOngoing = ongoingSlug === mode.id}
+				{@const locked = ongoing !== null && !isOngoing}
+				{@const selected = ongoing ? isOngoing : selectedMode === mode.id}
 				<Button
 					variant="ghost"
 					aria-label={$t(`HOME.MODES.${mode.key}`)}
 					aria-pressed={selected}
+					aria-disabled={locked}
+					title={locked ? $t('HOME.MODE_LOCKED') : undefined}
 					onclick={() => select(mode.id)}
 					class={cn(
 						'group relative h-full min-h-0 overflow-hidden rounded-xl p-0 shadow-sm ring-1 ring-foreground/15 transition-all hover:-translate-y-1 hover:bg-transparent hover:shadow-lg active:translate-y-0',
 						selected && '-translate-y-1 shadow-lg ring-4 ring-primary hover:-translate-y-1',
-						selectedMode && !selected && 'opacity-70 grayscale-[40%] hover:opacity-100 hover:grayscale-0'
+						!ongoing && selectedMode && !selected && 'opacity-70 grayscale-[40%] hover:opacity-100 hover:grayscale-0',
+						locked && 'cursor-not-allowed opacity-50 grayscale hover:translate-y-0 hover:shadow-sm'
 					)}
 				>
 					<img class="pointer-events-none absolute inset-0 size-full object-cover object-center select-none" src={mode.image} alt="" />
+					{#if isOngoing}
+						<Badge class="absolute top-2 left-2 rounded-sm px-2 py-0.5 font-display text-xs tracking-widest">{$t('HOME.MODE_ONGOING')}</Badge>
+					{/if}
 					{#if selected}
 						<Stamp kanji="選" class="absolute top-2 right-2 size-8 text-base" />
 					{/if}

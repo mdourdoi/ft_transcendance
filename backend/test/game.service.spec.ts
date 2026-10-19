@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it, mock } from 'node:test';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { WsException } from '@nestjs/websockets';
 import { Redis } from 'ioredis';
 import {
@@ -9,6 +10,7 @@ import {
   JOIN_TIMEOUT_MS,
   PLAYER_CLOCK_MS,
 } from '../src/game/game.service.js';
+import { BotPool } from '../src/bots/bot-pool.service.js';
 import { decodeReplay } from '../src/game/domain/index.js';
 import { GameSession } from '../src/game/types/game-session.interface.js';
 import { MatchesService } from '../src/matches/matches.service.js';
@@ -23,9 +25,16 @@ class FakeMatches {
   cancelled: number[] = [];
   replays: Uint8Array[] = [];
   failing = false;
+  active = true;
 
   async findById(id: number) {
     return id === MATCH_ID ? match() : null;
+  }
+
+  async findActiveForUser(userId: number) {
+    return this.active && [PLAYER_ONE, PLAYER_TWO].includes(userId)
+      ? match()
+      : null;
   }
 
   async finishMatch(
@@ -43,6 +52,15 @@ class FakeMatches {
 
   async cancelMatch(matchId: number) {
     this.cancelled.push(matchId);
+    return true;
+  }
+}
+
+class FakeEmitter {
+  events: { name: string; payload: Record<string, unknown> }[] = [];
+
+  emit(name: string, payload: Record<string, unknown>) {
+    this.events.push({ name, payload });
     return true;
   }
 }
@@ -65,15 +83,19 @@ function errorCode(error: unknown): string {
 describe('GameService', () => {
   let redis: FakeRedis;
   let matches: FakeMatches;
+  let emitter: FakeEmitter;
   let service: GameService;
 
   beforeEach(() => {
     mock.timers.enable({ apis: ['Date'], now: 1_000_000 });
     redis = new FakeRedis();
     matches = new FakeMatches();
+    emitter = new FakeEmitter();
     service = new GameService(
       redis as unknown as Redis,
       matches as unknown as MatchesService,
+      new BotPool(),
+      emitter as unknown as EventEmitter2,
     );
   });
 
@@ -383,5 +405,67 @@ describe('GameService', () => {
     assert.deepEqual(matches.finished, [
       { matchId: MATCH_ID, winnerId: PLAYER_TWO, endReason: 'RESIGNATION' },
     ]);
+  });
+
+  it('announces the end of a game once its result is recorded', async () => {
+    await startedGame();
+    matches.failing = true;
+
+    await service.resign(MATCH_ID, PLAYER_ONE);
+    assert.deepEqual(emitter.events, []);
+
+    matches.failing = false;
+    await service.retryUnrecorded();
+
+    assert.deepEqual(emitter.events, [
+      {
+        name: 'game.ended',
+        payload: { matchId: MATCH_ID, playerIds: [PLAYER_ONE, PLAYER_TWO] },
+      },
+    ]);
+  });
+
+  it('reports no current game for a player outside any match', async () => {
+    matches.active = false;
+
+    assert.equal(await service.current(PLAYER_ONE), null);
+  });
+
+  it('gives the join deadline of a player who has not joined yet', async () => {
+    await service.createSession(match());
+
+    assert.deepEqual(await service.current(PLAYER_ONE), {
+      matchId: MATCH_ID,
+      mode: 'UNRANKED',
+      status: 'WAITING',
+      botLevel: null,
+      forfeitAt: Date.now() + JOIN_TIMEOUT_MS,
+    });
+  });
+
+  it('gives no deadline to a player seated in a running game', async () => {
+    await startedGame();
+
+    assert.equal((await service.current(PLAYER_ONE))?.forfeitAt, null);
+  });
+
+  it('gives the forfeit deadline of a player who left a running game', async () => {
+    await startedGame();
+
+    await service.markDisconnected(MATCH_ID, PLAYER_ONE);
+
+    assert.equal(
+      (await service.current(PLAYER_ONE))?.forfeitAt,
+      Date.now() + DISCONNECT_FORFEIT_MS,
+    );
+    assert.equal((await service.current(PLAYER_TWO))?.forfeitAt, null);
+  });
+
+  it('forgets a game that is already over', async () => {
+    await startedGame();
+
+    await service.resign(MATCH_ID, PLAYER_ONE);
+
+    assert.equal(await service.current(PLAYER_ONE), null);
   });
 });

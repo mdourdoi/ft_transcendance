@@ -1,4 +1,4 @@
-import { authFetch, token } from '$lib/auth';
+import { authFetch, token, tokenUserId } from '$lib/auth';
 
 export type Friendship = {
 	status: string;
@@ -265,11 +265,15 @@ import { get } from 'svelte/store';
 // Socket events cover most changes; polling picks up anything missed.
 const REFRESH_INTERVAL_MS = 30_000;
 let refreshTimer: ReturnType<typeof setInterval> | null = null;
+let currentUser: number | null = null;
 
 token.subscribe((value) => {
+	const user = tokenUserId(value);
+	if (user === currentUser) return;
+	currentUser = user;
 	if (refreshTimer) clearInterval(refreshTimer);
 	refreshTimer = null;
-	if (!value) {
+	if (user === null) {
 		friendManager.reset();
 	} else {
 		friendManager.get_user();

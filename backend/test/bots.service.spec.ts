@@ -1,8 +1,10 @@
 import 'reflect-metadata';
 import assert from 'node:assert/strict';
-import { beforeEach, describe, it } from 'node:test';
+import { afterEach, beforeEach, describe, it } from 'node:test';
 import { HttpException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Redis } from 'ioredis';
+import { BotPool } from '../src/bots/bot-pool.service.js';
 import { BotsService } from '../src/bots/bots.service.js';
 import { Game } from '../src/game/domain/index.js';
 import { GameService } from '../src/game/game.service.js';
@@ -69,13 +71,17 @@ describe('BotsService', () => {
   let queue: FakeQueue;
   let game: GameService;
   let service: BotsService;
+  let pool: BotPool;
 
   beforeEach(() => {
+    pool = new BotPool();
     matches = new FakeMatches();
     queue = new FakeQueue();
     game = new GameService(
       new FakeRedis() as unknown as Redis,
       matches as unknown as MatchesService,
+      pool,
+      { emit: () => true } as unknown as EventEmitter2,
     );
     service = new BotsService(
       matches as unknown as MatchesService,
@@ -83,6 +89,8 @@ describe('BotsService', () => {
       queue as unknown as QueueService,
     );
   });
+
+  afterEach(() => pool.onModuleDestroy());
 
   async function playAsAlice(session: GameSession): Promise<GameSession> {
     const play = Game.restore(session.game).legalMoves()[0];
@@ -108,10 +116,10 @@ describe('BotsService', () => {
     assert.deepEqual(session?.joined, [false, true]);
   });
 
-  it('plays at the strongest level unless told otherwise', async () => {
+  it('plays at the weakest level unless told otherwise', async () => {
     await service.startMatch(ALICE);
 
-    assert.equal((await game.find(MATCH_ID))?.botLevel, 4);
+    assert.equal((await game.find(MATCH_ID))?.botLevel, 1);
   });
 
   it('remembers the level chosen by the player', async () => {
@@ -120,6 +128,7 @@ describe('BotsService', () => {
     const { session } = await game.join(MATCH_ID, ALICE);
 
     assert.equal(session.botLevel, 2);
+    assert.equal(game.toView(session).botLevel, 2);
   });
 
   it('starts the game as soon as the player joins', async () => {
@@ -165,6 +174,23 @@ describe('BotsService', () => {
 
     assert.equal(answer?.game.turn, turn + 1);
     assert.equal(answer?.playerIds[answer.game.currentPlayer], ALICE);
+    assert.equal((await game.find(MATCH_ID))?.game.turn, turn + 1);
+  });
+
+  it('thinks only once when asked twice for the same turn', async () => {
+    await service.startMatch(ALICE);
+    let { session } = await game.join(MATCH_ID, ALICE);
+    if (session.playerIds[session.game.currentPlayer] === ALICE) {
+      session = await playAsAlice(session);
+    }
+    const turn = session.game.turn;
+
+    const answers = await Promise.all([
+      game.playBotTurn(session),
+      game.playBotTurn(session),
+    ]);
+
+    assert.equal(answers.filter((answer) => answer !== null).length, 1);
     assert.equal((await game.find(MATCH_ID))?.game.turn, turn + 1);
   });
 

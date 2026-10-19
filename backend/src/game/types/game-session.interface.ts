@@ -39,6 +39,7 @@ export interface PlayView {
 export interface GameStateView {
   matchId: number;
   mode: QueueMode;
+  botLevel: number | null;
   status: GameStatus;
   playerIds: [number, number];
   board: number[][];
@@ -51,4 +52,12 @@ export interface GameStateView {
   legalMoves: PlayView[];
   winnerId: number | null;
   endReason: GameEndReason | null;
+}
+
+export interface CurrentGameView {
+  matchId: number;
+  mode: QueueMode;
+  status: Exclude<GameStatus, 'OVER'>;
+  botLevel: number | null;
+  forfeitAt: number | null;
 }

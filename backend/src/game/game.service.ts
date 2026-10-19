@@ -1,4 +1,5 @@
 import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { WsException } from '@nestjs/websockets';
 import { Redis } from 'ioredis';
 import {
@@ -7,7 +8,7 @@ import {
   BOT_PLAYER_INDEX,
   DEFAULT_BOT_LEVEL,
 } from '../bots/bots.constants.js';
-import { chooseTurn } from '../bots/calculator/choose-play.js';
+import { BotPool } from '../bots/bot-pool.service.js';
 import { ErrorCode } from '../common/error-codes.js';
 import { acquireLock, releaseLock } from '../common/redis-lock.js';
 import {
@@ -31,6 +32,7 @@ import {
 } from './domain/index.js';
 import {
   CardView,
+  CurrentGameView,
   GameEndReason,
   GameSession,
   GameStateView,
@@ -57,10 +59,13 @@ export interface JoinResult {
 @Injectable()
 export class GameService {
   private readonly logger = new Logger(GameService.name);
+  private readonly thinking = new Set<number>();
 
   constructor(
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
     private readonly matchesService: MatchesService,
+    private readonly botPool: BotPool,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async createSession(
@@ -150,6 +155,33 @@ export class GameService {
     return this.load(matchId);
   }
 
+  async current(userId: number): Promise<CurrentGameView | null> {
+    const match = await this.matchesService.findActiveForUser(userId);
+    if (!match) {
+      return null;
+    }
+    const session = await this.load(match.id);
+    if (session?.status === 'OVER') {
+      return null;
+    }
+    const index = session ? session.playerIds.indexOf(userId) : -1;
+    let forfeitAt: number | null = null;
+    if (session && index !== -1) {
+      if (session.status === 'PLAYING') {
+        forfeitAt = session.disconnectDeadlines[index];
+      } else if (!session.joined[index]) {
+        forfeitAt = session.joinDeadline;
+      }
+    }
+    return {
+      matchId: match.id,
+      mode: match.mode,
+      status: session?.status ?? 'WAITING',
+      botLevel: session?.botLevel ?? null,
+      forfeitAt,
+    };
+  }
+
   async markDisconnected(
     matchId: number,
     userId: number,
@@ -213,23 +245,23 @@ export class GameService {
     if (
       session.mode !== QueueMode.BOT ||
       session.status !== 'PLAYING' ||
-      session.game.currentPlayer !== BOT_PLAYER_INDEX
+      session.game.currentPlayer !== BOT_PLAYER_INDEX ||
+      this.thinking.has(session.matchId)
     ) {
       return null;
     }
-    const botId = session.playerIds[BOT_PLAYER_INDEX];
-    const level = BOT_LEVELS[(session.botLevel ?? DEFAULT_BOT_LEVEL) - 1];
-    const { card, play } = chooseTurn(Game.restore(session.game), level);
-    if (!play) {
-      return this.pass(session.matchId, botId, card);
+    this.thinking.add(session.matchId);
+    try {
+      const botId = session.playerIds[BOT_PLAYER_INDEX];
+      const level = BOT_LEVELS[(session.botLevel ?? DEFAULT_BOT_LEVEL) - 1];
+      const { card, play } = await this.botPool.choose(session.game, level);
+      if (!play) {
+        return await this.pass(session.matchId, botId, card);
+      }
+      return await this.play(session.matchId, botId, card, play.from, play.to);
+    } finally {
+      this.thinking.delete(session.matchId);
     }
-    return this.play(
-      session.matchId,
-      botId,
-      play.card,
-      { row: play.from.row, col: play.from.col },
-      { row: play.to.row, col: play.to.col },
-    );
   }
 
   async resign(matchId: number, userId: number): Promise<GameSession> {
@@ -267,6 +299,7 @@ export class GameService {
       });
       if (session) {
         ended.push(session);
+        this.announceEnd(session);
       }
     }
     return ended;
@@ -328,6 +361,7 @@ export class GameService {
     return {
       matchId: session.matchId,
       mode: session.mode,
+      botLevel: session.botLevel,
       status: session.status,
       playerIds: session.playerIds,
       board: session.game.board,
@@ -513,12 +547,22 @@ export class GameService {
           `result of match ${session.matchId} conflicts with the database: ${error.message}`,
         );
         await this.redis.srem(UNRECORDED_KEY, String(session.matchId));
+        this.announceEnd(session);
         return;
       }
       this.logger.warn(
         `could not record result of match ${session.matchId}, will retry: ${(error as Error).message}`,
       );
+      return;
     }
+    this.announceEnd(session);
+  }
+
+  private announceEnd(session: GameSession): void {
+    this.eventEmitter.emit('game.ended', {
+      matchId: session.matchId,
+      playerIds: session.playerIds.filter((id) => id !== BOT_PLAYER_ID),
+    });
   }
 
   private playerIndex(session: GameSession, userId: number): number {

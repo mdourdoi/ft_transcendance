@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import { get, writable } from 'svelte/store';
-import { authFetch, token } from '$lib/auth';
+import { authFetch, logout, token, tokenUserId } from '$lib/auth';
 
 export type QueueMode = 'RANKED' | 'UNRANKED' | 'BOT';
 export const BOT_ID = 0;
@@ -12,6 +12,16 @@ export const BOT_LEVELS = [
 ];
 export const botLevel = writable(Number(localStorage.getItem('botLevel')) || BOT_LEVELS[0].level);
 botLevel.subscribe((level) => localStorage.setItem('botLevel', String(level)));
+
+export const MODE_SLUGS: Record<QueueMode, string> = { RANKED: 'ranked', UNRANKED: 'normal', BOT: 'training' };
+
+export function modeOfSlug(slug?: string): QueueMode | null {
+    return (Object.keys(MODE_SLUGS) as QueueMode[]).find((mode) => MODE_SLUGS[mode] === slug) ?? null;
+}
+
+export function botOfLevel(level: number | null | undefined) {
+    return BOT_LEVELS.find((bot) => bot.level === level) ?? BOT_LEVELS[0];
+}
 
 export type GameStatus = 'WAITING' | 'PLAYING' | 'OVER';
 export type GameEndReason =
@@ -42,6 +52,7 @@ export interface PlayView {
 export interface GameStateView {
     matchId: number;
     mode: QueueMode;
+    botLevel: number | null;
     status: GameStatus;
     playerIds: [number, number];
     board: number[][];
@@ -54,6 +65,32 @@ export interface GameStateView {
     legalMoves: PlayView[];
     winnerId: number | null;
     endReason: GameEndReason | null;
+}
+
+export interface CurrentGame {
+    matchId: number;
+    mode: QueueMode;
+    status: 'WAITING' | 'PLAYING';
+    botLevel: number | null;
+    forfeitAt: number | null;
+}
+
+let resuming = false;
+
+export function requestResume() {
+    resuming = true;
+}
+
+export function takeResumeRequest(): boolean {
+    const requested = resuming;
+    resuming = false;
+    return requested;
+}
+
+export async function fetchCurrentGame(): Promise<CurrentGame | null> {
+    const res = await authFetch('/api/games/current');
+    if (!res.ok) throw new Error('NETWORK_ERROR');
+    return (await res.json()).game;
 }
 
 export interface OnlineGameHandlers {
@@ -70,12 +107,7 @@ export interface OnlineGame {
 }
 
 export function currentUserId(): number | null {
-    try {
-        const payload = (get(token) ?? '').split('.')[1];
-        return JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/'))).sub ?? null;
-    } catch {
-        return null;
-    }
+    return tokenUserId();
 }
 
 function connect(namespace: string, handlers: OnlineGameHandlers): Socket {
@@ -83,11 +115,11 @@ function connect(namespace: string, handlers: OnlineGameHandlers): Socket {
     socket.on('exception', (error: { message?: string }) => {
         handlers.onError(error?.message ?? 'UNKNOWN_ERROR');
     });
-    socket.on('auth.expired', () => handlers.onError('INVALID_TOKEN'));
+    socket.on('auth.expired', () => logout());
     return socket;
 }
 
-export function playOnline(mode: QueueMode, handlers: OnlineGameHandlers): OnlineGame {
+export function playOnline(mode: QueueMode, handlers: OnlineGameHandlers, ongoing: number | null = null): OnlineGame {
     let queue: Socket | null = null;
     let game: Socket | null = null;
     let matchId: number | null = null;
@@ -130,21 +162,9 @@ export function playOnline(mode: QueueMode, handlers: OnlineGameHandlers): Onlin
         }
     }
 
-    async function start() {
-        let current: { id: number } | null = null;
-        try {
-            const res = await authFetch('/api/matches/current');
-            if (res.ok) current = (await res.json()).match;
-        } catch {
-            handlers.onError('NETWORK_ERROR');
-        }
-        if (closed) return;
-        if (current) joinGame(current.id);
-        else if (mode === 'BOT') await challengeBot();
-        else search();
-    }
-
-    void start();
+    if (ongoing !== null) joinGame(ongoing);
+    else if (mode === 'BOT') void challengeBot();
+    else search();
 
     return {
         move: (card, from, to) => game?.emit('game.move', { matchId, card, from, to }),

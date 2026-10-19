@@ -30,9 +30,9 @@ import {
 import { DISCONNECT_FORFEIT_MS, GameService } from './game.service.js';
 import { GameSession } from './types/game-session.interface.js';
 
-const DEADLINE_TICK_MS = 1000;
-const RETRY_EVERY_TICKS = 10;
-const ORPHAN_SWEEP_EVERY_TICKS = 30;
+const DEADLINE_TICK_MS = 250;
+const RETRY_EVERY_TICKS = 40;
+const ORPHAN_SWEEP_EVERY_TICKS = 120;
 
 @WebSocketGateway({ namespace: '/game', cors: { origin: resolveCorsOrigin } })
 export class GameGateway

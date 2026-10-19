@@ -2,13 +2,12 @@
     import { onMount } from 'svelte';
     import { BoardPanel, ExchangePanel, GameDialog, GameMenu, GAME_ASSETS, InfoPanel, PlayerPanel, paint, type Modal } from '$lib/components/game';
     import '$lib/components/game/game.css';
-    import { card } from '$lib/game/index';
     import type { Position } from '$lib/game/index';
-    import { createGame, legalMoves, canMove, playMove, passTurn } from '$lib/game/engine';
-    import type { GameState, Player } from '$lib/game/engine';
+    import { createGame, legalMoves, canMove } from '$lib/game/engine';
+    import type { GameState } from '$lib/game/engine';
     import { liveClocks, toGameState } from '$lib/game/online';
-    import { BOT_ID, BOT_LEVELS, botLevel, currentUserId, playOnline } from '$lib/game-socket';
-    import type { GameStateView, OnlineGame } from '$lib/game-socket';
+    import { BOT_ID, MODE_SLUGS, botLevel, botOfLevel, currentUserId, fetchCurrentGame, modeOfSlug, playOnline, requestResume, takeResumeRequest } from '$lib/game-socket';
+    import type { CurrentGame, GameStateView, OnlineGame } from '$lib/game-socket';
     import { authFetch } from '$lib/auth';
     import { navigate } from '$lib/router';
     import { t } from '$lib/i18n';
@@ -16,46 +15,44 @@
 
     let { mode }: { mode?: string } = $props();
 
-    const names: [string, string] = ['RaiNeko', 'Kenshii'];
-
     const players = [1, 0] as const;
     const myId = currentUserId();
 
-    let game = $state(createGame(['Tiger', 'Dragon', 'Crane', 'Cobra', 'Mantis'].map(card)));
+    let game = $state(createGame());
     let past = $state.raw<GameState[]>([]);
     let cursor = $state<number | null>(null);
     let selected = $state<Position | null>(null);
     let cardIndex = $state(0);
     let clocks = $state([600000, 600000]);
-    let started = $state(false);
     let error = $state('');
     let modal = $state<Modal | null>(null);
     let view = $state<GameStateView | null>(null);
+    let ready = $state(false);
     let opponentAway = $state(false);
     let profiles = $state<Record<number, { username: string; avatarUrl: string }>>({});
     let session: OnlineGame | null = null;
+    let destroyed = false;
     const requested: Record<number, boolean> = {};
-    let lastTick = 0;
 
-    const queueMode = $derived(mode === 'ranked' ? 'RANKED' : mode === 'normal' ? 'UNRANKED' : mode === 'training' ? 'BOT' : null);
-    const online = $derived(queueMode !== null);
+    const queueMode = $derived(modeOfSlug(mode));
     const me = $derived(view && myId !== null ? view.playerIds.indexOf(myId) : -1);
-    const flipped = $derived(online && me === 1);
-    const waiting = $derived(online && view?.status !== 'PLAYING' && view?.status !== 'OVER');
-    const myTurn = $derived(!online || game.turn === me);
+    const flipped = $derived(me === 1);
+    const waiting = $derived(view?.status !== 'PLAYING' && view?.status !== 'OVER');
+    const myTurn = $derived(game.turn === me);
     const over = $derived(!!game.result);
     const reviewing = $derived(cursor !== null);
     const locked = $derived(over || waiting || reviewing);
     const shown = $derived(cursor === null ? game : past[cursor]);
     const step = $derived(cursor ?? past.length);
-    const seats = $derived(online && view ? (view.playerIds.map(nameOf) as [string, string]) : names);
+    const seats = $derived(view ? (view.playerIds.map(nameOf) as [string, string]) : [$t('GAME.ME'), $t('GAME.OPPONENT')]);
     const destinations = $derived(selected && !reviewing ? legalMoves(game, selected, cardIndex) : []);
     const blocked = $derived(!over && !canMove(game));
     const liveMode = $derived(view?.mode ?? queueMode);
-    const title = $derived($t(!online ? 'GAME.TITLES.LOCAL' : liveMode === 'RANKED' ? 'GAME.TITLES.RANKED' : liveMode === 'BOT' ? 'GAME.TITLES.TRAINING' : 'GAME.TITLES.NORMAL'));
+    const bot = $derived(botOfLevel(view?.botLevel ?? $botLevel));
+    const title = $derived($t(liveMode === 'RANKED' ? 'GAME.TITLES.RANKED' : liveMode === 'BOT' ? 'GAME.TITLES.TRAINING' : 'GAME.TITLES.NORMAL'));
     const winner = $derived(game.result?.winner ?? null);
     const outcome = $derived(winner === null ? $t('GAME.OUTCOME.CANCELLED') : $t('GAME.OUTCOME.WINNER', { values: { name: seats[winner] } }));
-    const verdict = $derived($t(!online || me < 0 || winner === null ? 'GAME.VERDICT.OVER' : winner === me ? 'GAME.VERDICT.WIN' : 'GAME.VERDICT.LOSS'));
+    const verdict = $derived($t(me < 0 || winner === null ? 'GAME.VERDICT.OVER' : winner === me ? 'GAME.VERDICT.WIN' : 'GAME.VERDICT.LOSS'));
     const status = $derived.by(() => {
         if (over)
             return $t('GAME.VERDICT.OVER');
@@ -74,7 +71,6 @@
 
     const active = (owner: number) => game.turn === owner && !over && !waiting;
     const playable = (owner: number) => active(owner) && !reviewing && myTurn;
-    const other = (player: Player) => (1 - player) as Player;
 
     function nameOf(id: number) {
         if (profiles[id])
@@ -82,13 +78,13 @@
         if (id === myId)
             return friendManager.username || $t('GAME.ME');
         if (id === BOT_ID)
-            return (BOT_LEVELS.find((bot) => bot.level === $botLevel) ?? BOT_LEVELS[0]).name;
+            return bot.name;
         return friendManager.friends.find((f) => f.user?.id === id)?.user.username ?? $t('GAME.OPPONENT');
     }
     function avatarOf(owner: number) {
-        const id = online && view ? view.playerIds[owner] : null;
+        const id = view ? view.playerIds[owner] : null;
         if (id === BOT_ID)
-            return (BOT_LEVELS.find((bot) => bot.level === $botLevel) ?? BOT_LEVELS[0]).image;
+            return bot.image;
         if (id !== null && profiles[id])
             return `/api/avatars/${profiles[id].avatarUrl}`;
         return `${GAME_ASSETS}/avatars/${owner === 1 ? 'ronin' : 'kunoichi'}.webp`;
@@ -110,17 +106,8 @@
         return `${pad(Math.floor(seconds / 60))}:${pad(seconds % 60)}`;
     }
     function tick() {
-        const now = performance.now();
         if (view)
             clocks = liveClocks(view);
-        else if (!online && started && !over) {
-            const next = [...clocks];
-            next[game.turn] = Math.max(0, next[game.turn] - (now - lastTick));
-            clocks = next;
-            if (next[game.turn] === 0)
-                game = { ...game, result: { winner: other(game.turn), reason: 'temps' } };
-        }
-        lastTick = now;
     }
     function reset() {
         game = createGame();
@@ -148,7 +135,7 @@
         if (next.status === 'OVER')
             opponentAway = false;
     }
-    function startOnline() {
+    function startOnline(ongoing: number | null = null) {
         if (!queueMode)
             return;
         session?.close();
@@ -162,20 +149,27 @@
                     opponentAway = !connected;
             },
             onError: (code) => (error = code)
-        });
+        }, ongoing);
     }
-    function commit(play: () => GameState) {
+    async function enter() {
+        const resuming = takeResumeRequest();
+        let current: CurrentGame | null = null;
         try {
-            const before = game;
-            game = play();
-            past = [...past, before];
-            selected = null;
-            cardIndex = 0;
-            started = true;
-            lastTick = performance.now();
-        } catch (e) {
-            error = (e as Error).message;
+            current = await fetchCurrentGame();
+        } catch {
+            error = 'NETWORK_ERROR';
         }
+        if (destroyed)
+            return;
+        if (current && MODE_SLUGS[current.mode] !== mode) {
+            if (resuming)
+                requestResume();
+            return navigate(`/game/${MODE_SLUGS[current.mode]}`, { replace: true });
+        }
+        if (!queueMode || (resuming && !current))
+            return navigate('/home', { replace: true });
+        ready = true;
+        startOnline(current?.matchId ?? null);
     }
     function choose(pos: Position) {
         tick();
@@ -189,9 +183,7 @@
         if (!selected)
             return;
         const from = selected;
-        if (!online)
-            commit(() => playMove(game, from, pos, cardIndex));
-        else if (legalMoves(game, from, cardIndex).some((p) => p.equals(pos)))
+        if (legalMoves(game, from, cardIndex).some((p) => p.equals(pos)))
             session?.move(game.hands[game.turn][cardIndex].name, { row: from.row, col: from.col }, { row: pos.row, col: pos.col });
         else
             error = 'FORBIDDEN_MOVE';
@@ -200,26 +192,12 @@
         tick();
         if (locked || !myTurn)
             return;
-        if (online)
-            session?.pass(game.hands[game.turn][cardIndex].name);
-        else
-            commit(() => passTurn(game, cardIndex));
+        session?.pass(game.hands[game.turn][cardIndex].name);
     }
     function resign() {
         tick();
         modal = null;
-        if (online)
-            session?.resign();
-        else if (!over)
-            game = { ...game, result: { winner: other(game.turn), reason: 'abandon' } };
-    }
-    function restart() {
-        if (online)
-            return startOnline();
-        reset();
-        clocks = [600000, 600000];
-        started = false;
-        lastTick = performance.now();
+        session?.resign();
     }
     function quit() {
         modal = null;
@@ -243,10 +221,10 @@
     }
 
     onMount(() => {
-        lastTick = performance.now();
         const id = setInterval(tick, 100);
-        startOnline();
+        void enter();
         return () => {
+            destroyed = true;
             clearInterval(id);
             session?.close();
         };
@@ -264,6 +242,7 @@
     <meta name="description" content={$t('GAME.HEAD_DESCRIPTION')}/>
 </svelte:head>
 
+{#if ready}
 <main style="background-image: url('../assets/game/background/dojo.webp')" class="min-h-dvh w-full bg-cover bg-center bg-repeat font-brush text-[#241a12] lg:flex lg:items-center">
     <div class="@container relative isolate mx-auto flex w-full max-w-xl flex-col gap-3 p-3 lg:block lg:aspect-[3/2] lg:w-[min(100%,150dvh)] lg:max-w-[1800px] lg:p-0">
         <img src="../assets/game/decor/sakura.webp" alt="" aria-hidden="true" draggable="false" class="pointer-events-none absolute -left-[2%] top-0 -z-10 hidden w-[27%] lg:block" />
@@ -281,11 +260,11 @@
                 name={seats[owner]}
                 avatar={avatarOf(owner)}
                 clock={time(clocks[owner])}
-                cards={online && !view ? [] : shown.hands[owner]}
+                cards={!view ? [] : shown.hands[owner]}
                 {flipped}
                 active={active(owner)}
                 playable={playable(owner)}
-                opponent={online && owner !== me}
+                opponent={owner !== me}
                 {cardIndex}
                 onselect={(index) => {
                     cardIndex = index;
@@ -294,13 +273,12 @@
             />
         {/each}
         <BoardPanel map={shown.map} {flipped} selected={reviewing ? null : selected} {destinations} disabled={locked || !myTurn} {waiting} {status} cancellable={!view} oncell={choose} oncancel={quit} />
-        <ExchangePanel card={!online || view ? shown.side : null} player={flipped ? 1 - shown.turn : shown.turn} />
+        <ExchangePanel card={view ? shown.side : null} player={flipped ? 1 - shown.turn : shown.turn} />
         <InfoPanel
             {status}
             {over}
             selecting={!!selected}
             {opponentAway}
-            clockHint={!online && !started}
             canPass={blocked && !waiting && myTurn}
             canResign={!waiting}
             {error}
@@ -311,6 +289,7 @@
         <footer class="absolute bottom-[3%] left-[26%] hidden w-[50%] rounded bg-[#f3e3c8]/90 py-1 text-center text-[clamp(10px,.8cqw,15px)] uppercase tracking-[.2em] lg:block">{$t('GAME.FOOTER')}</footer>
     </div>
 </main>
+{/if}
 
 {#if modal}
     <GameDialog
@@ -318,11 +297,10 @@
         title={titles[modal]}
         {outcome}
         reason={game.result?.reason ?? null}
-        resignName={seats[online && me >= 0 ? me : game.turn]}
-        {online}
+        resignName={seats[me >= 0 ? me : game.turn]}
         playing={view?.status === 'PLAYING'}
         onclose={() => (modal = null)}
-        onrestart={restart}
+        onrestart={() => startOnline()}
         onresign={resign}
         onquit={quit}
     />

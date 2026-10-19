@@ -58,7 +58,7 @@ export class AuthService {
       await this.twofaVerifier.assertValidCode(row, dto.code);
     }
 
-    const payload: JwtPayload = { sub: row.id, username: row.username };
+    const payload: JwtPayload = { sub: row.id };
 
     return { accessToken: this.jwt.sign(payload) };
   }

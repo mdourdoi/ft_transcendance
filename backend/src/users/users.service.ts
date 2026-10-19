@@ -46,6 +46,7 @@ export class UsersService {
       username: row.username,
       avatarUrl: row.avatarUrl,
       rating: row.rating,
+      twoFactorEnabled: row.twoFactorEnabled,
       createdAt: row.createdAt,
     };
   }

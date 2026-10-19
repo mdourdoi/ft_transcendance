@@ -7,7 +7,6 @@
         over,
         selecting,
         opponentAway,
-        clockHint,
         canPass,
         canResign,
         error,
@@ -19,7 +18,6 @@
         over: boolean;
         selecting: boolean;
         opponentAway: boolean;
-        clockHint: boolean;
         canPass: boolean;
         canResign: boolean;
         error: string;
@@ -40,9 +38,6 @@
         <p class="text-[clamp(11px,.85cqw,16px)]"><span class="mr-2 inline-block h-3 w-3 rounded-full bg-red-600"></span>{$t('GAME.CAPTURE')}</p>
         {#if opponentAway}
             <p role="status" class="mt-2 text-[clamp(10px,.75cqw,14px)] text-amber-300">{$t('GAME.OPPONENT_AWAY')}</p>
-        {/if}
-        {#if clockHint}
-            <p class="mt-2 text-[clamp(10px,.75cqw,14px)] text-[#bda68b]">{$t('GAME.CLOCK_STARTS')}</p>
         {/if}
         {#if canPass}
             <button type="button" class="mt-2 border border-[#bc965d] px-2 py-1 text-xs" onclick={onpass}>{$t('GAME.PASS')}</button>
