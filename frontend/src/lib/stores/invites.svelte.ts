@@ -1,7 +1,20 @@
 import { authFetch } from '$lib/auth';
 import { navigate } from '$lib/router';
+import { SvelteSet } from 'svelte/reactivity';
 
 export type InviteSender = { id: number; username: string; avatarUrl: string };
+
+const matchHandlers = new SvelteSet<(matchId: number) => void>();
+
+export function onInviteMatch(handler: (matchId: number) => void) {
+	matchHandlers.add(handler);
+	return () => matchHandlers.delete(handler);
+}
+
+function goToMatch(matchId: number) {
+	matchHandlers.forEach((handler) => handler(matchId));
+	navigate('/game/normal', { useAnimation: true });
+}
 
 export class InviteManager {
 	incoming = $state<Record<number, { from: InviteSender; expiresAt: number }>>({});
@@ -37,9 +50,9 @@ export class InviteManager {
 		this.incoming[from.id] = { from, expiresAt };
 	}
 
-	accepted(opponentId: number) {
+	accepted(opponentId: number, matchId: number) {
 		delete this.outgoing[opponentId];
-		navigate('/game/normal', { useAnimation: true });
+		goToMatch(matchId);
 	}
 
 	refused(userId: number) {
@@ -80,7 +93,7 @@ export class InviteManager {
 	async accept(senderId: number) {
 		const data = await this.post('accept', senderId);
 		delete this.incoming[senderId];
-		if (data) navigate('/game/normal', { useAnimation: true });
+		if (data) goToMatch(data.matchId);
 	}
 
 	async decline(senderId: number) {

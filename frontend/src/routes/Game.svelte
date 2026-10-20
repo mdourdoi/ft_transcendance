@@ -12,6 +12,7 @@
     import { navigate } from '$lib/router';
     import { t } from '$lib/i18n';
     import { friendManager } from '$lib/stores/friend.svelte';
+    import { onInviteMatch } from '$lib/stores/invites.svelte';
 
     let { mode }: { mode?: string } = $props();
 
@@ -223,9 +224,14 @@
     onMount(() => {
         const id = setInterval(tick, 100);
         void enter();
+        const offInviteMatch = onInviteMatch((matchId) => {
+            if (queueMode === 'UNRANKED')
+                startOnline(matchId);
+        });
         return () => {
             destroyed = true;
             clearInterval(id);
+            offInviteMatch();
             session?.close();
         };
     });

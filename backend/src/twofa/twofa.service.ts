@@ -3,14 +3,13 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { generateSecret, generateURI, verify } from 'otplib';
+import { generateSecret, generateURI } from 'otplib';
 import QRCode from 'qrcode';
 import { TwofaVerifierService } from '../auth/twofa-verifier.service.js';
-import { decryptSecret, encryptSecret } from '../common/crypto.js';
+import { encryptSecret } from '../common/crypto.js';
 import { ErrorCode } from '../common/error-codes.js';
 import { Prisma } from '../generated/prisma/client.js';
 import { EmailTokenService } from '../mail/email-token.service.js';
@@ -75,16 +74,7 @@ export class TwofaService {
     if (!row.twoFactorSecret) {
       throw new BadRequestException(ErrorCode.TWOFA_NOT_INITIALIZED);
     }
-    let secret: string;
-    try {
-      secret = decryptSecret(row.twoFactorSecret);
-    } catch {
-      throw new InternalServerErrorException(ErrorCode.TWOFA_SECRET_UNREADABLE);
-    }
-    const result = await verify({ secret, token: code });
-    if (!result.valid) {
-      throw new UnauthorizedException(ErrorCode.INVALID_TWOFA_CODE);
-    }
+    await this.twofaVerifier.assertValidTotp(userId, row.twoFactorSecret, code);
     const activatedRow = await this.prisma.user.update({
       where: { id: userId },
       data: { twoFactorEnabled: true },

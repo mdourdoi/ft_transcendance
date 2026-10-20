@@ -54,9 +54,12 @@ function connectSocket() {
       inviteManager.receive(from, expiresAt);
     },
   );
-  socket.on("gameInviteAccepted", ({ opponentId }: { opponentId: number }) => {
-    inviteManager.accepted(opponentId);
-  });
+  socket.on(
+    "gameInviteAccepted",
+    ({ opponentId, matchId }: { opponentId: number; matchId: number }) => {
+      inviteManager.accepted(opponentId, matchId);
+    },
+  );
   socket.on("gameInviteDeclined", ({ userId }: { userId: number }) => {
     inviteManager.refused(userId);
   });
