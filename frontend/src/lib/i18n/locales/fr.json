@@ -467,6 +467,7 @@
     "INVALID_MESSAGE": "Message invalide (1024 caractères max)",
     "INVALID_CONVERSATION_ID": "Conversation invalide",
     "NOT_CONNECTED": "Tu n’es pas connecté au serveur",
+    "SEND_TIMEOUT": "Message non envoyé, réessaie",
     "NOT_YOUR_TURN": "Ce n’est pas ton tour.",
     "GAME_NOT_STARTED": "La partie n’a pas encore commencé.",
     "GAME_OVER": "La partie est terminée.",

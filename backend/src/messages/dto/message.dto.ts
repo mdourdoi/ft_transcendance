@@ -3,6 +3,7 @@ import { TinyUserDto } from '../../users/dto/tiny-user.dto.js';
 
 export class MessageDto {
   @Expose() public id: string;
+  @Expose() public conversationId: number;
   @Expose() public content: string;
   @Expose() public createdAt: Date;
 

@@ -48,6 +48,7 @@ export class MessagesService {
       const dto = new MessageDto({
         id: item.id,
         content: item.content,
+        conversationId: item.conversationId,
         createdAt: item.createdAt,
         sender: {
           id: item.sender.id,
@@ -92,6 +93,7 @@ export class MessagesService {
     return {
       id: created.id,
       createdAt: created.createdAt,
+      conversationId: created.conversationId,
       content: created.content,
       sender: {
         id: sender.id,

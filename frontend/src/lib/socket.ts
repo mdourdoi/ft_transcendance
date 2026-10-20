@@ -1,9 +1,8 @@
-import { io, Socket } from 'socket.io-client';
 import { isTokenExpired, logout, token, tokenUserId } from "$lib/auth";
-import { get, writable } from 'svelte/store';
 import { friendManager } from "$lib/stores/friend.svelte";
 import { inviteManager, type InviteSender } from "$lib/stores/invites.svelte";
-
+import { io, Socket } from "socket.io-client";
+import { get, writable } from "svelte/store";
 
 let socket: Socket | null = null;
 export const onlineFriends = writable<Record<number, boolean>>({});
@@ -11,113 +10,128 @@ export const onlineFriends = writable<Record<number, boolean>>({});
 let currentUser: number | null = null;
 
 token.subscribe((value) => {
-    const user = tokenUserId(value);
-    if (user === currentUser) return;
-    currentUser = user;
-    disconnectSocket();
-    if (user !== null) {
-        connectSocket();
-    }
+  const user = tokenUserId(value);
+  if (user === currentUser) return;
+  currentUser = user;
+  disconnectSocket();
+  if (user !== null) {
+    connectSocket();
+  }
 });
 
 function connectSocket() {
-    if (socket) return socket;
-    socket = io({auth: (cb) => cb({ token: get(token) })});
-    socket.on('auth.renewed', ({ token: renewed }: { token: string }) => {
-        token.set(renewed);
-    });
-    socket.on('disconnect', (reason) => {
-        if (reason === 'io server disconnect' && isTokenExpired()) logout();
-    });
-    socket.on('connect', () => {
-        socket?.emit('getOnlineFriends', (friends: { userId: number; onlineStatus: boolean }[]) => {
-            const res = Object.fromEntries(friends.map((f) => [f.userId, f.onlineStatus]));
-            onlineFriends.set(res);
-        });
-    });
-    socket.on('presence', ({userId, onlineStatus}) =>{
-        onlineFriends.update((o) => ({...o, [userId]: onlineStatus}));
-    });
-    socket.on('newMessage', (msg: ChatMessage) => {
-        messageHandlers.forEach((handler) => handler(msg));
-    });
-    socket.on('friendRequest', () => {
-        friendManager.friendships_requests();
-    });
-    socket.on('gameInvite', ({ from, expiresAt }: { from: InviteSender; expiresAt: number }) => {
-        inviteManager.receive(from, expiresAt);
-    });
-    socket.on('gameInviteAccepted', ({ opponentId }: { opponentId: number }) => {
-        inviteManager.accepted(opponentId);
-    });
-    socket.on('gameInviteDeclined', ({ userId }: { userId: number }) => {
-        inviteManager.refused(userId);
-    });
-    socket.on('gameInviteCancelled', ({ userId }: { userId: number }) => {
-        inviteManager.withdrawn(userId);
-    });
-    socket.on('friendDenied', () => {
-        friendManager.sented_requests();
-    });
-    socket.on('friendAccepted', () => {
-        friendManager.get_friends();
-        friendManager.sented_requests();
-    });
-    socket.on('friendCancelled', () => {
-        friendManager.friendships_requests();
-    });
-    socket.on('friendRemoved', () => {
-        friendManager.get_friends();
-    });
-    socket.on('friendBlocked', () => {
-        friendManager.friendships_requests();
-        friendManager.sented_requests();
-    });
-    socket.on('gameEnded', ({ matchId }: { matchId: number }) => {
-        gameEndedHandlers.forEach((handler) => handler(matchId));
-    });
-    return socket;
+  if (socket) return socket;
+  socket = io({ auth: (cb) => cb({ token: get(token) }) });
+  socket.on("auth.renewed", ({ token: renewed }: { token: string }) => {
+    token.set(renewed);
+  });
+  socket.on("disconnect", (reason) => {
+    if (reason === "io server disconnect" && isTokenExpired()) logout();
+  });
+  socket.on("connect", () => {
+    socket?.emit(
+      "getOnlineFriends",
+      (friends: { userId: number; onlineStatus: boolean }[]) => {
+        const res = Object.fromEntries(
+          friends.map((f) => [f.userId, f.onlineStatus]),
+        );
+        onlineFriends.set(res);
+      },
+    );
+  });
+  socket.on("presence", ({ userId, onlineStatus }) => {
+    onlineFriends.update((o) => ({ ...o, [userId]: onlineStatus }));
+  });
+  socket.on("newMessage", (msg: ChatMessage) => {
+    messageHandlers.forEach((handler) => handler(msg));
+  });
+  socket.on("friendRequest", () => {
+    friendManager.friendships_requests();
+  });
+  socket.on(
+    "gameInvite",
+    ({ from, expiresAt }: { from: InviteSender; expiresAt: number }) => {
+      inviteManager.receive(from, expiresAt);
+    },
+  );
+  socket.on("gameInviteAccepted", ({ opponentId }: { opponentId: number }) => {
+    inviteManager.accepted(opponentId);
+  });
+  socket.on("gameInviteDeclined", ({ userId }: { userId: number }) => {
+    inviteManager.refused(userId);
+  });
+  socket.on("gameInviteCancelled", ({ userId }: { userId: number }) => {
+    inviteManager.withdrawn(userId);
+  });
+  socket.on("friendDenied", () => {
+    friendManager.sented_requests();
+  });
+  socket.on("friendAccepted", () => {
+    friendManager.get_friends();
+    friendManager.sented_requests();
+  });
+  socket.on("friendCancelled", () => {
+    friendManager.friendships_requests();
+  });
+  socket.on("friendRemoved", () => {
+    friendManager.get_friends();
+  });
+  socket.on("friendBlocked", () => {
+    friendManager.friendships_requests();
+    friendManager.sented_requests();
+  });
+  socket.on("gameEnded", ({ matchId }: { matchId: number }) => {
+    gameEndedHandlers.forEach((handler) => handler(matchId));
+  });
+  return socket;
 }
 
 export interface ChatMessage {
-    id: string;
-    content: string;
-    createdAt: string;
-    conversationId?: number;
-    sender: { id: number; username: string; avatarUrl: string | null };
+  id: string;
+  content: string;
+  createdAt: string;
+  conversationId: number;
+  sender: { id: number; username: string; avatarUrl: string | null };
 }
 
 export type SendResponse =
-    | { ok: true; message: ChatMessage }
-    | { ok: false; error: string };
+  { ok: true; message: ChatMessage } | { ok: false; error: string };
 
 export function sendMessage(conversationId: number, content: string) {
-    return new Promise<SendResponse>((resolve) => {
-        if (!socket) {
-            resolve({ ok: false, error: 'NOT_CONNECTED' });
-            return;
-        }
-        socket.emit('sendMessage', { conversationId, content }, resolve);
-    });
+  return new Promise<SendResponse>((resolve) => {
+    if (!socket?.connected) {
+      resolve({ ok: false, error: "NOT_CONNECTED" });
+      return;
+    }
+    socket
+      .timeout(5000)
+      .emit(
+        "sendMessage",
+        { conversationId, content },
+        (err: Error | null, res: SendResponse) => {
+          resolve(err ? { ok: false, error: "SEND_TIMEOUT" } : res);
+        },
+      );
+  });
 }
 
 const messageHandlers = new Set<(m: ChatMessage) => void>();
 
 export function onNewMessage(handler: (m: ChatMessage) => void) {
-    messageHandlers.add(handler);
-    return () => messageHandlers.delete(handler);
+  messageHandlers.add(handler);
+  return () => messageHandlers.delete(handler);
 }
 
 const gameEndedHandlers = new Set<(matchId: number) => void>();
 
 export function onGameEnded(handler: (matchId: number) => void) {
-    gameEndedHandlers.add(handler);
-    return () => gameEndedHandlers.delete(handler);
+  gameEndedHandlers.add(handler);
+  return () => gameEndedHandlers.delete(handler);
 }
 
 function disconnectSocket() {
-    socket?.disconnect();
-    onlineFriends.set({})
-    inviteManager.reset();
-    socket = null;
+  socket?.disconnect();
+  onlineFriends.set({});
+  inviteManager.reset();
+  socket = null;
 }
