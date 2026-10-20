@@ -818,7 +818,16 @@ const setup = await test('Setup TOTP', {
     ['secret renvoyé', () => typeof b.twoFactorSecret === 'string'],
   ],
 });
-const totp = () => generate({ secret: setup.twoFactorSecret });
+let lastTotp = '';
+const totp = async () => {
+  let code = await generate({ secret: setup.twoFactorSecret });
+  while (code === lastTotp) {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    code = await generate({ secret: setup.twoFactorSecret });
+  }
+  lastTotp = code;
+  return code;
+};
 await test('Activation TOTP', {
   as: carol,
   method: 'POST',
@@ -879,14 +888,41 @@ check('Aucun code 2FA envoyé par mail à un utilisateur TOTP', [
 // ─── 7 ────────────────────────────────────────────────────────────────────────
 section("7. Changer d'email annule la vérification");
 
-alice.email = `m${RUN}_alice2@test.local`;
-await test('alice change son email', {
+await test("PATCH /users/me ignore l'email", {
   as: alice,
   method: 'PATCH',
   path: '/users/me',
-  body: { email: alice.email },
+  body: { email: `m${RUN}_alice2@test.local` },
+  status: 400,
+});
+await test('Changer son email sans mot de passe est refusé', {
+  as: alice,
+  method: 'PATCH',
+  path: '/users/me/email',
+  body: { email: `m${RUN}_alice2@test.local` },
+  status: 400,
+});
+await test('Changer son email avec un mauvais mot de passe est refusé', {
+  as: alice,
+  method: 'PATCH',
+  path: '/users/me/email',
+  body: { email: `m${RUN}_alice2@test.local`, password: 'Wr0ngPassw0rd!' },
+  status: 401,
+});
+n = count(alice, 'Email changed');
+const oldAliceEmail = alice.email;
+alice.email = `m${RUN}_alice2@test.local`;
+await test('alice change son email avec son mot de passe', {
+  as: alice,
+  method: 'PATCH',
+  path: '/users/me/email',
+  body: { email: alice.email, password: NEW_PASSWORD },
   status: 200,
 });
+const emailChanged = await waitMail({ email: oldAliceEmail }, 'Email changed', n);
+check("Mail « Email changed » envoyé à l'ancienne adresse", [
+  ['reçu', () => emailChanged !== undefined],
+]);
 check('emailVerifiedAt repasse à null', [
   ['null', () => userRow(alice, 'emailVerifiedAt') === ''],
 ]);

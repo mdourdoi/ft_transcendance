@@ -24,6 +24,7 @@ import { AuthenticatedRequest } from '../auth/types/jwt-payload.interface.js';
 import { ErrorCode } from '../common/error-codes.js';
 import { MIME_TO_EXT } from '../common/mime-types.js';
 import { AVATAR_UPLOAD_DIR } from '../constants.js';
+import { ChangeEmailDto } from './dto/change-email.dto.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { EmailTokenDto } from './dto/email-token.dto.js';
 import { FindUserDto } from './dto/find-user.dto.js';
@@ -86,6 +87,12 @@ export class UsersController {
     @Body() dto: ChangePasswordDto,
   ) {
     return this.userService.changePassword(userId, dto);
+  }
+
+  @UseGuards(JwtGuard)
+  @Patch('me/email')
+  changeEmail(@CurrentUser('sub') userId: number, @Body() dto: ChangeEmailDto) {
+    return this.userService.changeEmail(userId, dto);
   }
 
   @UseGuards(JwtGuard)

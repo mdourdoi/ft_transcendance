@@ -91,6 +91,11 @@ export class MailService implements OnModuleInit {
     return this.send(to, 'Password changed', msg, `<p>${msg}</p>`);
   }
 
+  public sendEmailChanged(to: string, newEmail: string) {
+    const msg = `Your account email was changed to ${newEmail}. If this wasn't you, contact us.`;
+    return this.send(to, 'Email changed', msg, `<p>${msg}</p>`);
+  }
+
   public sendExportedData(to: string) {
     const msg = 'Your data has been exported.';
     return this.send(to, 'Data exported', msg, `<p>${msg}</p>`);

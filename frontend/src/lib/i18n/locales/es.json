@@ -478,6 +478,7 @@
     "EMAIL_ALREADY_VERIFIED": "Tu correo ya está verificado",
     "EMAIL_NOT_VERIFIED": "Primero debes verificar tu correo",
     "MAIL_RATE_LIMITED": "Ya se envió un correo recientemente, espera un minuto antes de volver a intentarlo",
+    "TWOFA_RATE_LIMITED": "Demasiados códigos incorrectos, inténtalo de nuevo en 15 minutos",
     "MAIL_SEND_FAILED": "No se pudo enviar el correo, inténtalo más tarde",
     "NOT_FRIENDS": "No eres amigo de este usuario",
     "GAME_INVITE_ALREADY_SENT": "Ya se ha enviado una invitación a este amigo",
