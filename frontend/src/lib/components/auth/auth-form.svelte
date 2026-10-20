@@ -12,9 +12,9 @@
 	}
 </script>
 
-<form novalidate onsubmit={submit} class="absolute top-[500px] left-1/2 -translate-x-1/2 w-[550px] h-[600px]">
+<form novalidate onsubmit={submit} class="absolute top-[500px] left-1/2 -translate-x-1/2 w-[550px] h-[610px]">
 	<img src={frame} alt="" class="absolute inset-0 w-full h-full" />
-	<div class="absolute inset-0 flex justify-center top-[75px] text-black" style="font-size: 40px;">
+	<div class="absolute inset-0 flex justify-center top-[55px] text-black" style="font-size: 40px;">
 		<p>{title}</p>
 	</div>
 	{#if hint}
@@ -22,7 +22,7 @@
 		<p class="w-[340px] text-center leading-tight">{hint}</p>
 	</div>
 	{:else}
-	<div class="absolute inset-0 flex justify-center top-[130px] text-black" style="font-size: 15px;">
+	<div class="absolute inset-0 flex justify-center top-[110px] text-black" style="font-size: 15px;">
 		<p>{$t('AUTH.SUBTITLE')}</p>
 	</div>
 	{/if}
