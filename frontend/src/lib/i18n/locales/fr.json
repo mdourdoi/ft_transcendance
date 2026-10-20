@@ -459,6 +459,7 @@
     "EMAIL_ALREADY_VERIFIED": "Ton email est déjà vérifié",
     "EMAIL_NOT_VERIFIED": "Tu dois d’abord vérifier ton email",
     "MAIL_RATE_LIMITED": "Un email a déjà été envoyé récemment, patiente une minute avant de réessayer",
+    "TWOFA_RATE_LIMITED": "Trop de codes incorrects, réessaie dans 15 minutes",
     "MAIL_SEND_FAILED": "L’envoi de l’email a échoué, réessaie plus tard",
     "IMPOSSIBLE_REQUEST": "Cette action n’est pas possible",
     "USER_NOT_FOUND": "Utilisateur introuvable",

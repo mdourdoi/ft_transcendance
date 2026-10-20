@@ -459,6 +459,7 @@
     "EMAIL_ALREADY_VERIFIED": "This email address is already verified",
     "EMAIL_NOT_VERIFIED": "Verify your email address first",
     "MAIL_RATE_LIMITED": "An email was just sent, please wait a minute before asking for another one",
+    "TWOFA_RATE_LIMITED": "Too many incorrect codes, please try again in 15 minutes",
     "MAIL_SEND_FAILED": "The email could not be sent, please try again later",
     "IMPOSSIBLE_REQUEST": "This action is not possible",
     "USER_NOT_FOUND": "User not found",

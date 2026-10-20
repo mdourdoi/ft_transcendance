@@ -1,4 +1,5 @@
 import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { JwtGuard } from '../auth/jwt.guard.js';
 import { OptionalTwofaCodeDto } from './dto/optional-twofa-code.dto.js';
@@ -6,6 +7,7 @@ import { TwofaCodeDto } from './dto/twofa-code.dto.js';
 import { TwofaService } from './twofa.service.js';
 
 @Controller('twofa')
+@Throttle({ default: { limit: 5, ttl: 60_000 } })
 export class TwofaController {
   constructor(private twofaService: TwofaService) {}
 

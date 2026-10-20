@@ -19,6 +19,7 @@ import { Prisma } from '../generated/prisma/client.js';
 import { EmailTokenService } from '../mail/email-token.service.js';
 import { MailService } from '../mail/mail.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { ChangeEmailDto } from './dto/change-email.dto.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { SearchResultDto } from './dto/search-result.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
@@ -82,26 +83,14 @@ export class UsersService {
   }
 
   async update(userId: number, dto: UpdateUserDto) {
-    const data: {
-      username?: string;
-      email?: string;
-      emailVerifiedAt?: null;
-    } = {};
-    if (dto.username) {
-      data.username = dto.username;
-    }
-    if (dto.email) {
-      data.email = dto.email;
-      data.emailVerifiedAt = null;
-    }
-    if (Object.keys(data).length === 0) {
+    if (!dto.username) {
       throw new BadRequestException(ErrorCode.NO_DATA_UPDATED);
     }
 
     try {
       const row = await this.prisma.user.update({
         where: { id: userId },
-        data,
+        data: { username: dto.username },
       });
       return {
         id: userId,
@@ -196,6 +185,42 @@ export class UsersService {
       email: newRow.email,
       avatarUrl: newRow.avatarUrl,
     };
+  }
+
+  async changeEmail(userId: number, dto: ChangeEmailDto) {
+    const row = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!row) {
+      throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+    }
+    if (!(await bcrypt.compare(dto.password, row.passwordHash))) {
+      throw new UnauthorizedException(ErrorCode.INVALID_CREDENTIALS);
+    }
+    if (row.twoFactorEnabled) {
+      await this.twofaVerifier.assertValidCode(row, dto.code);
+    }
+
+    try {
+      const newRow = await this.prisma.user.update({
+        where: { id: userId },
+        data: { email: dto.email, emailVerifiedAt: null },
+      });
+      this.mail
+        .sendEmailChanged(row.email, newRow.email)
+        .catch((e) => console.warn('email changed mail failed:', e));
+      return {
+        id: userId,
+        username: newRow.username,
+        email: newRow.email,
+        avatarUrl: newRow.avatarUrl,
+      };
+    } catch (e) {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2002'
+      )
+        throw new ConflictException(ErrorCode.USERNAME_OR_EMAIL_ALREADY_TAKEN);
+      throw e;
+    }
   }
 
   async requestDeletion(userId: number) {
