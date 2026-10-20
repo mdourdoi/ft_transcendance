@@ -9,7 +9,7 @@
   import * as NativeSelect from "$lib/components/ui/native-select";
   import { Stamp } from "$lib/components/onitama";
   import { cn } from "$lib/utils";
-  import { authFetch } from "$lib/auth";
+  import { authFetch, token, tokenUserId } from "$lib/auth";
   import { t, locale } from "$lib/i18n";
   import { onlineFriends, sendMessage, onNewMessage, type ChatMessage } from "$lib/socket";
   import { friendManager } from "$lib/stores/friend.svelte";
@@ -27,6 +27,7 @@
   const selected = $derived(
     friendManager.friends.find((f) => f.conversationId === selectedId),
   );
+  const me = $derived(tokenUserId($token));
   const online = $derived(!!selected && !!$onlineFriends[selected.user.id]);
   const timeFormat = $derived(
     new Intl.DateTimeFormat($locale ?? undefined, { hour: "2-digit", minute: "2-digit" }),
@@ -35,6 +36,7 @@
   let messages = $state<ChatMessage[]>([]);
   let nextCursor = $state<string | null>(null);
   let hasMore = $state(false);
+  let loadingMore = $state(false);
   let text = $state("");
   let sending = $state(false);
   let sendError = $state<string | null>(null);
@@ -57,12 +59,13 @@
     messages = [];
     nextCursor = null;
     hasMore = false;
+    loadingMore = false;
     sendError = null;
     inviteManager.error = "";
     if (id === null) return;
 
     authFetch(`/api/conversations/${id}/messages?take=20`)
-      .then((res) => res.json())
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((page) => {
         if (id !== selectedId) return;
         messages = page.items;
@@ -75,10 +78,9 @@
 
   $effect(() =>
     onNewMessage((msg) => {
-      if (msg.conversationId !== undefined && msg.conversationId !== selectedId)
-        return;
+      if (msg.conversationId !== selectedId) return;
       if (messages.some((m) => m.id === msg.id)) return;
-      const follow = atBottom || msg.sender.username === friendManager.username;
+      const follow = atBottom || msg.sender.id === me;
       messages = [...messages, msg];
       if (follow) void toBottom(true);
     }),
@@ -86,32 +88,44 @@
 
   async function loadMore() {
     const id = selectedId;
-    if (id === null || !hasMore || !nextCursor) return;
-    const res = await authFetch(
-      `/api/conversations/${id}/messages?take=20&cursor=${nextCursor}`,
-    );
-    const page = await res.json();
-    if (id !== selectedId) return;
-    const before = viewport?.scrollHeight ?? 0;
-    messages = [...page.items, ...messages];
-    nextCursor = page.nextCursor;
-    hasMore = page.hasMore;
-    await tick();
-    if (viewport) viewport.scrollTop += viewport.scrollHeight - before;
+    if (id === null || !hasMore || !nextCursor || loadingMore) return;
+    loadingMore = true;
+    try {
+      const res = await authFetch(
+        `/api/conversations/${id}/messages?take=20&cursor=${nextCursor}`,
+      );
+      if (!res.ok) return;
+      const page = await res.json();
+      if (id !== selectedId) return;
+      const before = viewport?.scrollHeight ?? 0;
+      const seen = new Set(messages.map((m) => m.id));
+      messages = [...page.items.filter((m: ChatMessage) => !seen.has(m.id)), ...messages];
+      nextCursor = page.nextCursor;
+      hasMore = page.hasMore;
+      await tick();
+      if (viewport) viewport.scrollTop += viewport.scrollHeight - before;
+    } catch {
+      // network error: keep the button so the user can retry
+    } finally {
+      loadingMore = false;
+    }
   }
 
   async function send() {
     if (selectedId === null || !text.trim() || sending) return;
     sending = true;
-    const res = await sendMessage(selectedId, text);
-    sending = false;
-    if (res.ok) {
-      text = "";
-      sendError = null;
-      if (!messages.some((m) => m.id === res.message.id)) messages = [...messages, res.message];
-      void toBottom(true);
-    } else {
-      sendError = res.error;
+    try {
+      const res = await sendMessage(selectedId, text);
+      if (res.ok) {
+        text = "";
+        sendError = null;
+        if (!messages.some((m) => m.id === res.message.id)) messages = [...messages, res.message];
+        void toBottom(true);
+      } else {
+        sendError = res.error;
+      }
+    } finally {
+      sending = false;
     }
   }
 </script>
@@ -182,12 +196,12 @@
         class="flex h-full flex-col gap-2 overflow-y-auto p-(--card-spacing)"
       >
         {#if hasMore}
-          <Button variant="outline" size="sm" class="self-center" onclick={loadMore}>{$t("COMMON.LOAD_MORE")}</Button>
+          <Button variant="outline" size="sm" class="self-center" disabled={loadingMore} onclick={loadMore}>{$t("COMMON.LOAD_MORE")}</Button>
         {/if}
         {#each messages as m (m.id)}
           <ChatMessageBubble
             message={m}
-            mine={m.sender.username === friendManager.username}
+            mine={m.sender.id === me}
             time={timeFormat.format(new Date(m.createdAt))}
           />
         {:else}
