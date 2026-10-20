@@ -16,7 +16,7 @@ services:
         condition: service_healthy
     restart: "no"
     networks:
-      - transcendance
+      - vault
     secrets:
       - smtp_password
 
@@ -31,7 +31,7 @@ services:
       - ./vault/config:/vault/config:ro
       - vault_data:/vault/file
     networks:
-      - transcendance
+      - vault
     healthcheck:
       test:
         [
@@ -80,6 +80,7 @@ services:
       retries: 5
     networks:
       - transcendance
+      - vault
 
   redis:
     image: redis:7-alpine
@@ -117,6 +118,7 @@ services:
       - "127.0.0.1:5555:5555"
     networks:
       - transcendance
+      - vault
     volumes:
       - avatars:/app/uploads/avatars
       - vault_approle_backend:/vault/approle:ro
@@ -145,6 +147,9 @@ volumes:
 networks:
   transcendance:
     driver: bridge
+  vault:
+    driver: bridge
+    internal: true
 
 secrets:
   smtp_password:
