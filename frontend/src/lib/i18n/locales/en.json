@@ -88,7 +88,8 @@
     "FILTERS": {
       "ALL": "All",
       "RANKED": "Ranked",
-      "NORMAL": "Normal"
+      "NORMAL": "Normal",
+      "TRAINING": "Training"
     },
     "MODES": {
       "RANKED": "Ranked",
@@ -151,7 +152,7 @@
     "MODES": {
       "RANKED": "Ranked",
       "NORMAL": "Normal",
-      "CHALLENGE": "Challenges",
+      "TRAINING": "Training",
       "EVENT": "Events"
     },
     "BY_MODE": "Breakdown by game mode",

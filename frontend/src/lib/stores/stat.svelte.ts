@@ -5,17 +5,18 @@ import type { ApiMatch } from './history.svelte';
 export class StatManager {
     error = $state('');
     matches = $state<ApiMatch[]>([]);
+    competitive = $derived(this.matches.filter(m => m.mode !== 'BOT'));
 
     constructor(private readonly playerId?: number) {}
 
-    wins = $derived(this.matches.filter(m => m.won === true).length);
+    wins = $derived(this.competitive.filter(m => m.won === true).length);
     ranked = $derived(this.matches.filter(m => m.mode === 'RANKED').length);
     normal = $derived(this.matches.filter(m => m.mode === 'UNRANKED').length);
-    defis = $derived(this.matches.filter(m => m.mode === 'BOT').length);
+    training = $derived(this.matches.filter(m => m.mode === 'BOT').length);
 
     cardCounts = $derived.by(() => {
         const counts: Record<string, number> = {};
-        for (const m of this.matches) {
+        for (const m of this.competitive) {
             if (!m.replay) continue;
             const { hands, neutral, moves } = m.replay;
             const h: string[][] = hands.map((x: string[]) => [...x]);
@@ -50,7 +51,7 @@ export class StatManager {
 
     frequentOpponents = $derived.by(() => {
         const map = new SvelteMap<number, { name: string; image: string; games: number }>();
-        for (const m of this.matches) {
+        for (const m of this.competitive) {
             const o = m.opponent;
             const e = map.get(o.id) ?? {
                 name: o.username,

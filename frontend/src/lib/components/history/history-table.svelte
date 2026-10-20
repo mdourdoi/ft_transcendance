@@ -12,7 +12,7 @@
 
 	let { manager, filter = 'all' }: { manager: HistoryManager; filter?: string } = $props();
 
-	const modeIcons: Record<string, string> = { Ranked: '♛', Normal: '⚔' };
+	const modeIcons: Record<string, string> = { Ranked: '♛', Normal: '⚔', Training: '☯' };
 	const dateFormat = $derived(new Intl.DateTimeFormat($locale ?? undefined, { dateStyle: 'short', timeStyle: 'short' }));
 
 	let gameOption: Game | null = $state(null);
