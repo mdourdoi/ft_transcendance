@@ -3,11 +3,12 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { Redis } from 'ioredis';
 import { AuthModule } from './auth/auth.module.js';
 import { BotsModule } from './bots/bots.module.js';
 import { ErrorCode } from './common/error-codes.js';
+import { HttpThrottlerGuard } from './common/http-throttler.guard.js';
 import { RedisThrottlerStorage } from './common/redis-throttler.storage.js';
 import { validateEnv } from './config/env.validation.js';
 import { AVATAR_UPLOAD_DIR } from './constants.js';
@@ -56,6 +57,6 @@ import { UsersModule } from './users/users.module.js';
     BotsModule,
     EventsModule,
   ],
-  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
+  providers: [{ provide: APP_GUARD, useClass: HttpThrottlerGuard }],
 })
 export class AppModule {}
