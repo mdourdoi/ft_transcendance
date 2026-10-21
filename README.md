@@ -331,7 +331,7 @@ Deleting a user cascades to their friendships, conversations, messages, matches 
 
 - **Why**: protect the application from common web attacks and keep secrets out of the repository and images.
 - **How**:
-  - **WAF**: Nginx with ModSecurity v3 and the **OWASP Core Rule Set** in blocking mode (`SecRuleEngine On`), restricted HTTP methods, and only targeted exclusions (password fields, Socket.IO transport). It is also the only HTTPS entry point, with TLS 1.2/1.3 and security headers.
+  - **WAF**: Nginx with ModSecurity v3 and the **OWASP Core Rule Set** in blocking mode (`SecRuleEngine On`), restricted HTTP methods, and only targeted exclusions (password fields, Socket.IO transport). The exclusions in `waf/conf/modsec/exclusions.conf` are adapted from the examples shipped with the CRS: the password exclusions follow the `ctl:ruleRemoveTargetByTag=OWASP_CRS` example of `REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example`, and the allowed methods and content types follow rules 900200 and 900220 of `crs-setup.conf.example`. It is also the only HTTPS entry point, with TLS 1.2/1.3 and security headers.
   - **Vault**: runs as a real server (not dev mode) with persistent file storage. `vault-init` initializes and unseals it, generates the secrets, and provisions **AppRole** credentials with least-privilege policies for the backend and the database, with short-lived tokens. No secret is stored in a file in the repository.
 - **Who**: mdourdoi.
 
@@ -433,6 +433,8 @@ General limitations:
 - [Prisma documentation](https://www.prisma.io/docs)
 - [Socket.IO documentation](https://socket.io/docs/v4/)
 - [OWASP ModSecurity Core Rule Set](https://coreruleset.org/docs/)
+- [CRS v3.3 - REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example](https://github.com/SpiderLabs/owasp-modsecurity-crs/blob/v3.3/dev/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example) (base of our rule exclusions)
+- [CRS v3.3 - crs-setup.conf.example](https://github.com/coreruleset/coreruleset/blob/v3.3/master/crs-setup.conf.example) (rules 900200 and 900220, allowed methods and content types)
 - [HashiCorp Vault - AppRole auth method](https://developer.hashicorp.com/vault/docs/auth/approle)
 - [Elo rating system](https://en.wikipedia.org/wiki/Elo_rating_system)
 - [RFC 6238 - TOTP](https://datatracker.ietf.org/doc/html/rfc6238)
