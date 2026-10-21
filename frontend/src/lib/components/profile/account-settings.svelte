@@ -71,6 +71,11 @@
       <Button type="submit" variant="secondary" class="self-start"
         >{$t("PROFILE.SETTINGS.SAVE_USERNAME")}</Button
       >
+      {#if profilManager.username_updated}
+        <p role="status" class="text-sm font-medium text-emerald-600">
+          ✓ {$t("PROFILE.SETTINGS.USERNAME_UPDATED")}
+        </p>
+      {/if}
       {#if profilManager.error_username}
         <p role="alert" class="text-sm text-destructive">
           {translateError(profilManager.error_username)}
@@ -146,6 +151,11 @@
       <Button type="submit" variant="secondary" class="self-start"
         >{$t("PROFILE.SETTINGS.CHANGE_PASSWORD")}</Button
       >
+      {#if profilManager.password_updated}
+        <p role="status" class="text-sm font-medium text-emerald-600">
+          ✓ {$t("PROFILE.SETTINGS.PASSWORD_UPDATED")}
+        </p>
+      {/if}
       {#if profilManager.error_password}
         <p role="alert" class="text-sm text-destructive">
           {translateError(profilManager.error_password)}

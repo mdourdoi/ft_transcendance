@@ -11,6 +11,8 @@ export class ProfilManager {
     password_code = $state('');
     error_username = $state('');
     error_password = $state('');
+    username_updated = $state(false);
+    password_updated = $state(false);
     error_avatar = $state('');
     two_fa = $state('');
     qr_image = $state('');
@@ -32,6 +34,8 @@ export class ProfilManager {
         this.password_code = '';
         this.error_username = '';
         this.error_password = '';
+        this.username_updated = false;
+        this.password_updated = false;
         this.error_avatar = '';
         this.two_fa = '';
         this.qr_image = '';
@@ -121,6 +125,7 @@ export class ProfilManager {
     async change_username(event: SubmitEvent) {
         event.preventDefault();
         this.error_username = '';
+        this.username_updated = false;
         if (this.username === this.newusername) {
             this.error_username = 'SAME_USERNAME';
             return;
@@ -139,6 +144,8 @@ export class ProfilManager {
             }
             this.newusername = '';
             await this.get_user();
+            friendManager.username = this.username;
+            this.username_updated = true;
         } catch (err) {
             this.error_username = err instanceof Error ? err.message : String(err);
         }
@@ -147,6 +154,7 @@ export class ProfilManager {
     async change_password(event: SubmitEvent) {
         event.preventDefault();
         this.error_password = '';
+        this.password_updated = false;
         if (this.newpassword1 !== this.newpassword2) {
             this.error_password = 'NOTE_SAME_PASSWORD';
             return;
@@ -171,6 +179,7 @@ export class ProfilManager {
             this.newpassword1 = '';
             this.newpassword2 = '';
             this.password_code = '';
+            this.password_updated = true;
             await this.get_user();
         } catch (err) {
             this.error_password = err instanceof Error ? err.message : String(err);
