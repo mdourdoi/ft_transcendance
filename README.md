@@ -59,7 +59,7 @@ The only value that must be provided by hand is the SMTP password:
    chmod 600 secrets/smtp_password.txt
    ```
 
-   The `secrets/` folder is git-ignored: never commit it.
+   The `secrets/` folder is git-ignored, so you need to create it yourself.
 
 2. Launch the stack:
 
@@ -69,7 +69,23 @@ The only value that must be provided by hand is the SMTP password:
 
 3. Open **https://localhost:8443** in your browser. The certificate is self-signed, so you have to accept the browser warning the first time.
 
-On startup, `vault-init` reads this file (mounted as a Docker secret at `/run/secrets/smtp_password`) and writes it to Vault at `secret/smtp`. If the file is missing, `docker compose` refuses to start; if it is empty, `vault-init` fails. To change the password, edit the file and run `make` again.
+On every `make`, `vault-init` reads this file (mounted as a Docker secret at `/run/secrets/smtp_password`) and writes its content to Vault at `secret/smtp`. The backend reads it from Vault when it starts. What happens depends on the content of the file:
+
+| `secrets/smtp_password.txt` | Result |
+| --- | --- |
+| Missing | `docker compose` refuses to start the stack. |
+| Empty | `vault-init` fails with `SMTP password is missing`, so the database and the backend do not start. |
+| Wrong password | The stack starts, but the backend logs `SMTP unreachable: Invalid login` and no email is sent (email verification, 2FA codes by email, data export, account deletion). |
+| Correct password | The backend logs `SMTP connection OK` (check with `make logs`). |
+
+To change the password while the stack is running, edit the file, then update Vault and restart the backend so that it reads the new value:
+
+```sh
+make
+docker compose restart backend
+```
+
+`make re` also applies the new password, but it deletes all the data (accounts, matches, messages, avatars).
 
 ### Makefile targets
 
@@ -103,8 +119,8 @@ On startup, `vault-init` reads this file (mounted as a Docker secret at `/run/se
 
 | Member | Login | Role(s) | Responsibilities |
 | --- | --- | --- | --- |
-| Tim | `ticasali` | **Product Owner**, Developer (frontend) | Defined the product vision and the visual identity. Wrote the 75-page art direction document that served as the guideline for the whole interface, designed the complete mockup of the application, and built the frontend skeleton. Validated that completed work matched the expected result. |
-| Matthieu | `mdourdoi` | **Project Manager**, Developer (backend, DevOps) | Managed the GitHub issues, wrote the pull request template, organized the repository and planned the weekly meetings. Tracked progress and blockers. Implemented the real-time WebSocket layer (presence, chat, friendship events), the TOTP 2FA, the avatar upload and the security infrastructure (HTTPS, WAF, Vault). |
+| Timothée | `ticasali` | **Product Owner**, Developer (frontend) | Defined the product vision and the visual identity. Wrote the 75-page art direction document that served as the guideline for the whole interface, designed the complete mockup of the application, and built the frontend skeleton. Validated that completed work matched the expected result. |
+| Matthieu | `mdourdoi` | **Project Manager**, Developer (backend, DevOps) | Managed the GitHub issues, wrote the pull request template, organized the repository and planned the weekly meetings. Tracked progress and blockers. Implemented the authentication backend (registration, login, JWT), the real-time WebSocket layer (presence, chat, friendship events), the users module, the TOTP 2FA, the avatar upload and the security infrastructure (HTTPS, WAF, Vault). |
 | Swann | `sgil--de` | **Technical Lead / Architect**, Developer (game, AI) | Chose the technologies, wrote the initial boilerplates and the project's architecture, and connected the frontend and the backend. Built the game, the matchmaking and the AI, and turned the frontend into a library of reusable components. Reviewed pull requests from both teams. |
 | Hicham | `mobenhab` | Developer (frontend) | Built the first versions of the login, home, history and game pages, then connected the frontend to the API and to the WebSockets: authentication, friends, profile, chat and statistics. |
 | Elouann | `ehosta` | Developer (backend, DevOps) | Implemented the friendship system (with the conversation of each friendship), the email service and every email-based flow (verification, email 2FA, data export, account deletion), the end-to-end API tests, and reorganized the frontend components. |
@@ -113,7 +129,7 @@ On startup, `vault-init` reads this file (mounted as a Docker secret at `/run/se
 
 ### Work organization
 
-- The team was split into two sub-teams: **frontend** (Hicham, Tim) and **backend / DevOps** (Elouann, Matthieu). Swann worked on the game and the AI and acted as the link between the two teams.
+- The team was split into two sub-teams: **frontend** (Hicham, Timothée) and **backend / DevOps** (Elouann, Matthieu). Swann worked on the game and the AI and acted as the link between the two teams.
 - Every **week**, the whole team met to review what had been done, discuss the progress and blockers, and plan the next tasks.
 - Work was broken down into GitHub issues, each one assigned to a member and handled in its own branch (`feat/...`, `fix/...`, `devops/...`).
 
@@ -163,80 +179,9 @@ Every change went through a **pull request** based on a shared template. Each su
 
 ## Database Schema
 
-```mermaid
-erDiagram
-    User ||--o{ Friendship : "sends (senderId)"
-    User ||--o{ Friendship : "receives (receiverId)"
-    Friendship ||--o| Conversation : "has"
-    Conversation ||--o{ ConversationAccess : "grants"
-    User ||--o{ ConversationAccess : "has"
-    Conversation ||--o{ Message : "contains"
-    User ||--o{ Message : "writes"
-    User ||--o{ Match : "playerOne"
-    User |o--o{ Match : "playerTwo"
-    User |o--o{ Match : "winner"
-    User ||--o{ EmailToken : "owns"
+![Database schema](docs/database-schema.svg)
 
-    User {
-        Int id PK
-        String email UK
-        String username UK
-        String passwordHash
-        String avatarUrl
-        Boolean twoFactorEnabled
-        String twoFactorSecret "encrypted"
-        TwoFactorMethod twoFactorMethod
-        Int rating "Elo, default 1000"
-        DateTime emailVerifiedAt
-        DateTime consentedAt
-        DateTime createdAt
-    }
-    Friendship {
-        Int id PK
-        Int senderId FK
-        Int receiverId FK
-        FriendshipStatus status
-        DateTime createdAt
-    }
-    Conversation {
-        Int id PK
-        Int friendshipId FK "unique"
-    }
-    ConversationAccess {
-        Int id PK
-        Int conversationId FK
-        Int userId FK
-    }
-    Message {
-        String id PK "cuid"
-        String content
-        Int senderId FK
-        Int conversationId FK
-        DateTime createdAt
-    }
-    Match {
-        Int id PK
-        QueueMode mode
-        MatchStatus status
-        Int playerOneId FK
-        Int playerTwoId FK "null against the AI"
-        Int winnerId FK
-        MatchEndReason endReason
-        Int ratingDelta
-        Bytes replay
-        DateTime createdAt
-        DateTime finishedAt
-    }
-    EmailToken {
-        Int id PK
-        Int userId FK
-        EmailTokenType type
-        String tokenHash
-        DateTime expiresAt
-        DateTime usedAt
-        Int attempts
-    }
-```
+Each arrow goes from a foreign key to the primary key it references. A crow's foot marks the "many" side, a bar the "one" side, and a circle an optional (nullable) foreign key.
 
 | Table | Description |
 | --- | --- |
@@ -257,12 +202,12 @@ Deleting a user cascades to their friendships, conversations, messages, matches 
 | Art direction and mockup | 75-page art direction document (visual identity, colors, typography, layout of every screen) and a complete mockup of the application | ticasali |
 | Frontend skeleton and assets | First coded versions of the home, friends, history, profile and statistics pages, the navigation bar and the game page styling; client-side game engine and move cards; integration of the game assets (cards, pieces, avatars, backgrounds, icons) | ticasali |
 | Project architecture | Monorepo, NestJS and Svelte boilerplates, Docker setup, router, i18n setup, Prisma setup | sgil--de |
-| Registration and login | Email and password sign-up with consent to the terms, bcrypt hashing and JWT sessions (backend); login and registration page with error messages and the 2FA step (frontend) | sgil--de, mobenhab |
+| Registration and login | Email and password sign-up, bcrypt hashing and JWT sessions (backend, mdourdoi); login and registration page with error messages and the 2FA step (frontend, mobenhab) | mdourdoi, mobenhab |
 | Email service | Gmail SMTP emails for verification links, 2FA codes, data export and account deletion | ehosta |
 | Email verification | Verification link sent by email, single-use hashed token | ehosta |
 | Two-factor authentication | TOTP with a QR code for an authenticator app (mdourdoi) or code by email (ehosta); required to log in, to change the password and to disable 2FA | mdourdoi, ehosta |
 | User profile | Edit username, change password and upload an avatar (backend); profile pages and their connection to the API (frontend) | mdourdoi, mobenhab, sgil--de |
-| Friends system | Send, cancel, accept and deny friend requests; remove and block or unblock users (backend); real-time events; friends interface | ehosta, mdourdoi, mobenhab, sgil--de |
+| Friends system | Send, cancel, accept and deny friend requests; remove and block or unblock users (backend, ehosta); friend requests by username (sgil--de); real-time friendship events over WebSockets (mdourdoi); friends interface (mobenhab, sgil--de) | ehosta, sgil--de, mdourdoi, mobenhab |
 | Online status | Friends' presence updated live over WebSockets | mdourdoi |
 | User search | Search players by username and open their profile; lookup of a user by exact username for the social routes | sgil--de, ehosta |
 | Private chat | One conversation per friendship (ehosta), messages API with cursor pagination (sgil--de), real-time delivery over WebSockets (mdourdoi), chat client (mobenhab) and chat interface (sgil--de) | ehosta, sgil--de, mdourdoi, mobenhab |
@@ -359,7 +304,7 @@ Deleting a user cascades to their friendships, conversations, messages, matches 
 
 - **Why**: users need a real account to keep their rating, friends and history.
 - **How**: users can update their username and password, and upload an avatar (PNG, JPEG or WebP, 2 MB max, type checked in the browser and on the server from the file content). A default avatar is used when none is uploaded. Users can add friends and see their online status, and each user has a profile page with their information and statistics.
-- **Who**: mdourdoi (profile update, avatar upload, password change, online status), ehosta (friends), mobenhab (profile pages connected to the API), sgil--de (profile interface).
+- **Who**: mdourdoi (users module: profile update, avatar upload, password change; online status), ehosta (friends), mobenhab (profile pages connected to the API), sgil--de (profile interface).
 
 ### 9. Game statistics and match history (Minor, 1 pt)
 
@@ -410,7 +355,7 @@ Deleting a user cascades to their friendships, conversations, messages, matches 
 
 ## Individual Contributions
 
-### ticasali (Tim) - Product Owner, frontend
+### ticasali (Timothée) - Product Owner, frontend
 
 - Wrote the **75-page art direction document**, the reference for the whole interface: visual identity, color palette, typography, mood, and the expected rendering of every screen. The visual identity of the application comes from it.
 - Designed the **complete mockup** of the application before development started, so that the frontend team knew exactly what to build.
@@ -423,8 +368,9 @@ Deleting a user cascades to their friendships, conversations, messages, matches 
 ### mdourdoi (Matthieu) - Project Manager, backend and DevOps
 
 - Organized the project: GitHub issues, pull request template, repository organization and weekly meetings.
+- **Authentication**: registration, login and JWT sessions.
 - **WebSockets**: foundation of the real-time gateway, online presence, real-time chat messages and friendship events.
-- **Users**: profile update, avatar upload, password change.
+- **Users**: the users module (`users/me`, profile update, avatar upload, password change, public profiles).
 - **2FA**: TOTP setup and verification, 2FA required on sensitive actions.
 - **AI**: moved the AI search to a pool of worker threads so that it never blocks the server.
 - **DevOps and security**: HTTPS reverse proxy, ModSecurity WAF with the OWASP CRS, migration of every secret to Vault with AppRole authentication.
@@ -433,7 +379,7 @@ Deleting a user cascades to their friendships, conversations, messages, matches 
 ### sgil--de (Swann) - Technical Lead, game and AI
 
 - Chose the stack, wrote the initial boilerplates (NestJS, Svelte, Docker, Prisma, router, i18n) and set up the architecture of the project.
-- **Backend foundations**: authentication (registration, login, JWT) and the users and messages modules.
+- **Backend foundations**.
 - **Game**: Onitama engine, gameplay, game WebSocket gateway, clocks, reconnection and forfeits.
 - **Matchmaking**: normal and ranked queues, Elo rating, matches API, history, replays and analysis.
 - **AI**: alpha-beta search, evaluation and difficulty levels.
