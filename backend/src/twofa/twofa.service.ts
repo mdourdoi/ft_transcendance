@@ -3,7 +3,6 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { generateSecret, generateURI } from 'otplib';
 import QRCode from 'qrcode';
