@@ -1,13 +1,7 @@
-import {
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { JwtGuard } from '../auth/jwt.guard.js';
+import { ParseIdPipe } from '../common/parse-id.pipe.js';
 import { MatchesService } from './matches.service.js';
 
 @Controller('matches')
@@ -18,28 +12,23 @@ export class MatchesController {
   @Get()
   history(
     @CurrentUser('sub') userId: number,
-    @Query('cursor', new ParseIntPipe({ optional: true })) cursor?: number,
+    @Query('cursor', new ParseIdPipe({ optional: true })) cursor?: number,
   ) {
     return this.matchesService.findHistoryForUser(userId, cursor);
   }
 
   @Get('user/:id')
   historyOf(
-    @Param('id', ParseIntPipe) userId: number,
-    @Query('cursor', new ParseIntPipe({ optional: true })) cursor?: number,
+    @Param('id', ParseIdPipe) userId: number,
+    @Query('cursor', new ParseIdPipe({ optional: true })) cursor?: number,
   ) {
     return this.matchesService.findHistoryForUser(userId, cursor);
-  }
-
-  @Get('current')
-  async current(@CurrentUser('sub') userId: number) {
-    return { match: await this.matchesService.findActiveForUser(userId) };
   }
 
   @Get(':id/analysis')
   analysis(
     @CurrentUser('sub') userId: number,
-    @Param('id', ParseIntPipe) matchId: number,
+    @Param('id', ParseIdPipe) matchId: number,
   ) {
     return this.matchesService.findAnalysis(matchId, userId);
   }

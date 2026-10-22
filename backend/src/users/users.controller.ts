@@ -4,9 +4,7 @@ import {
   Controller,
   Get,
   HttpCode,
-  HttpStatus,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -19,6 +17,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { diskStorage } from 'multer';
 import { CurrentUser } from '../auth/current-user.decorator.js';
+import { ParseIdPipe } from '../common/parse-id.pipe.js';
 import { JwtGuard } from '../auth/jwt.guard.js';
 import { AuthenticatedRequest } from '../auth/types/jwt-payload.interface.js';
 import { ErrorCode } from '../common/error-codes.js';
@@ -27,7 +26,6 @@ import { AVATAR_UPLOAD_DIR } from '../constants.js';
 import { ChangeEmailDto } from './dto/change-email.dto.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { EmailTokenDto } from './dto/email-token.dto.js';
-import { FindUserDto } from './dto/find-user.dto.js';
 import { SearchUsersDto } from './dto/search-users.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { UsersService } from './users.service.js';
@@ -135,13 +133,6 @@ export class UsersController {
   }
 
   @UseGuards(JwtGuard)
-  @Post('find')
-  @HttpCode(HttpStatus.OK)
-  find(@Body() dto: FindUserDto) {
-    return this.userService.find(dto.username);
-  }
-
-  @UseGuards(JwtGuard)
   @Get('search')
   search(@CurrentUser('sub') userId: number, @Query() dto: SearchUsersDto) {
     return this.userService.search(userId, dto.q);
@@ -149,7 +140,7 @@ export class UsersController {
 
   @UseGuards(JwtGuard)
   @Get(':id/profile')
-  profile(@Param('id', ParseIntPipe) userId: number) {
+  profile(@Param('id', ParseIdPipe) userId: number) {
     return this.userService.profile(userId);
   }
 }

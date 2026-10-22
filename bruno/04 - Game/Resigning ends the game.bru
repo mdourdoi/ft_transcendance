@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/matches/current
+  url: {{baseUrl}}/games/current
   body: none
   auth: bearer
 }
@@ -74,6 +74,6 @@ tests {
 
   test("match is no longer the current one", function () {
     expect(res.getStatus()).to.equal(200);
-    expect(res.getBody().match).to.equal(null);
+    expect(res.getBody().game).to.equal(null);
   });
 }

@@ -131,9 +131,6 @@ services:
       - backend
     networks:
       - transcendance
-    volumes:
-      - ./frontend/src:/app/src
-      - ./frontend/index.html:/app/index.html
 
 volumes:
   db_data:

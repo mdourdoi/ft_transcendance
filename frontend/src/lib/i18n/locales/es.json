@@ -463,6 +463,7 @@
     "EMPTY_MESSAGE": "El mensaje no puede estar vacío",
     "INVALID_MESSAGE": "Mensaje no válido (1024 caracteres máx.)",
     "INVALID_CONVERSATION_ID": "Conversación no válida",
+    "INVALID_ID": "Identificador no válido",
     "NOT_CONNECTED": "No estás conectado al servidor",
     "SEND_TIMEOUT": "Mensaje no enviado, inténtalo de nuevo",
     "NOT_YOUR_TURN": "No es tu turno.",

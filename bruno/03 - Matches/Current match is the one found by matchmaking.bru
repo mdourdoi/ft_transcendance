@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/matches/current
+  url: {{baseUrl}}/games/current
   body: none
   auth: bearer
 }
@@ -40,12 +40,9 @@ tests {
 
   test("returns the active match", function () {
     expect(res.getStatus()).to.equal(200);
-    const match = res.getBody().match;
-    expect(match.id).to.equal(result.matchId);
-    expect(match.status).to.equal("ACTIVE");
-    expect([match.playerOneId, match.playerTwoId]).to.have.members([
-      bru.getVar("idA"),
-      bru.getVar("idB"),
-    ]);
+    const game = res.getBody().game;
+    expect(game.matchId).to.equal(result.matchId);
+    expect(game.mode).to.equal("UNRANKED");
+    expect(game.status).to.equal("WAITING");
   });
 }

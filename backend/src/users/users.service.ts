@@ -21,7 +21,6 @@ import { MailService } from '../mail/mail.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ChangeEmailDto } from './dto/change-email.dto.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
-import { SearchResultDto } from './dto/search-result.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 
 @Injectable()
@@ -286,16 +285,6 @@ export class UsersService {
       where: { id: userId },
       data: { emailVerifiedAt: new Date() },
     });
-  }
-
-  async find(username: string): Promise<SearchResultDto> {
-    const res = await this.prisma.user.findFirst({
-      where: {
-        username,
-      },
-    });
-    if (!res) return { id: null };
-    return { id: res.id };
   }
 
   async exportData(userId: number) {

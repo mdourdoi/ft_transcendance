@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/matches/current
+  url: {{baseUrl}}/games/current
   body: none
   auth: bearer
 }
@@ -44,6 +44,6 @@ tests {
 
   test("player has no current match anymore", function () {
     expect(res.getStatus()).to.equal(200);
-    expect(res.getBody().match).to.equal(null);
+    expect(res.getBody().game).to.equal(null);
   });
 }

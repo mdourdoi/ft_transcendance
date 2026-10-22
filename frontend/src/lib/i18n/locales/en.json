@@ -469,6 +469,7 @@
     "EMPTY_MESSAGE": "The message cannot be empty",
     "INVALID_MESSAGE": "Invalid message (1024 characters max)",
     "INVALID_CONVERSATION_ID": "Invalid conversation",
+    "INVALID_ID": "Invalid identifier",
     "NOT_CONNECTED": "You are not connected to the server",
     "SEND_TIMEOUT": "Message not sent, please try again",
     "NOT_YOUR_TURN": "It is not your turn.",

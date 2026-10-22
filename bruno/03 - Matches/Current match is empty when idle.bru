@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/matches/current
+  url: {{baseUrl}}/games/current
   body: none
   auth: bearer
 }
@@ -17,6 +17,6 @@ auth:bearer {
 tests {
   test("returns 200 without match", function () {
     expect(res.getStatus()).to.equal(200);
-    expect(res.getBody().match).to.equal(null);
+    expect(res.getBody().game).to.equal(null);
   });
 }
