@@ -108,7 +108,7 @@ docker compose restart backend
 | Service | Role |
 | --- | --- |
 | `waf` | Nginx + ModSecurity (OWASP CRS), TLS termination, single entry point on port 8443 |
-| `frontend` | Svelte application served by Vite |
+| `frontend` | Svelte application built with Vite and served as static files by Nginx |
 | `backend` | NestJS REST API and Socket.IO gateways |
 | `db` | PostgreSQL 16 |
 | `redis` | Game sessions, matchmaking queues, locks and the Socket.IO adapter |
