@@ -445,3 +445,4 @@ AI was used as a **learning aid**, not to generate the project:
 
 - **Getting started with an unknown stack or concept**: members who did not know a technology used AI to be guided through it, then wrote the code on their own. For example, mdourdoi, who did not know NestJS, used it to understand how to structure the `users/me` routes, which cover many cases (profile, avatar, password, 2FA), and the team used it to get examples of WebSocket patterns before implementing its own gateways.
 - **Code review**: AI was used as an additional reviewer on pull requests, **in addition to** the human reviews, never instead of them
+- **Assets creation**: We created the assets with ChatGPT
