@@ -2,11 +2,11 @@ import { GameMap, Position, drawGameCards } from './index';
 import type { Card } from './card';
 
 export type Player = 0 | 1;
-export interface Result { winner: Player | null; reason: 'capture' | 'temple' | 'abandon' | 'temps' | 'deconnexion' | 'annulation'; }
+export interface Result { winner: Player | null; reason: 'capture' | 'temple' | 'resignation' | 'timeout' | 'disconnection' | 'cancelled'; }
 export interface GameState { map: GameMap; hands: [Card[], Card[]]; side: Card; turn: Player; history: string[]; result: Result | null; }
 export function createGame(cards: Card[] = drawGameCards()): GameState {
  
-if (cards.length !== 5 || new Set(cards.map(c=>c.name)).size !== 5) throw new Error('Il faut cinq cartes différentes.');
+if (cards.length !== 5 || new Set(cards.map(c=>c.name)).size !== 5) throw new Error('INVALID_CARDS');
  	return { map: GameMap.initial(), hands: [cards.slice(0,2), cards.slice(2,4)], side: cards[4], turn: cards[4].color === 'BLUE' ? 0 : 1, history: [], result:null };
 }
 
@@ -37,11 +37,11 @@ export function playMove(s:GameState, from:Position, to:Position, i:number):Game
 	const grid=Array.from({length:5},(_,r)=>Array.from({length:5},(_,c)=>s.map.entityAt(Position.create({row:r,col:c}))));
 	grid[from.row][from.col]=null; grid[to.row][to.col]=piece;
  	const result:Result|null=captured?.isMaster ? {winner:s.turn,reason:'capture'} : piece.isMaster && to.equals(GameMap.templeArch(s.turn)) ? {winner:s.turn,reason:'temple'} : null;
-	return {...s,...exchange(s,i),map:GameMap.create(grid),turn:(1-s.turn) as Player,result,history:[...s.history,`${s.turn===0?'Sud':'Nord'} · ${s.hands[s.turn][i].name} · ${'ABCDE'[from.col]}${5-from.row} → ${'ABCDE'[to.col]}${5-to.row}${captured?' · capture':''}`]};
+	return {...s,...exchange(s,i),map:GameMap.create(grid),turn:(1-s.turn) as Player,result,history:[...s.history,`${s.turn===0?'South':'North'} · ${s.hands[s.turn][i].name} · ${'ABCDE'[from.col]}${5-from.row} → ${'ABCDE'[to.col]}${5-to.row}${captured?' · capture':''}`]};
 }
 
 export function passTurn(s:GameState,i:number):GameState {
 	if(s.result || canMove(s))
 		throw new Error('MOVE_AVAILABLE');
-	return {...s,...exchange(s,i),turn:(1-s.turn) as Player,history:[...s.history,`${s.turn===0?'Sud':'Nord'} · passe et échange ${s.hands[s.turn][i]?.name}`]};
+	return {...s,...exchange(s,i),turn:(1-s.turn) as Player,history:[...s.history,`${s.turn===0?'South':'North'} · passes and exchanges ${s.hands[s.turn][i]?.name}`]};
 }

@@ -39,7 +39,7 @@
 				<Table.Row class="hover:bg-accent/60">
 					<Table.Cell class="pl-4">
 						<div class="flex items-center gap-2">
-							<img class="size-6" src={`../assets/home/icone/${game.result === 'Victory' ? 'victoire' : 'defaite'}.png`} alt="" />
+							<img class="size-6" src={`../assets/home/icons/${game.result === 'Victory' ? 'victory' : 'defeat'}.png`} alt="" />
 							<Badge variant={game.result === 'Victory' ? 'default' : 'secondary'}>
 								{$t(game.result === 'Victory' ? 'COMMON.VICTORY' : 'COMMON.DEFEAT')}
 							</Badge>

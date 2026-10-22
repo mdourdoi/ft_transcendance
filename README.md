@@ -284,7 +284,7 @@ Deleting a user cascades to their friendships, conversations, messages, matches 
 - **How**:
   - **Color palette**: ink and paper tones (`#a22520` red, `#1c1611` ink, `#efe0c4` paper...) defined as design tokens in `app.css`, with a dark theme and matching chart colors.
   - **Typography**: the *Kaushan Script* brush font, exposed as the `font-display` and `font-brush` tokens.
-  - **Icons**: custom icon sets (52 interface icons in `assets/Icone`, plus brush strokes, frames, card and board graphics in `assets/game`).
+  - **Icons**: custom icon sets (52 interface icons in `assets/icons`, plus brush strokes, frames, card and board graphics in `assets/game`).
   - **Reusable components**: 43 Onitama components organized by domain (`onitama/`, `auth/`, `game/`, `profile/`, `friends/`, `history/`, `players/`), each exported through an `index.ts`. Among them: `PageShell`, `PageHeader`, `StandalonePage`, `SideNav`, `InkQuote`, `Stamp`, `PlayButton`, `AuthForm`, `AuthField`, `AuthButton`, `MoveCard`, `Cell`, `HistoryTable`, `IdentityCard` and `StatsPanel`, reused across the application.
 - **Who**: ticasali (art direction, mockup, assets), sgil--de (component library), ehosta (component organization).
 

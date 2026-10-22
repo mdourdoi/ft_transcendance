@@ -58,6 +58,22 @@ export class TwofaVerifierService {
     await this.assertValidTotp(user.id, user.twoFactorSecret, code);
   }
 
+  async assertValidLoginCode(user: User, code?: string, sendEmailCode = false) {
+    if (user.twoFactorMethod === 'TOTP' && user.emailVerifiedAt) {
+      if (!code && sendEmailCode) {
+        await this.sendEmailCode(user);
+        throw new UnauthorizedException(ErrorCode.TWOFA_CODE_REQUIRED);
+      }
+      if (
+        code &&
+        (await this.emailTokens.consumeCode(user.id, 'TWOFA_LOGIN', code))
+      ) {
+        return;
+      }
+    }
+    await this.assertValidCode(user, code);
+  }
+
   async assertValidTotp(userId: number, encryptedSecret: string, code: string) {
     const failKey = `twofa:fail:${userId}`;
     if (Number(await this.redis.get(failKey)) >= MAX_TOTP_FAILURES) {

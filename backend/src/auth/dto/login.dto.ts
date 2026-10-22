@@ -1,4 +1,10 @@
-import { IsEmail, IsOptional, IsString, Length } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsOptional,
+  IsString,
+  Length,
+} from 'class-validator';
 import { ErrorCode } from '../../common/error-codes.js';
 
 export class LoginDto {
@@ -10,4 +16,7 @@ export class LoginDto {
   @Length(6, 6, { message: ErrorCode.INVALID_TWOFA_CODE })
   @IsOptional()
   code?: string;
+  @IsBoolean()
+  @IsOptional()
+  sendEmailCode?: boolean;
 }

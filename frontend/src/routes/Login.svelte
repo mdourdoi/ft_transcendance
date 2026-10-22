@@ -1,9 +1,9 @@
 <script lang="ts">
 	import logo from '../../assets/logo-onitama2.webp';
-	import strace from '../../assets/Icone/strace.webp';
-	import logomail from '../../assets/Icone/email.png';
-	import logopassword from '../../assets/Icone/Maj.png';
-	import user from '../../assets/Icone/user.png';
+	import strace from '../../assets/icons/strace.webp';
+	import logomail from '../../assets/icons/email.png';
+	import logopassword from '../../assets/icons/password.png';
+	import user from '../../assets/icons/user.png';
 	import { AuthButton, AuthDivider, AuthField, AuthForm, PasswordToggle } from '$lib/components/auth';
 	import '$lib/components/auth/auth.css';
 	import { navigate } from '$lib/router';
@@ -79,7 +79,7 @@
 			error = 'EMPTY_FIELDS';
 			return;
 		}
-		const data = await post('/api/auth/login', { email, password });
+		const data = await post('/api/auth/login', { email, password, sendEmailCode: true });
 		if (data)
 			enter(data.accessToken);
 		else if (error === 'TWOFA_CODE_REQUIRED' || error === 'MAIL_RATE_LIMITED')
@@ -107,7 +107,7 @@
 			const res = await fetch('/api/auth/login', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ email: email.trim(), password })
+				body: JSON.stringify({ email: email.trim(), password, sendEmailCode: true })
 			});
 			const data = await res.json();
 			const errorCode = Array.isArray(data.message) ? data.message[0] : data.message ?? 'UNKNOWN_ERROR';

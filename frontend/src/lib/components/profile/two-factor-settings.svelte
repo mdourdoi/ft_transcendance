@@ -3,7 +3,7 @@
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
   import { t } from "$lib/i18n";
-  import { profilManager } from "$lib/stores/profil.svelte";
+  import { profileManager } from "$lib/stores/profile.svelte";
 
   function translateError(code: string): string {
     return $t(`ERRORS.${code}`, { default: code });
@@ -11,7 +11,7 @@
 </script>
 
 <div class="flex flex-col gap-4">
-  {#if profilManager.qr_image !== "" && !profilManager.is_2fa_enabled}
+  {#if profileManager.qr_image !== "" && !profileManager.is_2fa_enabled}
     <section
       class="flex flex-col gap-3 rounded-lg border border-border bg-muted/30 p-4"
       aria-labelledby="security-heading"
@@ -26,14 +26,14 @@
         class="flex justify-center p-2 bg-white rounded-md w-fit self-center"
       >
         <img
-          src={profilManager.qr_image}
+          src={profileManager.qr_image}
           alt={$t("PROFILE.SETTINGS.TWOFA.QR_ALT")}
           class="size-48"
         />
       </div>
       <form
         class="flex flex-col gap-2"
-        onsubmit={(e) => profilManager.validat_two_fa(e)}
+        onsubmit={(e) => profileManager.validat_two_fa(e)}
       >
         <Label for="two-fa-code"
           >{$t("PROFILE.SETTINGS.TWOFA.CODE")}</Label
@@ -42,7 +42,7 @@
           id="two-fa-code"
           type="text"
           class="bg-card"
-          bind:value={profilManager.qr_code}
+          bind:value={profileManager.qr_code}
         />
         <Button
           type="submit"
@@ -50,14 +50,14 @@
           class="self-start mt-2"
           >{$t("PROFILE.SETTINGS.TWOFA.VALIDATE")}</Button
         >
-        {#if profilManager.two_fa}
+        {#if profileManager.two_fa}
           <p class="text-sm text-destructive">
-            {translateError(profilManager.two_fa)}
+            {translateError(profileManager.two_fa)}
           </p>
         {/if}
       </form>
     </section>
-  {:else if !profilManager.is_2fa_enabled}
+  {:else if !profileManager.is_2fa_enabled}
     <section
       class="flex flex-col gap-2 rounded-lg border border-border bg-muted/30 p-4"
       aria-labelledby="security-heading"
@@ -71,12 +71,12 @@
       <Button
         type="button"
         class="text-sm self-start"
-        onclick={() => profilManager.active_two_fa()}
+        onclick={() => profileManager.active_two_fa()}
         >{$t("PROFILE.SETTINGS.TWOFA.ENABLE")}</Button
       >
-      {#if profilManager.two_fa}
+      {#if profileManager.two_fa}
         <p class="text-sm text-destructive">
-          {translateError(profilManager.two_fa)}
+          {translateError(profileManager.two_fa)}
         </p>
       {/if}
     </section>
@@ -93,7 +93,7 @@
       </p>
       <form
         class="flex flex-col gap-2"
-        onsubmit={(e) => profilManager.delite_two_fa(e)}
+        onsubmit={(e) => profileManager.delite_two_fa(e)}
       >
         <Label for="two-fa-code-disable"
           >{$t("PROFILE.SETTINGS.TWOFA.DISABLE_LABEL")}</Label
@@ -102,7 +102,7 @@
           id="two-fa-code-disable"
           type="text"
           class="bg-card"
-          bind:value={profilManager.qr_code}
+          bind:value={profileManager.qr_code}
         />
         <Button
           type="submit"
@@ -112,9 +112,9 @@
           {$t("PROFILE.SETTINGS.TWOFA.DISABLE")}
         </Button>
       </form>
-      {#if profilManager.two_fa}
+      {#if profileManager.two_fa}
         <p class="text-sm text-destructive">
-          {translateError(profilManager.two_fa)}
+          {translateError(profileManager.two_fa)}
         </p>
       {/if}
     </section>

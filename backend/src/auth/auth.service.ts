@@ -55,7 +55,11 @@ export class AuthService {
     }
 
     if (row.twoFactorEnabled) {
-      await this.twofaVerifier.assertValidCode(row, dto.code);
+      await this.twofaVerifier.assertValidLoginCode(
+        row,
+        dto.code,
+        dto.sendEmailCode,
+      );
     }
 
     const payload: JwtPayload = { sub: row.id };

@@ -329,10 +329,10 @@
     "REASONS": {
       "CAPTURE": "Le maître adverse a été capturé.",
       "TEMPLE": "Le temple adverse a été atteint.",
-      "ABANDON": "Victoire par abandon.",
-      "TEMPS": "Le temps adverse est écoulé.",
-      "DECONNEXION": "Victoire par déconnexion de l’adversaire.",
-      "ANNULATION": "La partie a été annulée."
+      "RESIGNATION": "Victoire par abandon.",
+      "TIMEOUT": "Le temps adverse est écoulé.",
+      "DISCONNECTION": "Victoire par déconnexion de l’adversaire.",
+      "CANCELLED": "La partie a été annulée."
     },
     "RULES_LIST": {
       "1": "Deux joueurs partagent cet écran. Sud joue les pièces noires, Nord les rouges.",
@@ -483,6 +483,7 @@
     "FORBIDDEN_MOVE": "Déplacement interdit.",
     "SELECT_CARD": "Sélectionne une carte.",
     "MOVE_AVAILABLE": "Il reste un déplacement possible.",
+    "INVALID_CARDS": "Il faut cinq cartes différentes.",
     "NOT_FRIENDS": "Tu n’es pas ami avec cet utilisateur",
     "GAME_INVITE_ALREADY_SENT": "Une invitation a déjà été envoyée à cet ami",
     "GAME_INVITE_NOT_FOUND": "Invitation introuvable ou expirée",

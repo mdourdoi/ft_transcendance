@@ -1,5 +1,5 @@
+import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { JwtGuard } from '../auth/jwt.guard.js';
 import { OptionalTwofaCodeDto } from './dto/optional-twofa-code.dto.js';
@@ -30,5 +30,18 @@ export class TwofaController {
     @Body() dto: OptionalTwofaCodeDto,
   ) {
     return this.twofaService.delete(userId, dto.code);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('email/setup')
+  @HttpCode(204)
+  emailSetup(@CurrentUser('sub') userId: number) {
+    return this.twofaService.emailSetup(userId);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('email/verify')
+  emailVerify(@CurrentUser('sub') userId: number, @Body() dto: TwofaCodeDto) {
+    return this.twofaService.emailVerify(userId, dto.code);
   }
 }

@@ -11,10 +11,10 @@
   } from "$lib/components/profile";
   import { t } from "$lib/i18n";
   import { onMount } from "svelte";
-  import { profilManager } from "$lib/stores/profil.svelte";
+  import { profileManager } from "$lib/stores/profile.svelte";
 
   onMount(() => {
-    profilManager.get_user();
+    profileManager.get_user();
   });
 </script>
 
@@ -24,15 +24,15 @@
   {/snippet}
 
   <IdentityCard
-    name={profilManager.username}
-    avatarUrl={profilManager.avatarUrl}
-    rating={profilManager.rating}
+    name={profileManager.username}
+    avatarUrl={profileManager.avatarUrl}
+    rating={profileManager.rating}
     editable
   />
 
   <CollapsibleCard title={$t("STATS.TITLE")} description={$t("STATS.SUBTITLE")}>
     <Card.Content class="flex flex-col gap-4">
-      <StatsPanel currentRating={profilManager.rating} />
+      <StatsPanel currentRating={profileManager.rating} />
     </Card.Content>
   </CollapsibleCard>
 

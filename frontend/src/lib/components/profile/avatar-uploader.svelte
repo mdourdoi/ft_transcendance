@@ -5,7 +5,7 @@
   import * as Dialog from "$lib/components/ui/dialog";
   import { cn } from "$lib/utils";
   import { t } from "$lib/i18n";
-  import { profilManager } from "$lib/stores/profil.svelte";
+  import { profileManager } from "$lib/stores/profile.svelte";
 
   const AVATAR_TYPES = ["image/png", "image/jpeg", "image/webp"];
   const AVATAR_MAX_SIZE = 2 * 1024 * 1024;
@@ -28,7 +28,7 @@
 
   function open_uploader() {
     file = null;
-    profilManager.error_avatar = "";
+    profileManager.error_avatar = "";
     uploaderOpen = true;
   }
 
@@ -36,14 +36,14 @@
     if (!picked) return;
     file = null;
     if (!AVATAR_TYPES.includes(picked.type)) {
-      profilManager.error_avatar = "INVALID_FILE_TYPE";
+      profileManager.error_avatar = "INVALID_FILE_TYPE";
       return;
     }
     if (picked.size > AVATAR_MAX_SIZE) {
-      profilManager.error_avatar = "FILE_TOO_LARGE";
+      profileManager.error_avatar = "FILE_TOO_LARGE";
       return;
     }
-    profilManager.error_avatar = "";
+    profileManager.error_avatar = "";
     file = picked;
   }
 
@@ -56,9 +56,9 @@
   async function change_avatar() {
     if (!file || uploading) return;
     uploading = true;
-    await profilManager.change_avatar(file);
+    await profileManager.change_avatar(file);
     uploading = false;
-    if (!profilManager.error_avatar) uploaderOpen = false;
+    if (!profileManager.error_avatar) uploaderOpen = false;
   }
 
   function translateError(code: string): string {
@@ -121,9 +121,9 @@
         >{$t("PROFILE.AVATAR_DROP")}</span
       >
     </label>
-    {#if profilManager.error_avatar}
+    {#if profileManager.error_avatar}
       <p role="alert" class="text-sm text-destructive">
-        {translateError(profilManager.error_avatar)}
+        {translateError(profileManager.error_avatar)}
       </p>
     {/if}
     <Dialog.Footer>
