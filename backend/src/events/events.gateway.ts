@@ -14,6 +14,7 @@ import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { Socket, Server } from 'socket.io';
 import { resolveCorsOrigin } from '../common/cors.js';
+import { ErrorCode } from '../common/error-codes.js';
 import { JwtPayload } from '../auth/types/jwt-payload.interface.js';
 import {
   authenticateSocket,
@@ -152,6 +153,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() raw: unknown,
   ) {
+    if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
+      return { ok: false, error: ErrorCode.INVALID_MESSAGE };
+    }
     const dto = plainToInstance(SendMessageDto, raw);
     const errors = await validate(dto);
     if (errors.length) {
@@ -177,7 +181,10 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (e instanceof HttpException) {
         return { ok: false, error: e.message };
       }
-      throw e;
+      this.logger.error(
+        `could not send a message in conversation ${dto.conversationId}: ${(e as Error).message}`,
+      );
+      return { ok: false, error: ErrorCode.UNKNOWN_ERROR };
     }
     return { ok: true, message };
   }

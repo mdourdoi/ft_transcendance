@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { JwtGuard } from '../auth/jwt.guard.js';
+import { ParseIdPipe } from '../common/parse-id.pipe.js';
 import { ConversationDto } from './dto/conversation.dto.js';
 import { MessagesService } from './messages.service.js';
 
@@ -33,7 +34,7 @@ export class MessagesController {
   @HttpCode(HttpStatus.OK)
   public getMessages(
     @CurrentUser('sub') userId: number,
-    @Param('conversationId', ParseIntPipe) conversationId: number,
+    @Param('conversationId', ParseIdPipe) conversationId: number,
     @Query('take', new DefaultValuePipe(20), ParseIntPipe) take: number,
     @Query('cursor') cursor?: string,
   ): Promise<ConversationDto> {

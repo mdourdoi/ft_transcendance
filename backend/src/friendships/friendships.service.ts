@@ -1,9 +1,13 @@
 import {
+  ConflictException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Redis } from 'ioredis';
 import { ErrorCode } from '../common/error-codes.js';
+import { acquireLock, releaseLock } from '../common/redis-lock.js';
 import {
   Friendship,
   FriendshipStatus,
@@ -11,6 +15,7 @@ import {
 } from '../generated/prisma/client.js';
 import { MessagesService } from '../messages/messages.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { REDIS_CLIENT } from '../redis/redis.constants.js';
 import { AcceptRequestDto } from './dto/accept-request.dto.js';
 import { BlockUserDto } from './dto/block-user.dto.js';
 import { CancelPendingRequestDto } from './dto/cancel-pending-request.dto.js';
@@ -21,12 +26,17 @@ import { RemoveFriendDto } from './dto/remove-friend.dto.js';
 import { UnblockUserDto } from './dto/unblock-user.dto.js';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
+const LOCK_TTL_MS = 5000;
+const LOCK_RETRY_MS = 25;
+const LOCK_MAX_ATTEMPTS = 120;
+
 @Injectable()
 export class FriendshipsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly messagesService: MessagesService,
     private eventEmitter: EventEmitter2,
+    @Inject(REDIS_CLIENT) private readonly redis: Redis,
   ) {}
 
   public async getFriendships(
@@ -89,8 +99,16 @@ export class FriendshipsService {
     if (!user) throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
 
     const targetId = user.id;
+    if (userId === targetId)
+      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
+
+    return this.withPairLock_(userId, targetId, () =>
+      this.sendRequest_(userId, targetId),
+    );
+  }
+
+  private async sendRequest_(userId: number, targetId: number) {
     if (
-      userId === targetId ||
       !(await this.mustBe_(userId, targetId, [
         'not_blocked_by',
         'not_friend_with',
@@ -118,98 +136,120 @@ export class FriendshipsService {
   }
 
   public async cancelRequest(userId: number, dto: CancelPendingRequestDto) {
-    if (!(await this.mustBe_(userId, dto.targetId, ['requested'])))
-      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
+    return this.withPairLock_(userId, dto.targetId, async () => {
+      if (!(await this.mustBe_(userId, dto.targetId, ['requested'])))
+        throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
-    await this.deleteFriendship_(userId, dto.targetId);
-    await this.emitFriendshipEvent_(
-      'friendship.cancelled',
-      dto.targetId,
-      userId,
-    );
+      await this.deleteFriendship_(userId, dto.targetId);
+      await this.emitFriendshipEvent_(
+        'friendship.cancelled',
+        dto.targetId,
+        userId,
+      );
+    });
   }
 
   public async acceptRequest(userId: number, dto: AcceptRequestDto) {
-    if (!(await this.mustBe_(dto.targetId, userId, ['requested'])))
-      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
+    return this.withPairLock_(userId, dto.targetId, async () => {
+      if (!(await this.mustBe_(dto.targetId, userId, ['requested'])))
+        throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
-    await this.startFriendship_(userId, dto.targetId);
+      await this.startFriendship_(userId, dto.targetId);
+    });
   }
 
   public async denyRequest(userId: number, dto: DenyRequestDto) {
-    if (!(await this.mustBe_(dto.targetId, userId, ['requested'])))
-      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
+    return this.withPairLock_(userId, dto.targetId, async () => {
+      if (!(await this.mustBe_(dto.targetId, userId, ['requested'])))
+        throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
-    await this.deleteFriendship_(userId, dto.targetId);
-    await this.emitFriendshipEvent_('friendship.denied', dto.targetId, userId);
+      await this.deleteFriendship_(userId, dto.targetId);
+      await this.emitFriendshipEvent_(
+        'friendship.denied',
+        dto.targetId,
+        userId,
+      );
+    });
   }
 
   public async removeFriend(userId: number, dto: RemoveFriendDto) {
-    if (!(await this.mustBe_(userId, dto.targetId, ['friend_with'])))
-      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
+    return this.withPairLock_(userId, dto.targetId, async () => {
+      if (!(await this.mustBe_(userId, dto.targetId, ['friend_with'])))
+        throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
-    await this.deleteFriendship_(userId, dto.targetId);
-    await this.emitFriendshipEvent_('friendship.removed', dto.targetId, userId);
+      await this.deleteFriendship_(userId, dto.targetId);
+      await this.emitFriendshipEvent_(
+        'friendship.removed',
+        dto.targetId,
+        userId,
+      );
+    });
   }
 
   public async blockUser(userId: number, dto: BlockUserDto) {
-    if (
-      userId === dto.targetId ||
-      !(await this.mustBe_(userId, dto.targetId, ['not_blocked_by']))
-    )
-      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
+    return this.withPairLock_(userId, dto.targetId, async () => {
+      if (
+        userId === dto.targetId ||
+        !(await this.mustBe_(userId, dto.targetId, ['not_blocked_by']))
+      )
+        throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
-    const user = await this.prisma.user.findUnique({
-      where: {
-        id: dto.targetId,
-      },
-    });
-    if (!user) throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
-
-    const currentFs = await this.getFriendship_(userId, dto.targetId);
-    if (!currentFs) {
-      await this.prisma.friendship.create({
-        data: {
-          senderId: userId,
-          receiverId: dto.targetId,
-          status: FriendshipStatus.BLOCKED,
-        },
-      });
-      await this.emitFriendshipEvent_(
-        'friendship.blocked',
-        dto.targetId,
-        userId,
-      );
-    } else {
-      await this.messagesService.deleteConversationForFriendship(currentFs?.id);
-      await this.prisma.friendship.updateMany({
+      const user = await this.prisma.user.findUnique({
         where: {
-          OR: [
-            { senderId: userId, receiverId: dto.targetId },
-            { senderId: dto.targetId, receiverId: userId },
-          ],
-        },
-        data: {
-          senderId: userId,
-          receiverId: dto.targetId,
-          status: FriendshipStatus.BLOCKED,
+          id: dto.targetId,
         },
       });
-      await this.emitFriendshipEvent_(
-        currentFs.status === FriendshipStatus.ACCEPTED
-          ? 'friendship.removed'
-          : 'friendship.blocked',
-        dto.targetId,
-        userId,
-      );
-    }
+      if (!user) throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
+
+      const currentFs = await this.getFriendship_(userId, dto.targetId);
+      if (!currentFs) {
+        await this.prisma.friendship.create({
+          data: {
+            senderId: userId,
+            receiverId: dto.targetId,
+            status: FriendshipStatus.BLOCKED,
+          },
+        });
+        await this.emitFriendshipEvent_(
+          'friendship.blocked',
+          dto.targetId,
+          userId,
+        );
+      } else {
+        await this.messagesService.deleteConversationForFriendship(
+          currentFs?.id,
+        );
+        await this.prisma.friendship.updateMany({
+          where: {
+            OR: [
+              { senderId: userId, receiverId: dto.targetId },
+              { senderId: dto.targetId, receiverId: userId },
+            ],
+          },
+          data: {
+            senderId: userId,
+            receiverId: dto.targetId,
+            status: FriendshipStatus.BLOCKED,
+          },
+        });
+        await this.emitFriendshipEvent_(
+          currentFs.status === FriendshipStatus.ACCEPTED
+            ? 'friendship.removed'
+            : 'friendship.blocked',
+          dto.targetId,
+          userId,
+        );
+      }
+    });
   }
 
   public async unblockUser(userId: number, dto: UnblockUserDto) {
-    if (!(await this.mustBe_(dto.targetId, userId, ['blocked_by'])))
-      throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
+    return this.withPairLock_(userId, dto.targetId, async () => {
+      if (!(await this.mustBe_(dto.targetId, userId, ['blocked_by'])))
+        throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
-    await this.deleteFriendship_(userId, dto.targetId);
+      await this.deleteFriendship_(userId, dto.targetId);
+    });
   }
 
   public areFriends(userId: number, targetId: number): Promise<boolean> {
@@ -217,12 +257,46 @@ export class FriendshipsService {
   }
 
   private async startFriendship_(A: number, B: number) {
-    await this.updateFriendship_(A, B, FriendshipStatus.ACCEPTED);
-    const friendship = await this.getFriendship_(A, B);
-    if (!friendship) throw new NotFoundException(ErrorCode.IMPOSSIBLE_REQUEST);
+    await this.prisma.$transaction(async (tx) => {
+      const { count } = await tx.friendship.updateMany({
+        where: { senderId: B, receiverId: A, status: FriendshipStatus.PENDING },
+        data: { status: FriendshipStatus.ACCEPTED },
+      });
+      const friendship =
+        count === 1
+          ? await tx.friendship.findFirst({
+              where: { senderId: B, receiverId: A },
+            })
+          : null;
+      if (!friendship)
+        throw new ForbiddenException(ErrorCode.IMPOSSIBLE_REQUEST);
 
-    await this.messagesService.createConversationForFriendship(friendship.id);
+      await this.messagesService.createConversationForFriendship(
+        friendship.id,
+        tx,
+      );
+    });
     await this.emitFriendshipEvent_('friendship.accepted', B, A);
+  }
+
+  private async withPairLock_<T>(
+    A: number,
+    B: number,
+    fn: () => Promise<T>,
+  ): Promise<T> {
+    const key = `friendship:lock:${Math.min(A, B)}:${Math.max(A, B)}`;
+    for (let attempt = 0; attempt < LOCK_MAX_ATTEMPTS; attempt++) {
+      const token = await acquireLock(this.redis, key, LOCK_TTL_MS);
+      if (token) {
+        try {
+          return await fn();
+        } finally {
+          await releaseLock(this.redis, key, token);
+        }
+      }
+      await new Promise((resolve) => setTimeout(resolve, LOCK_RETRY_MS));
+    }
+    throw new ConflictException(ErrorCode.IMPOSSIBLE_REQUEST);
   }
 
   private async emitFriendshipEvent_(
@@ -253,24 +327,6 @@ export class FriendshipsService {
           { senderId: A, receiverId: B },
           { senderId: B, receiverId: A },
         ],
-      },
-    });
-  }
-
-  private async updateFriendship_(
-    A: number,
-    B: number,
-    status: FriendshipStatus,
-  ) {
-    return await this.prisma.friendship.updateMany({
-      where: {
-        OR: [
-          { senderId: A, receiverId: B },
-          { senderId: B, receiverId: A },
-        ],
-      },
-      data: {
-        status,
       },
     });
   }

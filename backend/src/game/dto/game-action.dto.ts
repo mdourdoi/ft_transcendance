@@ -5,12 +5,15 @@ import {
   IsObject,
   IsPositive,
   IsString,
+  Max,
   ValidateNested,
 } from 'class-validator';
+import { MAX_INT_ID } from '../../common/parse-id.pipe.js';
 
 export class GameActionDto {
   @IsInt()
   @IsPositive()
+  @Max(MAX_INT_ID)
   matchId: number;
 }
 

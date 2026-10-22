@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ErrorCode } from '../common/error-codes.js';
+import { Prisma } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ConversationDto } from './dto/conversation.dto.js';
 import { MessageDto } from './dto/message.dto.js';
@@ -105,28 +106,24 @@ export class MessagesService {
 
   public async createConversationForFriendship(
     friendshipId: number,
+    db: Prisma.TransactionClient = this.prisma,
   ): Promise<number> {
-    const fs = await this.prisma.friendship.findFirst({
+    const fs = await db.friendship.findFirst({
       where: {
         id: friendshipId,
       },
     });
     if (!fs) throw new NotFoundException(ErrorCode.FORBIDDEN_CONVERSATION);
 
-    const conv = await this.prisma.conversation.create({
+    const conv = await db.conversation.create({
       data: {
         friendshipId,
+        accesses: {
+          create: [{ userId: fs.senderId }, { userId: fs.receiverId }],
+        },
       },
     });
-    await this.addAccess(fs.senderId, conv.id);
-    await this.addAccess(fs.receiverId, conv.id);
     return conv.id;
-  }
-
-  public async addAccess(userId: number, conversationId: number) {
-    await this.prisma.conversationAccess.create({
-      data: { conversationId, userId },
-    });
   }
 
   public async deleteConversationForFriendship(friendshipId: number) {
