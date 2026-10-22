@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { token } from "$lib/auth";
-import { ProfilManager } from "./profil.svelte";
+import { ProfileManager } from "./profile.svelte";
 
 const fetchMock = vi.fn<typeof fetch>();
 
@@ -11,12 +11,12 @@ function respond(status: number, body?: unknown) {
 }
 
 describe("email verification", () => {
-  let profil: ProfilManager;
+  let profil: ProfileManager;
 
   beforeEach(() => {
     vi.stubGlobal("fetch", fetchMock);
     token.set("jwt");
-    profil = new ProfilManager();
+    profil = new ProfileManager();
   });
 
   afterEach(() => {
@@ -86,12 +86,12 @@ describe("email verification", () => {
 });
 
 describe("two-factor state", () => {
-  let profil: ProfilManager;
+  let profil: ProfileManager;
 
   beforeEach(() => {
     vi.stubGlobal("fetch", fetchMock);
     token.set("jwt");
-    profil = new ProfilManager();
+    profil = new ProfileManager();
   });
 
   afterEach(() => {

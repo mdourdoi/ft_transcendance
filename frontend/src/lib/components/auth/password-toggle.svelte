@@ -1,6 +1,6 @@
 <script lang="ts">
-	import hide from '../../../../assets/Icone/hide.png';
-	import show from '../../../../assets/Icone/not_hide.png';
+	import hide from '../../../../assets/icons/hide.png';
+	import show from '../../../../assets/icons/not_hide.png';
 	import { t } from '$lib/i18n';
 
 	let {

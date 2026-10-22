@@ -329,10 +329,10 @@
     "REASONS": {
       "CAPTURE": "The opposing master has been captured.",
       "TEMPLE": "The opposing temple has been reached.",
-      "ABANDON": "Victory by resignation.",
-      "TEMPS": "The opponent’s time has run out.",
-      "DECONNEXION": "Victory by opponent disconnection.",
-      "ANNULATION": "The game has been cancelled."
+      "RESIGNATION": "Victory by resignation.",
+      "TIMEOUT": "The opponent’s time has run out.",
+      "DISCONNECTION": "Victory by opponent disconnection.",
+      "CANCELLED": "The game has been cancelled."
     },
     "RULES_LIST": {
       "1": "Two players share this screen. South plays the black pieces, North the red ones.",
@@ -483,6 +483,7 @@
     "FORBIDDEN_MOVE": "Illegal move.",
     "SELECT_CARD": "Select a card.",
     "MOVE_AVAILABLE": "A move is still possible.",
+    "INVALID_CARDS": "Five different cards are required.",
     "NOT_FRIENDS": "You are not friends with this user",
     "GAME_INVITE_ALREADY_SENT": "An invitation has already been sent to this friend",
     "GAME_INVITE_NOT_FOUND": "Invitation not found or expired",

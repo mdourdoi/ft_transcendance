@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import cadre from '../../../../assets/bouton_outline.webp';
+	import frame from '../../../../assets/button_outline.webp';
 
 	let {
 		type = 'button',
@@ -18,7 +18,7 @@
 	style="background: transparent !important; box-shadow: none !important;"
 	{onclick}
 >
-	<img src={cadre} alt="" class="absolute inset-0 w-full h-full object-contain" />
+	<img src={frame} alt="" class="absolute inset-0 w-full h-full object-contain" />
 	<span class="relative z-10 text-black text-base font-semibold group-hover:text-white transition-colors">
 		{@render children()}
 	</span>

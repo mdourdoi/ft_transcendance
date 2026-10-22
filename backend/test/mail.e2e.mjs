@@ -547,10 +547,83 @@ await test('Le nouveau lien marche', {
   status: 204,
 });
 
-sql(
-  `UPDATE "User" SET "twoFactorEnabled" = true, "twoFactorMethod" = 'EMAIL', "twoFactorSecret" = NULL WHERE id = ${alice.id}`,
-);
-let code;
+// ─── 2 ────────────────────────────────────────────────────────────────────────
+section('2. Activation de la 2FA par mail');
+
+await test('bob (email non vérifié) ne peut pas lancer l’activation', {
+  as: bob,
+  method: 'POST',
+  path: '/twofa/email/setup',
+  status: 403,
+  checks: (b) => [
+    ['EMAIL_NOT_VERIFIED', () => b.message === 'EMAIL_NOT_VERIFIED'],
+  ],
+});
+await test('…ni la valider', {
+  as: bob,
+  method: 'POST',
+  path: '/twofa/email/verify',
+  body: { code: '123456' },
+  status: 403,
+});
+
+n = count(alice, 'login code');
+await test('alice lance l’activation', {
+  as: alice,
+  method: 'POST',
+  path: '/twofa/email/setup',
+  status: 204,
+});
+let code = await lastCode(alice, n);
+await test('Code mal formé (validation du DTO)', {
+  as: alice,
+  method: 'POST',
+  path: '/twofa/email/verify',
+  body: { code: '12' },
+  status: 400,
+});
+await test('Mauvais code', {
+  as: alice,
+  method: 'POST',
+  path: '/twofa/email/verify',
+  body: { code: otherCode(code) },
+  status: 401,
+  checks: (b) => [
+    ['INVALID_TWOFA_CODE', () => b.message === 'INVALID_TWOFA_CODE'],
+  ],
+});
+check('Le mauvais essai est compté', [
+  [
+    'attempts = 1',
+    () =>
+      sql(
+        `SELECT attempts FROM "EmailToken" WHERE "userId" = ${alice.id} AND type = 'TWOFA_LOGIN' AND "usedAt" IS NULL`,
+      ) === '1',
+  ],
+]);
+await test('Bon code → 2FA activée en mode EMAIL', {
+  as: alice,
+  method: 'POST',
+  path: '/twofa/email/verify',
+  body: { code },
+  status: 201,
+  checks: (b) => [
+    ['twoFactorEnabled', () => b.twoFactorEnabled === true],
+    ['twoFactorMethod = EMAIL', () => b.twoFactorMethod === 'EMAIL'],
+  ],
+});
+await test('Relancer l’activation alors qu’elle est active', {
+  as: alice,
+  method: 'POST',
+  path: '/twofa/email/setup',
+  status: 409,
+});
+await test('Lancer un setup TOTP alors que la 2FA mail est active', {
+  as: alice,
+  method: 'POST',
+  path: '/twofa/setup',
+  status: 409,
+});
 
 // ─── 3 ────────────────────────────────────────────────────────────────────────
 section('3. Login avec la 2FA par mail');
@@ -853,6 +926,13 @@ check("Mail « Email changed » envoyé à l'ancienne adresse", [
 check('emailVerifiedAt repasse à null', [
   ['null', () => userRow(alice, 'emailVerifiedAt') === ''],
 ]);
+await test('La 2FA par mail est de nouveau refusée', {
+  as: alice,
+  method: 'POST',
+  path: '/twofa/email/setup',
+  status: 403,
+});
+
 // ─── 8 ────────────────────────────────────────────────────────────────────────
 section('8. Export des données (RGPD)');
 

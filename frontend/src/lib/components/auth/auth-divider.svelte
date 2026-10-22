@@ -1,5 +1,5 @@
 <script lang="ts">
-	import strace from '../../../../assets/Icone/strace.webp';
+	import strace from '../../../../assets/icons/strace.webp';
 	import { t } from '$lib/i18n';
 
 	let { lineClass, textClass }: { lineClass: string; textClass: string } = $props();

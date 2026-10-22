@@ -1,7 +1,7 @@
 import { authFetch, token } from '$lib/auth';
 import { friendManager } from './friend.svelte';
 
-export class ProfilManager {
+export class ProfileManager {
     username = $state<string>('');
     newusername = $state<string>('');
     email = $state('');
@@ -257,8 +257,8 @@ export class ProfilManager {
     }
 }
 
-export const profilManager = new ProfilManager();
+export const profileManager = new ProfileManager();
 
 token.subscribe((value) => {
-    if (!value) profilManager.reset();
+    if (!value) profileManager.reset();
 });

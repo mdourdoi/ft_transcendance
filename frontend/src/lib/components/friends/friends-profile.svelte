@@ -8,7 +8,7 @@
 <section class="relative overflow-hidden">
   <img
     class="pointer-events-none absolute inset-0 size-full"
-    src="../assets/home/background/profil-vide.webp"
+    src="../assets/home/background/empty-profile.webp"
     alt=""
   />
   <div class="relative flex h-full items-center gap-[1vw] px-[1.3vw]">

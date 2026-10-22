@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import frame from '../../../../assets/frame.webp';
-	import strace from '../../../../assets/Icone/strace.webp';
+	import strace from '../../../../assets/icons/strace.webp';
 	import { t } from '$lib/i18n';
 
 	let { title, hint, onsubmit, children }: { title: string; hint?: string; onsubmit: () => void; children: Snippet } = $props();

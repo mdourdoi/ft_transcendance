@@ -329,10 +329,10 @@
     "REASONS": {
       "CAPTURE": "El maestro rival ha sido capturado.",
       "TEMPLE": "Se ha alcanzado el templo rival.",
-      "ABANDON": "Victoria por abandono.",
-      "TEMPS": "El tiempo del rival se ha agotado.",
-      "DECONNEXION": "Victoria por desconexión del rival.",
-      "ANNULATION": "La partida ha sido cancelada."
+      "RESIGNATION": "Victoria por abandono.",
+      "TIMEOUT": "El tiempo del rival se ha agotado.",
+      "DISCONNECTION": "Victoria por desconexión del rival.",
+      "CANCELLED": "La partida ha sido cancelada."
     },
     "RULES_LIST": {
       "1": "Dos jugadores comparten esta pantalla. Sur juega con las piezas negras, Norte con las rojas.",
@@ -477,6 +477,7 @@
     "FORBIDDEN_MOVE": "Movimiento no permitido.",
     "SELECT_CARD": "Selecciona una carta.",
     "MOVE_AVAILABLE": "Todavía queda un movimiento posible.",
+    "INVALID_CARDS": "Se necesitan cinco cartas diferentes.",
     "FILE_TOO_LARGE": "El archivo es demasiado grande (2 MB máx.)",
     "EMAIL_ALREADY_VERIFIED": "Tu correo ya está verificado",
     "EMAIL_NOT_VERIFIED": "Primero debes verificar tu correo",

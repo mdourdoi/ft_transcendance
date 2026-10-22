@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import cadre from '../../../../assets/bouton_outline.webp';
+	import frame from '../../../../assets/button_outline.webp';
 
 	let {
 		value = $bindable(''),
@@ -22,7 +22,7 @@
 </script>
 
 <div class="relative w-[340px] h-[60px] left-[100px] {className}">
-	<img src={cadre} alt="" class="absolute inset-0 w-full h-full" />
+	<img src={frame} alt="" class="absolute inset-0 w-full h-full" />
 	<input
 		{type}
 		bind:value

@@ -10,9 +10,9 @@
   }: { onmessages: () => void; onadd: () => void; onlogout: () => void } = $props();
 
   const actions = $derived([
-    { label: $t("FRIENDS.MESSAGES"), icon: "../assets/home/icone/message.png", onclick: onmessages },
-    { label: $t("FRIENDS.ADD_FRIEND"), icon: "../assets/home/icone/add-friend.png", onclick: onadd },
-    { label: $t("FRIENDS.LOGOUT"), icon: "../assets/Icone/connexion.png", onclick: onlogout, dim: true },
+    { label: $t("FRIENDS.MESSAGES"), icon: "../assets/home/icons/message.png", onclick: onmessages },
+    { label: $t("FRIENDS.ADD_FRIEND"), icon: "../assets/home/icons/add-friend.png", onclick: onadd },
+    { label: $t("FRIENDS.LOGOUT"), icon: "../assets/icons/logout.png", onclick: onlogout, dim: true },
   ]);
 </script>
 

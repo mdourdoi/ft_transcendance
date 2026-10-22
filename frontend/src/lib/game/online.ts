@@ -8,10 +8,10 @@ import { GameMap } from "./map";
 const END_REASONS: Record<GameEndReason, Result["reason"]> = {
     WAY_OF_STONE: "capture",
     WAY_OF_STREAM: "temple",
-    RESIGNATION: "abandon",
-    TIMEOUT: "temps",
-    DISCONNECTION: "deconnexion",
-    CANCELLED: "annulation",
+    RESIGNATION: "resignation",
+    TIMEOUT: "timeout",
+    DISCONNECTION: "disconnection",
+    CANCELLED: "cancelled",
 };
 
 function toCard(view: CardView): Card {
