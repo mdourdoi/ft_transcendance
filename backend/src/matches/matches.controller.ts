@@ -31,11 +31,6 @@ export class MatchesController {
     return this.matchesService.findHistoryForUser(userId, cursor);
   }
 
-  @Get('current')
-  async current(@CurrentUser('sub') userId: number) {
-    return { match: await this.matchesService.findActiveForUser(userId) };
-  }
-
   @Get(':id/analysis')
   analysis(
     @CurrentUser('sub') userId: number,

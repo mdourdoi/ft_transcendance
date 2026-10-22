@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -12,14 +11,12 @@ import { TwofaVerifierService } from '../auth/twofa-verifier.service.js';
 import { encryptSecret } from '../common/crypto.js';
 import { ErrorCode } from '../common/error-codes.js';
 import { Prisma } from '../generated/prisma/client.js';
-import { EmailTokenService } from '../mail/email-token.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class TwofaService {
   constructor(
     private prisma: PrismaService,
-    private emailTokens: EmailTokenService,
     private twofaVerifier: TwofaVerifierService,
   ) {}
 
@@ -120,50 +117,5 @@ export class TwofaService {
         throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
       throw e;
     }
-  }
-
-  async emailSetup(userId: number) {
-    const row = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!row) {
-      throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
-    }
-    if (row.twoFactorEnabled) {
-      throw new ConflictException(ErrorCode.TWOFA_ALREADY_ENABLED);
-    }
-    if (!row.emailVerifiedAt) {
-      throw new ForbiddenException(ErrorCode.EMAIL_NOT_VERIFIED);
-    }
-    await this.twofaVerifier.sendEmailCode(row);
-  }
-
-  async emailVerify(userId: number, code: string) {
-    const row = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!row) {
-      throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
-    }
-    if (row.twoFactorEnabled) {
-      throw new ConflictException(ErrorCode.TWOFA_ALREADY_ENABLED);
-    }
-    if (!row.emailVerifiedAt) {
-      throw new ForbiddenException(ErrorCode.EMAIL_NOT_VERIFIED);
-    }
-    if (!(await this.emailTokens.consumeCode(userId, 'TWOFA_LOGIN', code))) {
-      throw new UnauthorizedException(ErrorCode.INVALID_TWOFA_CODE);
-    }
-    const activatedRow = await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        twoFactorEnabled: true,
-        twoFactorMethod: 'EMAIL',
-        twoFactorSecret: null,
-      },
-    });
-    return {
-      id: userId,
-      username: activatedRow.username,
-      email: activatedRow.email,
-      twoFactorEnabled: activatedRow.twoFactorEnabled,
-      twoFactorMethod: activatedRow.twoFactorMethod,
-    };
   }
 }

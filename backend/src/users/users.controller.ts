@@ -4,7 +4,6 @@ import {
   Controller,
   Get,
   HttpCode,
-  HttpStatus,
   Param,
   ParseIntPipe,
   Patch,
@@ -27,7 +26,6 @@ import { AVATAR_UPLOAD_DIR } from '../constants.js';
 import { ChangeEmailDto } from './dto/change-email.dto.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { EmailTokenDto } from './dto/email-token.dto.js';
-import { FindUserDto } from './dto/find-user.dto.js';
 import { SearchUsersDto } from './dto/search-users.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { UsersService } from './users.service.js';
@@ -132,13 +130,6 @@ export class UsersController {
   @HttpCode(204)
   confirmDeletion(@Body() dto: EmailTokenDto) {
     return this.userService.confirmDeletion(dto.token);
-  }
-
-  @UseGuards(JwtGuard)
-  @Post('find')
-  @HttpCode(HttpStatus.OK)
-  find(@Body() dto: FindUserDto) {
-    return this.userService.find(dto.username);
   }
 
   @UseGuards(JwtGuard)
